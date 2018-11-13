@@ -2,7 +2,7 @@
  *  @file
  *  @copyright defined in eos/LICENSE.txt
  */
-#include "eosio.system.hpp"
+#include "actx.system.hpp"
 
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/crypto.h>
@@ -13,7 +13,7 @@
 #include <eosiolib/privileged.hpp>
 #include <eosiolib/singleton.hpp>
 #include <eosiolib/transaction.hpp>
-#include <eosio.token/eosio.token.hpp>
+#include <actx.token/actx.token.hpp>
 
 #include <algorithm>
 #include <cmath>

@@ -1,6 +1,6 @@
 cmake_minimum_required( VERSION 3.5 )
 
-project( EOSIO )
+project( ACTX )
 
 enable_testing()
 
@@ -28,7 +28,7 @@ include( SetupTargetMacros )
 include( InstallDirectoryPermissions )
 include( MASSigning )
 
-set( BLOCKCHAIN_NAME "EOSIO" )
+set( BLOCKCHAIN_NAME "ACHAINPLUS" )
 set( CMAKE_CXX_STANDARD 14 )
 set( CMAKE_CXX_EXTENSIONS ON )
 set( CXX_STANDARD_REQUIRED ON)
@@ -198,7 +198,7 @@ include(utils)
 add_subdirectory( externals )
 
 if ("${CORE_SYMBOL_NAME}" STREQUAL "")
-  set( CORE_SYMBOL_NAME "SYS" )
+  set( CORE_SYMBOL_NAME "ACTX" )
 endif()
 string(TOUPPER ${CORE_SYMBOL_NAME} CORE_SYMBOL_NAME)
 
@@ -210,10 +210,10 @@ endif()
 message( STATUS "Using '${CORE_SYMBOL_NAME}' as CORE symbol name" )
 
 if ("${EOSIO_ROOT_KEY}" STREQUAL "")
-   set(EOSIO_ROOT_KEY "EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV")
+   set(EOSIO_ROOT_KEY "ACTX7cvL5oqAPJRe6vGz73sthbdnKHryf1RbmaYCax1E3k2KDh7bem")
 endif()
 
-message( STATUS "Using '${EOSIO_ROOT_KEY}' as public key for 'eosio' account" )
+message( STATUS "Using '${EOSIO_ROOT_KEY}' as public key for 'actx' account" )
 
 include(wasm)
 add_subdirectory( libraries )
@@ -233,8 +233,8 @@ install_directory_permissions(DIRECTORY ${CMAKE_INSTALL_FULL_SYSCONFDIR}/eosio)
 install_directory_permissions(DIRECTORY ${CMAKE_INSTALL_FULL_SYSCONFDIR}/eosio/launcher)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/testnet.template ${CMAKE_CURRENT_BINARY_DIR}/etc/eosio/launcher/testnet.template COPYONLY)
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/eosio.version.in ${CMAKE_CURRENT_BINARY_DIR}/eosio.version.hpp)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/eosio.version.hpp DESTINATION ${CMAKE_INSTALL_FULL_INCLUDEDIR})
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/actx.version.in ${CMAKE_CURRENT_BINARY_DIR}/actx.version.hpp)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/actx.version.hpp DESTINATION ${CMAKE_INSTALL_FULL_INCLUDEDIR})
 
 set(EOS_ROOT_DIR ${CMAKE_BINARY_DIR})
 configure_file(${CMAKE_SOURCE_DIR}/CMakeModules/eosio-config.cmake.in ${CMAKE_BINARY_DIR}/lib/cmake/eosio/eosio-config.cmake @ONLY)

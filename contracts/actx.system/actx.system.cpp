@@ -1,4 +1,4 @@
-#include "eosio.system.hpp"
+#include "actx.system.hpp"
 #include <eosiolib/dispatcher.hpp>
 
 #include "producer_pay.cpp"
@@ -22,7 +22,7 @@ namespace eosiosystem {
       auto itr = _rammarket.find(S(4,RAMCORE));
 
       if( itr == _rammarket.end() ) {
-         auto system_token_supply   = eosio::token(N(eosio.token)).get_supply(eosio::symbol_type(system_token_symbol).name()).amount;
+         auto system_token_supply   = eosio::token(N(actx.token)).get_supply(eosio::symbol_type(system_token_symbol).name()).amount;
          if( system_token_supply > 0 ) {
             itr = _rammarket.emplace( _self, [&]( auto& m ) {
                m.supply.amount = 100000000000000ll;
@@ -74,7 +74,7 @@ namespace eosiosystem {
    }
 
    void system_contract::setparams( const eosio::blockchain_parameters& params ) {
-      require_auth( N(eosio) );
+      require_auth( N(actx) );
       (eosio::blockchain_parameters&)(_gstate) = params;
       eosio_assert( 3 <= _gstate.max_authority_depth, "max_authority_depth should be at least 3" );
       set_blockchain_parameters( params );
@@ -104,8 +104,8 @@ namespace eosiosystem {
       eosio_assert( bid.symbol == asset().symbol, "asset must be system token" );
       eosio_assert( bid.amount > 0, "insufficient bid" );
 
-      INLINE_ACTION_SENDER(eosio::token, transfer)( N(eosio.token), {bidder,N(active)},
-                                                    { bidder, N(eosio.names), bid, std::string("bid name ")+(name{newname}).to_string()  } );
+      INLINE_ACTION_SENDER(eosio::token, transfer)( N(actx.token), {bidder,N(active)},
+                                                    { bidder, N(actx.names), bid, std::string("bid name ")+(name{newname}).to_string()  } );
 
       name_bid_table bids(_self,_self);
       print( name{bidder}, " bid ", bid, " on ", name{newname}, "\n" );
@@ -122,8 +122,8 @@ namespace eosiosystem {
          eosio_assert( bid.amount - current->high_bid > (current->high_bid / 10), "must increase bid by 10%" );
          eosio_assert( current->high_bidder != bidder, "account is already highest bidder" );
 
-         INLINE_ACTION_SENDER(eosio::token, transfer)( N(eosio.token), {N(eosio.names),N(active)},
-                                                       { N(eosio.names), current->high_bidder, asset(current->high_bid),
+         INLINE_ACTION_SENDER(eosio::token, transfer)( N(actx.token), {N(actx.names),N(active)},
+                                                       { N(actx.names), current->high_bidder, asset(current->high_bid),
                                                        std::string("refund bid on name ")+(name{newname}).to_string()  } );
 
          bids.modify( current, bidder, [&]( auto& b ) {
