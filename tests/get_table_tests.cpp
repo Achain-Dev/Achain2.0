@@ -15,11 +15,11 @@
 #include <stltest/stltest.wast.hpp>
 #include <stltest/stltest.abi.hpp>
 
-#include <eosio.system/eosio.system.wast.hpp>
-#include <eosio.system/eosio.system.abi.hpp>
+#include <actx.system/actx.system.wast.hpp>
+#include <actx.system/actx.system.abi.hpp>
 
-#include <eosio.token/eosio.token.wast.hpp>
-#include <eosio.token/eosio.token.abi.hpp>
+#include <actx.token/actx.token.wast.hpp>
+#include <actx.token/actx.token.abi.hpp>
 
 #include <fc/io/fstream.hpp>
 
@@ -47,26 +47,26 @@ BOOST_AUTO_TEST_SUITE(get_table_tests)
 BOOST_FIXTURE_TEST_CASE( get_scope_test, TESTER ) try {
    produce_blocks(2);
 
-   create_accounts({ N(eosio.token), N(eosio.ram), N(eosio.ramfee), N(eosio.stake),
-      N(eosio.bpay), N(eosio.vpay), N(eosio.saving), N(eosio.names) });
+   create_accounts({ N(actx.token), N(actx.ram), N(actx.ramfee), N(actx.stake),
+      N(actx.bpay), N(actx.vpay), N(actx.saving), N(actx.names) });
 
    std::vector<account_name> accs{N(inita), N(initb), N(initc), N(initd)};
    create_accounts(accs);
    produce_block();
 
-   set_code( N(eosio.token), eosio_token_wast );
-   set_abi( N(eosio.token), eosio_token_abi );
+   set_code( N(actx.token), actx_token_wast );
+   set_abi( N(actx.token), actx_token_abi );
    produce_blocks(1);
 
    // create currency 
    auto act = mutable_variant_object()
-         ("issuer",       "eosio")
+         ("issuer",       "actx")
          ("maximum_supply", eosio::chain::asset::from_string("1000000000.0000 SYS"));
-   push_action(N(eosio.token), N(create), N(eosio.token), act );
+   push_action(N(actx.token), N(create), N(actx.token), act );
 
    // issue
    for (account_name a: accs) {
-      push_action( N(eosio.token), N(issue), "eosio", mutable_variant_object()
+      push_action( N(actx.token), N(issue), "actx", mutable_variant_object()
                   ("to",      name(a) )
                   ("quantity", eosio::chain::asset::from_string("999.0000 SYS") )
                   ("memo", "")
@@ -76,16 +76,16 @@ BOOST_FIXTURE_TEST_CASE( get_scope_test, TESTER ) try {
 
    // iterate over scope
    eosio::chain_apis::read_only plugin(*(this->control), fc::microseconds(INT_MAX));
-   eosio::chain_apis::read_only::get_table_by_scope_params param{N(eosio.token), N(accounts), "inita", "", 10};
+   eosio::chain_apis::read_only::get_table_by_scope_params param{N(actx.token), N(accounts), "inita", "", 10};
    eosio::chain_apis::read_only::get_table_by_scope_result result = plugin.read_only::get_table_by_scope(param);
 
    BOOST_REQUIRE_EQUAL(4, result.rows.size());
    BOOST_REQUIRE_EQUAL("", result.more);
    if (result.rows.size() >= 4) {
-      BOOST_REQUIRE_EQUAL(name(N(eosio.token)), result.rows[0].code);
+      BOOST_REQUIRE_EQUAL(name(N(actx.token)), result.rows[0].code);
       BOOST_REQUIRE_EQUAL(name(N(inita)), result.rows[0].scope);
       BOOST_REQUIRE_EQUAL(name(N(accounts)), result.rows[0].table);
-      BOOST_REQUIRE_EQUAL(name(N(eosio)), result.rows[0].payer);
+      BOOST_REQUIRE_EQUAL(name(N(actx)), result.rows[0].payer);
       BOOST_REQUIRE_EQUAL(1, result.rows[0].count);
 
       BOOST_REQUIRE_EQUAL(name(N(initb)), result.rows[1].scope);

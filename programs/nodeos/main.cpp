@@ -97,8 +97,8 @@ int main(int argc, char** argv)
       app().register_plugin<history_plugin>();
 
       auto root = fc::app_path();
-      app().set_default_data_dir(root / "eosio/nodeos/data" );
-      app().set_default_config_dir(root / "eosio/nodeos/config" );
+      app().set_default_data_dir(root / "actx/nodeos/data" );
+      app().set_default_config_dir(root / "actx/nodeos/config" );
       http_plugin::set_defaults({
          .address_config_prefix = "",
          .default_unix_socket_path = "",

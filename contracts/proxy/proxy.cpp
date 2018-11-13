@@ -4,7 +4,7 @@
  */
 #include <proxy/proxy.hpp>
 #include <eosiolib/transaction.hpp>
-#include <eosio.token/eosio.token.hpp>
+#include <actx.token/actx.token.hpp>
 
 namespace proxy {
    using namespace eosio;
@@ -91,7 +91,7 @@ extern "C" {
 
     /// The apply method implements the dispatch of events to this contract
     void apply( uint64_t receiver, uint64_t code, uint64_t action ) {
-      if( code == N(eosio) && action == N(onerror) ) {
+      if( code == N(actx) && action == N(onerror) ) {
          apply_onerror( receiver, onerror::from_current_action() );
       } else if( code == N(eosio.token) ) {
          if( action == N(transfer) ) {

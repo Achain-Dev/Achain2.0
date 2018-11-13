@@ -490,7 +490,7 @@ void producer_plugin::set_program_options(
    boost::program_options::options_description& command_line_options,
    boost::program_options::options_description& config_file_options)
 {
-   auto default_priv_key = private_key_type::regenerate<fc::ecc::private_key_shim>(fc::sha256::hash(std::string("nathan")));
+   auto default_priv_key = private_key_type::regenerate<fc::ecc::private_key_shim>(fc::sha256::hash(std::string("actplus")));
    auto private_key_default = std::make_pair(default_priv_key.get_public_key(), default_priv_key );
 
    boost::program_options::options_description producer_options;

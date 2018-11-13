@@ -635,7 +635,7 @@ authority parse_json_authority(const std::string& authorityJsonOrFile) {
 }
 
 authority parse_json_authority_or_key(const std::string& authorityJsonOrFile) {
-   if (boost::istarts_with(authorityJsonOrFile, "EOS") || boost::istarts_with(authorityJsonOrFile, "PUB_R1")) {
+   if (boost::istarts_with(authorityJsonOrFile, "ACTX") || boost::istarts_with(authorityJsonOrFile, "PUB_R1")) {
       try {
          return authority(public_key_type(authorityJsonOrFile));
       } EOS_RETHROW_EXCEPTIONS(public_key_type_exception, "Invalid public key: ${public_key}", ("public_key", authorityJsonOrFile))
@@ -679,7 +679,7 @@ asset to_asset( account_name code, const string& s ) {
 }
 
 inline asset to_asset( const string& s ) {
-   return to_asset( N(eosio.token), s );
+   return to_asset( N(actx.token), s );
 }
 
 struct set_account_permission_subcommand {
@@ -1289,7 +1289,7 @@ struct bidname_info_subcommand {
       list_producers->add_option("newname", newname_str, localized("The bidding name"))->required();
       list_producers->set_callback([this] {
          auto rawResult = call(get_table_func, fc::mutable_variant_object("json", true)
-                               ("code", "eosio")("scope", "eosio")("table", "namebids")
+                               ("code", "actx")("scope", "actx")("table", "namebids")
                                ("lower_bound", eosio::chain::string_to_name(newname_str.c_str()))("limit", 1));
          if ( print_json ) {
             std::cout << fc::json::to_pretty_string(rawResult) << std::endl;
@@ -2472,7 +2472,7 @@ int main( int argc, char** argv ) {
    auto setActionPermission = set_action_permission_subcommand(setAction);
 
    // Transfer subcommand
-   string con = "eosio.token";
+   string con = "actx.token";
    string sender;
    string recipient;
    string amount;
@@ -2895,7 +2895,7 @@ int main( int argc, char** argv ) {
          ("requested", requested_perm_var)
          ("trx", trx_var);
 
-      send_actions({chain::action{accountPermissions, "eosio.msig", "propose", variant_to_bin( N(eosio.msig), N(propose), args ) }});
+      send_actions({chain::action{accountPermissions, "actx.msig", "propose", variant_to_bin( N(actx.msig), N(propose), args ) }});
    });
 
    //multisige propose transaction
@@ -2935,7 +2935,7 @@ int main( int argc, char** argv ) {
          ("requested", requested_perm_var)
          ("trx", trx_var);
 
-      send_actions({chain::action{accountPermissions, "eosio.msig", "propose", variant_to_bin( N(eosio.msig), N(propose), args ) }});
+      send_actions({chain::action{accountPermissions, "actx.msig", "propose", variant_to_bin( N(actx.msig), N(propose), args ) }});
    });
 
 
@@ -2946,7 +2946,7 @@ int main( int argc, char** argv ) {
 
    review->set_callback([&] {
       auto result = call(get_table_func, fc::mutable_variant_object("json", true)
-                         ("code", "eosio.msig")
+                         ("code", "actx.msig")
                          ("scope", proposer)
                          ("table", "proposal")
                          ("table_key", "")
@@ -2991,7 +2991,7 @@ int main( int argc, char** argv ) {
          ("level", perm_var);
 
       auto accountPermissions = tx_permission.empty() ? vector<chain::permission_level>{{sender,config::active_name}} : get_account_permissions(tx_permission);
-      send_actions({chain::action{accountPermissions, "eosio.msig", action, variant_to_bin( N(eosio.msig), action, args ) }});
+      send_actions({chain::action{accountPermissions, "actx.msig", action, variant_to_bin( N(actx.msig), action, args ) }});
    };
 
    // multisig approve
@@ -3034,7 +3034,7 @@ int main( int argc, char** argv ) {
          ("proposal_name", proposal_name)
          ("canceler", canceler);
 
-      send_actions({chain::action{accountPermissions, "eosio.msig", "cancel", variant_to_bin( N(eosio.msig), N(cancel), args ) }});
+      send_actions({chain::action{accountPermissions, "actx.msig", "cancel", variant_to_bin( N(actx.msig), N(cancel), args ) }});
       }
    );
 
@@ -3063,7 +3063,7 @@ int main( int argc, char** argv ) {
          ("proposal_name", proposal_name)
          ("executer", executer);
 
-      send_actions({chain::action{accountPermissions, "eosio.msig", "exec", variant_to_bin( N(eosio.msig), N(exec), args ) }});
+      send_actions({chain::action{accountPermissions, "actx.msig", "exec", variant_to_bin( N(actx.msig), N(exec), args ) }});
       }
    );
 
@@ -3072,7 +3072,7 @@ int main( int argc, char** argv ) {
    wrap->require_subcommand();
 
    // wrap exec
-   string wrap_con = "eosio.wrap";
+   string wrap_con = "actx.wrap";
    executer = "";
    string trx_to_exec;
    auto wrap_exec = wrap->add_subcommand("exec", localized("Execute a transaction while bypassing authorization checks"));
@@ -3100,7 +3100,7 @@ int main( int argc, char** argv ) {
    });
 
    // system subcommand
-   auto system = app.add_subcommand("system", localized("Send eosio.system contract action to the blockchain."), false);
+   auto system = app.add_subcommand("system", localized("Send actx.system contract action to the blockchain."), false);
    system->require_subcommand();
 
    auto createAccountSystem = create_account_subcommand( system, false /*simple*/ );

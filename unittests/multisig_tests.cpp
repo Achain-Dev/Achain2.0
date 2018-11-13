@@ -3,16 +3,16 @@
 #include <eosio/chain/abi_serializer.hpp>
 #include <eosio/chain/wast_to_wasm.hpp>
 
-#include <eosio.msig/eosio.msig.wast.hpp>
-#include <eosio.msig/eosio.msig.abi.hpp>
+#include <actx.msig/actx.msig.wast.hpp>
+#include <actx.msig/actx.msig.abi.hpp>
 
 #include <test_api/test_api.wast.hpp>
 
-#include <eosio.system/eosio.system.wast.hpp>
-#include <eosio.system/eosio.system.abi.hpp>
+#include <actx.system/actx.system.wast.hpp>
+#include <actx.system/actx.system.abi.hpp>
 
-#include <eosio.token/eosio.token.wast.hpp>
-#include <eosio.token/eosio.token.abi.hpp>
+#include <actx.token/actx.token.wast.hpp>
+#include <actx.token/actx.token.abi.hpp>
 
 #include <Runtime/Runtime.h>
 
@@ -30,20 +30,20 @@ class eosio_msig_tester : public tester {
 public:
 
    eosio_msig_tester() {
-      create_accounts( { N(eosio.msig), N(eosio.stake), N(eosio.ram), N(eosio.ramfee), N(alice), N(bob), N(carol) } );
+      create_accounts( { N(actx.msig), N(actx.stake), N(actx.ram), N(actx.ramfee), N(alice), N(bob), N(carol) } );
       produce_block();
 
       auto trace = base_tester::push_action(config::system_account_name, N(setpriv),
                                             config::system_account_name,  mutable_variant_object()
-                                            ("account", "eosio.msig")
+                                            ("account", "actx.msig")
                                             ("is_priv", 1)
       );
 
-      set_code( N(eosio.msig), eosio_msig_wast );
-      set_abi( N(eosio.msig), eosio_msig_abi );
+      set_code( N(actx.msig), actx_msig_wast );
+      set_abi( N(actx.msig), actx_msig_abi );
 
       produce_blocks();
-      const auto& accnt = control->db().get<account_object,by_name>( N(eosio.msig) );
+      const auto& accnt = control->db().get<account_object,by_name>( N(actx.msig) );
       abi_def abi;
       BOOST_REQUIRE_EQUAL(abi_serializer::to_abi(accnt.abi, abi), true);
       abi_ser.set_abi(abi, abi_serializer_max_time);
@@ -99,14 +99,14 @@ public:
       base_tester::push_action(contract, N(create), contract, act );
    }
    void issue( name to, const asset& amount, name manager = config::system_account_name ) {
-      base_tester::push_action( N(eosio.token), N(issue), manager, mutable_variant_object()
+      base_tester::push_action( N(actx.token), N(issue), manager, mutable_variant_object()
                                 ("to",      to )
                                 ("quantity", amount )
                                 ("memo", "")
                                 );
    }
    void transfer( name from, name to, const string& amount, name manager = config::system_account_name ) {
-      base_tester::push_action( N(eosio.token), N(transfer), manager, mutable_variant_object()
+      base_tester::push_action( N(actx.token), N(transfer), manager, mutable_variant_object()
                                 ("from",    from)
                                 ("to",      to )
                                 ("quantity", asset::from_string(amount) )
@@ -118,7 +118,7 @@ public:
       //temporary code. current get_currency_balancy uses table name N(accounts) from currency.h
       //generic_currency table name is N(account).
       const auto& db  = control->db();
-      const auto* tbl = db.find<table_id_object, by_code_scope_table>(boost::make_tuple(N(eosio.token), act, N(accounts)));
+      const auto* tbl = db.find<table_id_object, by_code_scope_table>(boost::make_tuple(N(actx.token), act, N(accounts)));
       share_type result = 0;
 
       // the balance is implied to be 0 if either the table or row does not exist
@@ -137,7 +137,7 @@ public:
       vector<account_name> accounts;
       if( auth )
          accounts.push_back( signer );
-      auto trace = base_tester::push_action( N(eosio.msig), name, accounts, data );
+      auto trace = base_tester::push_action( N(actx.msig), name, accounts, data );
       produce_block();
       BOOST_REQUIRE_EQUAL( true, chain_has_transaction(trace->id) );
       return trace;
@@ -319,7 +319,7 @@ BOOST_FIXTURE_TEST_CASE( propose_with_wrong_requested_auth, eosio_msig_tester ) 
 
 BOOST_FIXTURE_TEST_CASE( big_transaction, eosio_msig_tester ) try {
    vector<permission_level> perm = { { N(alice), config::active_name }, { N(bob), config::active_name } };
-   auto wasm = wast_to_wasm( eosio_token_wast );
+   auto wasm = wast_to_wasm( actx_token_wast );
 
    variant pretty_trx = fc::mutable_variant_object()
       ("expiration", "2020-01-01T00:30")
@@ -392,24 +392,24 @@ BOOST_FIXTURE_TEST_CASE( update_system_contract_all_approve, eosio_msig_tester )
    // alice active     bob active   carol active
 
    set_authority(config::system_account_name, "active", authority(1,
-      vector<key_weight>{{get_private_key("eosio", "active").get_public_key(), 1}},
+      vector<key_weight>{{get_private_key("actx", "active").get_public_key(), 1}},
       vector<permission_level_weight>{{{config::producers_account_name, config::active_name}, 1}}), "owner",
       { { config::system_account_name, "active" } }, { get_private_key( config::system_account_name, "active" ) });
 
    set_producers( {N(alice),N(bob),N(carol)} );
    produce_blocks(50);
 
-   create_accounts( { N(eosio.token) } );
-   set_code( N(eosio.token), eosio_token_wast );
-   set_abi( N(eosio.token), eosio_token_abi );
+   create_accounts( { N(actx.token) } );
+   set_code( N(actx.token), actx_token_wast );
+   set_abi( N(actx.token), actx_token_abi );
 
-   create_currency( N(eosio.token), config::system_account_name, core_from_string("10000000000.0000") );
+   create_currency( N(actx.token), config::system_account_name, core_from_string("10000000000.0000") );
    issue(config::system_account_name, core_from_string("1000000000.0000"));
    BOOST_REQUIRE_EQUAL( core_from_string("1000000000.0000"),
-                        get_balance("eosio") + get_balance("eosio.ramfee") + get_balance("eosio.stake") + get_balance("eosio.ram") );
+                        get_balance("actx") + get_balance("actx.ramfee") + get_balance("actx.stake") + get_balance("actx.ram") );
 
-   set_code( config::system_account_name, eosio_system_wast );
-   set_abi( config::system_account_name, eosio_system_abi );
+   set_code( config::system_account_name, actx_system_wast );
+   set_abi( config::system_account_name, actx_system_abi );
 
    produce_blocks();
 
@@ -418,7 +418,7 @@ BOOST_FIXTURE_TEST_CASE( update_system_contract_all_approve, eosio_msig_tester )
    create_account_with_resources( N(carol1111111), config::system_account_name, core_from_string("1.0000"), false );
 
    BOOST_REQUIRE_EQUAL( core_from_string("1000000000.0000"),
-                        get_balance("eosio") + get_balance("eosio.ramfee") + get_balance("eosio.stake") + get_balance("eosio.ram") );
+                        get_balance("actx") + get_balance("actx.ramfee") + get_balance("actx.stake") + get_balance("actx.ram") );
 
    vector<permission_level> perm = { { N(alice), config::active_name }, { N(bob), config::active_name },
       {N(carol), config::active_name} };
@@ -503,7 +503,7 @@ BOOST_FIXTURE_TEST_CASE( update_system_contract_major_approve, eosio_msig_tester
 
    // set up the link between (eosio active) and (eosio.prods active)
    set_authority(config::system_account_name, "active", authority(1,
-      vector<key_weight>{{get_private_key("eosio", "active").get_public_key(), 1}},
+      vector<key_weight>{{get_private_key("actx", "active").get_public_key(), 1}},
       vector<permission_level_weight>{{{config::producers_account_name, config::active_name}, 1}}), "owner",
       { { config::system_account_name, "active" } }, { get_private_key( config::system_account_name, "active" ) });
 
@@ -511,16 +511,16 @@ BOOST_FIXTURE_TEST_CASE( update_system_contract_major_approve, eosio_msig_tester
    set_producers( {N(alice),N(bob),N(carol), N(apple)} );
    produce_blocks(50);
 
-   create_accounts( { N(eosio.token) } );
-   set_code( N(eosio.token), eosio_token_wast );
-   set_abi( N(eosio.token), eosio_token_abi );
+   create_accounts( { N(actx.token) } );
+   set_code( N(actx.token), actx_token_wast );
+   set_abi( N(actx.token), actx_token_abi );
 
-   create_currency( N(eosio.token), config::system_account_name, core_from_string("10000000000.0000") );
+   create_currency( N(actx.token), config::system_account_name, core_from_string("10000000000.0000") );
    issue(config::system_account_name, core_from_string("1000000000.0000"));
-   BOOST_REQUIRE_EQUAL( core_from_string("1000000000.0000"), get_balance( "eosio" ) );
+   BOOST_REQUIRE_EQUAL( core_from_string("1000000000.0000"), get_balance( "actx" ) );
 
-   set_code( config::system_account_name, eosio_system_wast );
-   set_abi( config::system_account_name, eosio_system_abi );
+   set_code( config::system_account_name, actx_system_wast );
+   set_abi( config::system_account_name, actx_system_abi );
 
    produce_blocks();
 
@@ -529,7 +529,7 @@ BOOST_FIXTURE_TEST_CASE( update_system_contract_major_approve, eosio_msig_tester
    create_account_with_resources( N(carol1111111), config::system_account_name, core_from_string("1.0000"), false );
 
    BOOST_REQUIRE_EQUAL( core_from_string("1000000000.0000"),
-                        get_balance("eosio") + get_balance("eosio.ramfee") + get_balance("eosio.stake") + get_balance("eosio.ram") );
+                        get_balance("actx") + get_balance("actx.ramfee") + get_balance("actx.stake") + get_balance("actx.ram") );
 
    vector<permission_level> perm = { { N(alice), config::active_name }, { N(bob), config::active_name },
       {N(carol), config::active_name}, {N(apple), config::active_name}};

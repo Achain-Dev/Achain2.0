@@ -75,28 +75,29 @@ wcmd create --to-console -n ignition
 # ------ DO NOT ALTER THE NEXT LINE -------
 ###INSERT prodkeys
 
-ecmd set contract eosio contracts/eosio.bios eosio.bios.wasm eosio.bios.abi
+ecmd set contract actx contracts/actx.bios actx.bios.wasm actx.bios.abi
 
 # Create required system accounts
 ecmd create key --to-console
 pubsyskey=`grep "^Public key:" $logfile | tail -1 | sed "s/^Public key://"`
 prisyskey=`grep "^Private key:" $logfile | tail -1 | sed "s/^Private key://"`
-echo eosio.* keys: $prisyskey $pubsyskey >> $logfile
+echo actx.* keys: $prisyskey $pubsyskey >> $logfile
 wcmd import -n ignition --private-key $prisyskey
-ecmd create account eosio eosio.bpay $pubsyskey $pubsyskey
-ecmd create account eosio eosio.msig $pubsyskey $pubsyskey
-ecmd create account eosio eosio.names $pubsyskey $pubsyskey
-ecmd create account eosio eosio.ram $pubsyskey $pubsyskey
-ecmd create account eosio eosio.ramfee $pubsyskey $pubsyskey
-ecmd create account eosio eosio.saving $pubsyskey $pubsyskey
-ecmd create account eosio eosio.stake $pubsyskey $pubsyskey
-ecmd create account eosio eosio.token $pubsyskey $pubsyskey
-ecmd create account eosio eosio.vpay $pubsyskey $pubsyskey
-ecmd create account eosio eosio.sudo $pubsyskey $pubsyskey
+ecmd create account actx actx.bpay $pubsyskey $pubsyskey
+ecmd create account actx actx.msig $pubsyskey $pubsyskey
+ecmd create account actx actx.names $pubsyskey $pubsyskey
+ecmd create account actx actx.ram $pubsyskey $pubsyskey
+ecmd create account actx actx.ramfee $pubsyskey $pubsyskey
+ecmd create account actx actx.saving $pubsyskey $pubsyskey
+ecmd create account actx actx.stake $pubsyskey $pubsyskey
+ecmd create account actx actx.token $pubsyskey $pubsyskey
+ecmd create account actx actx.vpay $pubsyskey $pubsyskey
+ecmd create account actx actx.sudo $pubsyskey $pubsyskey
 
-ecmd set contract eosio.token contracts/eosio.token eosio.token.wasm eosio.token.abi
-ecmd set contract eosio.msig contracts/eosio.msig eosio.msig.wasm eosio.msig.abi
-ecmd set contract eosio.sudo contracts/eosio.sudo eosio.sudo.wasm eosio.sudo.abi
+ecmd set contract actx.token contracts/actx.token actx.token.wasm actx.token.abi
+ecmd set contract actx.msig contracts/actx.msig actx.msig.wasm actx.msig.abi
+ecmd set contract actx.sudo contracts/eosio.sudo eosio.sudo.wasm eosio.sudo.abi
+
 
 echo ===== Start: $step ============ >> $logfile
 echo executing: cleos --wallet-url $wdurl --url http://$bioshost:$biosport push action eosio.token create '[ "eosio", "10000000000.0000 SYS" ]' -p eosio.token | tee -a $logfile
@@ -107,7 +108,7 @@ programs/cleos/cleos --wallet-url $wdurl --url http://$bioshost:$biosport push a
 echo ==== End: $step ============== >> $logfile
 step=$(($step + 1))
 
-ecmd set contract eosio contracts/eosio.system eosio.system.wasm eosio.system.abi
+ecmd set contract actx contracts/actx.system actx.system.wasm actx.system.abi
 
 # Manual deployers, add a series of lines below this block that looks like:
 #    cacmd $PRODNAME[0] $OWNERKEY[0] $ACTIVEKEY[0]

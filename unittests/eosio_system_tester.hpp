@@ -7,14 +7,14 @@
 #include <eosio/testing/tester.hpp>
 #include <eosio/chain/abi_serializer.hpp>
 
-#include <eosio.system/eosio.system.wast.hpp>
-#include <eosio.system/eosio.system.abi.hpp>
+#include <actx.system/actx.system.wast.hpp>
+#include <actx.system/actx.system.abi.hpp>
 
-#include <eosio.token/eosio.token.wast.hpp>
-#include <eosio.token/eosio.token.abi.hpp>
+#include <actx.token/actx.token.wast.hpp>
+#include <actx.token/actx.token.abi.hpp>
 
-#include <eosio.msig/eosio.msig.wast.hpp>
-#include <eosio.msig/eosio.msig.abi.hpp>
+#include <actx.msig/actx.msig.wast.hpp>
+#include <actx.msig/actx.msig.abi.hpp>
 
 #include <fc/variant_object.hpp>
 
@@ -46,28 +46,28 @@ public:
 
       produce_blocks( 2 );
 
-      create_accounts({ N(eosio.token), N(eosio.ram), N(eosio.ramfee), N(eosio.stake),
-               N(eosio.bpay), N(eosio.vpay), N(eosio.saving), N(eosio.names) });
+      create_accounts({ N(actx.token), N(actx.ram), N(actx.ramfee), N(actx.stake),
+               N(actx.bpay), N(actx.vpay), N(actx.saving), N(actx.names) });
 
 
       produce_blocks( 100 );
 
-      set_code( N(eosio.token), eosio_token_wast );
-      set_abi( N(eosio.token), eosio_token_abi );
+      set_code( N(actx.token), actx_token_wast );
+      set_abi( N(actx.token), actx_token_abi );
 
       {
-         const auto& accnt = control->db().get<account_object,by_name>( N(eosio.token) );
+         const auto& accnt = control->db().get<account_object,by_name>( N(actx.token) );
          abi_def abi;
          BOOST_REQUIRE_EQUAL(abi_serializer::to_abi(accnt.abi, abi), true);
          token_abi_ser.set_abi(abi, abi_serializer_max_time);
       }
 
-      create_currency( N(eosio.token), config::system_account_name, core_from_string("10000000000.0000") );
+      create_currency( N(actx.token), config::system_account_name, core_from_string("10000000000.0000") );
       issue(config::system_account_name,      core_from_string("1000000000.0000"));
-      BOOST_REQUIRE_EQUAL( core_from_string("1000000000.0000"), get_balance( "eosio" ) );
+      BOOST_REQUIRE_EQUAL( core_from_string("1000000000.0000"), get_balance( "actx" ) );
 
-      set_code( config::system_account_name, eosio_system_wast );
-      set_abi( config::system_account_name, eosio_system_abi );
+      set_code( config::system_account_name, actx_system_wast );
+      set_abi( config::system_account_name, actx_system_abi );
 
       {
          const auto& accnt = control->db().get<account_object,by_name>( config::system_account_name );
@@ -82,7 +82,7 @@ public:
       create_account_with_resources( N(bob111111111), config::system_account_name, core_from_string("0.4500"), false );
       create_account_with_resources( N(carol1111111), config::system_account_name, core_from_string("1.0000"), false );
 
-      BOOST_REQUIRE_EQUAL( core_from_string("1000000000.0000"), get_balance("eosio")  + get_balance("eosio.ramfee") + get_balance("eosio.stake") + get_balance("eosio.ram") );
+      BOOST_REQUIRE_EQUAL( core_from_string("1000000000.0000"), get_balance("actx")  + get_balance("actx.ramfee") + get_balance("actx.stake") + get_balance("actx.ram") );
    }
 
 
@@ -329,7 +329,7 @@ public:
    }
 
    asset get_balance( const account_name& act ) {
-      vector<char> data = get_row_by_account( N(eosio.token), act, N(accounts), symbol(CORE_SYMBOL).to_symbol_code().value );
+      vector<char> data = get_row_by_account( N(actx.token), act, N(accounts), symbol(CORE_SYMBOL).to_symbol_code().value );
       return data.empty() ? asset(0, symbol(CORE_SYMBOL)) : token_abi_ser.binary_to_variant("account", data, abi_serializer_max_time)["balance"].as<asset>();
    }
 
@@ -357,14 +357,14 @@ public:
    }
 
    void issue( name to, const asset& amount, name manager = config::system_account_name ) {
-      base_tester::push_action( N(eosio.token), N(issue), manager, mutable_variant_object()
+      base_tester::push_action( N(actx.token), N(issue), manager, mutable_variant_object()
                                 ("to",      to )
                                 ("quantity", amount )
                                 ("memo", "")
                                 );
    }
    void transfer( name from, name to, const asset& amount, name manager = config::system_account_name ) {
-      base_tester::push_action( N(eosio.token), N(transfer), manager, mutable_variant_object()
+      base_tester::push_action( N(actx.token), N(transfer), manager, mutable_variant_object()
                                 ("from",    from)
                                 ("to",      to )
                                 ("quantity", amount)
@@ -384,7 +384,7 @@ public:
    fc::variant get_stats( const string& symbolname ) {
       auto symb = eosio::chain::symbol::from_string(symbolname);
       auto symbol_code = symb.to_symbol_code().value;
-      vector<char> data = get_row_by_account( N(eosio.token), symbol_code, N(stat), symbol_code );
+      vector<char> data = get_row_by_account( N(actx.token), symbol_code, N(stat), symbol_code );
       return data.empty() ? fc::variant() : token_abi_ser.binary_to_variant( "currency_stats", data, abi_serializer_max_time );
    }
 
@@ -407,21 +407,21 @@ public:
    abi_serializer initialize_multisig() {
       abi_serializer msig_abi_ser;
       {
-         create_account_with_resources( N(eosio.msig), config::system_account_name );
-         BOOST_REQUIRE_EQUAL( success(), buyram( "eosio", "eosio.msig", core_from_string("5000.0000") ) );
+         create_account_with_resources( N(actx.msig), config::system_account_name );
+         BOOST_REQUIRE_EQUAL( success(), buyram( "actx", "actx.msig", core_from_string("5000.0000") ) );
          produce_block();
 
          auto trace = base_tester::push_action(config::system_account_name, N(setpriv),
                                                config::system_account_name,  mutable_variant_object()
-                                               ("account", "eosio.msig")
+                                               ("account", "actx.msig")
                                                ("is_priv", 1)
          );
 
-         set_code( N(eosio.msig), eosio_msig_wast );
-         set_abi( N(eosio.msig), eosio_msig_abi );
+         set_code( N(actx.msig), actx_msig_wast );
+         set_abi( N(actx.msig), actx_msig_abi );
 
          produce_blocks();
-         const auto& accnt = control->db().get<account_object,by_name>( N(eosio.msig) );
+         const auto& accnt = control->db().get<account_object,by_name>( N(actx.msig) );
          abi_def msig_abi;
          BOOST_REQUIRE_EQUAL(abi_serializer::to_abi(accnt.abi, msig_abi), true);
          msig_abi_ser.set_abi(msig_abi, abi_serializer_max_time);
@@ -431,7 +431,7 @@ public:
 
    vector<name> active_and_vote_producers() {
       //stake more than 15% of total EOS supply to activate chain
-      transfer( "eosio", "alice1111111", core_from_string("650000000.0000"), "eosio" );
+      transfer( "actx", "alice1111111", core_from_string("650000000.0000"), "actx" );
       BOOST_REQUIRE_EQUAL( success(), stake( "alice1111111", "alice1111111", core_from_string("300000000.0000"), core_from_string("300000000.0000") ) );
 
       // create accounts {defproducera, defproducerb, ..., defproducerz} and register as producers

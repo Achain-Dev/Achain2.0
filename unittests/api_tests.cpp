@@ -44,8 +44,8 @@
 #include <test_api_db/test_api_db.wast.hpp>
 #include <test_api_multi_index/test_api_multi_index.wast.hpp>
 
-#include <eosio.bios/eosio.bios.wast.hpp>
-#include <eosio.bios/eosio.bios.abi.hpp>
+#include <actx.bios/actx.bios.wast.hpp>
+#include <actx.bios/actx.bios.abi.hpp>
 
 #define DISABLE_EOSLIB_SERIALIZE
 #include <test_api/test_api_common.hpp>
@@ -273,10 +273,10 @@ BOOST_FIXTURE_TEST_CASE(action_receipt_tests, TESTER) { try {
       BOOST_REQUIRE_EQUAL(uint32_t(res->action_traces[0].receipt.code_sequence), 2);
       BOOST_REQUIRE_EQUAL(uint32_t(res->action_traces[0].receipt.abi_sequence), 1);
    }
-   set_code( config::system_account_name, eosio_bios_wast );
+   set_code( config::system_account_name, actx_bios_wast );
 
-	set_code( N(testapi), eosio_bios_wast );
-   set_abi(N(testapi), eosio_bios_abi);
+	set_code( N(testapi), actx_bios_wast );
+   set_abi(N(testapi), actx_bios_abi);
 	set_code( N(testapi), test_api_wast );
 	res = CALL_TEST_FUNCTION( *this, "test_action", "assert_true", {});
    BOOST_REQUIRE_EQUAL(uint32_t(res->action_traces[0].receipt.code_sequence), 4);
@@ -2012,7 +2012,7 @@ BOOST_FIXTURE_TEST_CASE(permission_usage_tests, TESTER) { try {
 
    push_action(config::system_account_name, linkauth::get_name(), N(bob), fc::mutable_variant_object()
            ("account", "bob")
-           ("code", "eosio")
+           ("code", "actx")
            ("type", "reqauth")
            ("requirement", "perm1")
    );
