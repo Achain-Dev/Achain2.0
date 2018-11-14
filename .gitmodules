@@ -22,3 +22,7 @@
 [submodule "libraries/wabt"]
 	path = libraries/wabt
 	url = http://github.com/EOSIO/wabt
+[submodule "contracts/musl/upstream"]
+	branch = eosio
+	path = contracts/musl/upstream
+	url = https://github.com/EOSIO/musl.git
