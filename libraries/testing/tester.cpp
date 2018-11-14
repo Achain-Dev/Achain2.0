@@ -4,8 +4,8 @@
 #include <eosio/chain/wast_to_wasm.hpp>
 #include <eosio/chain/eosio_contract.hpp>
 
-#include <eosio.bios/eosio.bios.wast.hpp>
-#include <eosio.bios/eosio.bios.abi.hpp>
+#include <actx.bios/actx.bios.wast.hpp>
+#include <actx.bios/actx.bios.abi.hpp>
 #include <fstream>
 
 eosio::chain::asset core_from_string(const std::string& s) {
@@ -806,9 +806,9 @@ namespace eosio { namespace testing {
    }
 
    void base_tester::push_genesis_block() {
-      set_code(config::system_account_name, eosio_bios_wast);
+      set_code(config::system_account_name, actx_bios_wast);
 
-      set_abi(config::system_account_name, eosio_bios_abi);
+      set_abi(config::system_account_name, actx_bios_abi);
       //produce_block();
    }
 
