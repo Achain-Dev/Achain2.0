@@ -181,32 +181,32 @@ BOOST_AUTO_TEST_SUITE(bootseq_tests)
 BOOST_FIXTURE_TEST_CASE( bootseq_test, bootseq_tester ) {
     try {
 
-        // Create eosio.msig and eosio.token
+        // Create actx.msig and actx.token
         create_accounts({N(actx.msig), N(actx.token), N(actx.ram), N(actx.ramfee), N(actx.stake), N(actx.vpay), N(actx.bpay), N(actx.saving) });
 
         // Set code for the following accounts:
         //  - eosio (code: eosio.bios) (already set by tester constructor)
-        //  - eosio.msig (code: eosio.msig)
-        //  - eosio.token (code: eosio.token)
-        set_code_abi(N(actx.msig), eosio_msig_wast, eosio_msig_abi);//, &eosio_active_pk);
-        set_code_abi(N(actx.token), eosio_token_wast, eosio_token_abi); //, &eosio_active_pk);
+        //  - actx.msig (code: actx.msig)
+        //  - actx.token (code: actx.token)
+        set_code_abi(N(actx.msig), actx_msig_wast, actx_msig_abi);//, &eosio_active_pk);
+        set_code_abi(N(actx.token), actx_token_wast, actx_token_abi); //, &eosio_active_pk);
 
-        // Set privileged for eosio.msig and eosio.token
+        // Set privileged for actx.msig and actx.token
         set_privileged(N(actx.msig));
         set_privileged(N(actx.token));
 
-        // Verify eosio.msig and eosio.token is privileged
+        // Verify actx.msig and actx.token is privileged
         const auto& eosio_msig_acc = get<account_object, by_name>(N(actx.msig));
         BOOST_TEST(eosio_msig_acc.privileged == true);
         const auto& eosio_token_acc = get<account_object, by_name>(N(actx.token));
         BOOST_TEST(eosio_token_acc.privileged == true);
 
 
-        // Create SYS tokens in eosio.token, set its manager as eosio
+        // Create SYS tokens in actx.token, set its manager as eosio
         auto max_supply = core_from_string("10000000000.0000"); /// 1x larger than 1B initial tokens
         auto initial_supply = core_from_string("1000000000.0000"); /// 1x larger than 1B initial tokens
         create_currency(N(actx.token), config::system_account_name, max_supply);
-        // Issue the genesis supply of 1 billion SYS tokens to eosio.system
+        // Issue the genesis supply of 1 billion SYS tokens to actx.system
         issue(N(actx.token), config::system_account_name, config::system_account_name, initial_supply);
 
         auto actual = get_balance(config::system_account_name);
@@ -217,7 +217,7 @@ BOOST_FIXTURE_TEST_CASE( bootseq_test, bootseq_tester ) {
            create_account( a.aname, config::system_account_name );
         }
 
-        // Set eosio.system to eosio
+        // Set actx.system to eosio
         set_code_abi(config::system_account_name, actx_system_wast, actx_system_abi);
 
         // Buy ram and stake cpu and net for each genesis accounts
