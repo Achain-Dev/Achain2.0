@@ -140,8 +140,6 @@
    printf "\\tgit head id: %s\\n" "$( cat .git/refs/heads/master )"
    printf "\\tCurrent branch: %s\\n" "$( git rev-parse --abbrev-ref HEAD )"
    printf "\\n\\tARCHITECTURE: %s\\n" "${ARCH}"
-   printf "\\tPrefix is ACTX"
-   sed -i 's/EOS/ACTX/' ./libraries/fc/include/fc/crypto/public_key.hpp
    popd &> /dev/null
 
    if [ "$ARCH" == "Linux" ]; then
@@ -285,7 +283,6 @@
    fi
 
    TIME_END=$(( $(date -u +%s) - ${TIME_BEGIN} ))
-   sed -i 's/ACTX/EOS/' ${SOURCE_DIR}/libraries/fc/include/fc/crypto/public_key.hpp
    printf "\\n\\tAchainplus has been successfully built. %02d:%02d:%02d\\n\\n" $(($TIME_END/3600)) $(($TIME_END%3600/60)) $(($TIME_END%60))
    printf "\\tTo verify your installation run the following commands:\\n"
    print_instructions
