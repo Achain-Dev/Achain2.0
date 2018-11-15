@@ -140,7 +140,8 @@
    printf "\\tgit head id: %s\\n" "$( cat .git/refs/heads/master )"
    printf "\\tCurrent branch: %s\\n" "$( git rev-parse --abbrev-ref HEAD )"
    printf "\\n\\tARCHITECTURE: %s\\n" "${ARCH}"
-
+   printf "\\n\\tPrefix is ACTX\\n"
+   sed -i 's/EOS/ACTX/' ./libraries/fc/include/fc/crypto/public_key.hpp
    popd &> /dev/null
 
    if [ "$ARCH" == "Linux" ]; then
