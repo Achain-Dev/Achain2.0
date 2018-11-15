@@ -140,7 +140,7 @@
    printf "\\tgit head id: %s\\n" "$( cat .git/refs/heads/master )"
    printf "\\tCurrent branch: %s\\n" "$( git rev-parse --abbrev-ref HEAD )"
    printf "\\n\\tARCHITECTURE: %s\\n" "${ARCH}"
-   printf "\\n\\tPrefix is ACTX\\n"
+   printf "\\tPrefix is ACTX"
    sed -i 's/EOS/ACTX/' ./libraries/fc/include/fc/crypto/public_key.hpp
    popd &> /dev/null
 
@@ -239,7 +239,7 @@
 
    . "$FILE"
 
-   printf "\\n\\n>>>>>>>> ALL dependencies sucessfully found or installed . Installing EOSIO\\n\\n"
+   printf "\\n\\n>>>>>>>> ALL dependencies sucessfully found or installed . Installing Achainplus\\n\\n"
    printf ">>>>>>>> CMAKE_BUILD_TYPE=%s\\n" "${CMAKE_BUILD_TYPE}"
    printf ">>>>>>>> ENABLE_COVERAGE_TESTING=%s\\n" "${ENABLE_COVERAGE_TESTING}"
    printf ">>>>>>>> DOXYGEN=%s\\n\\n" "${DOXYGEN}"
@@ -268,19 +268,19 @@
       -DENABLE_COVERAGE_TESTING="${ENABLE_COVERAGE_TESTING}" -DBUILD_DOXYGEN="${DOXYGEN}" \
       -DCMAKE_INSTALL_PREFIX="/usr/local/eosio" ${LOCAL_CMAKE_FLAGS} "${SOURCE_DIR}"
    then
-      printf "\\n\\t>>>>>>>>>>>>>>>>>>>> CMAKE building EOSIO has exited with the above error.\\n\\n"
+      printf "\\n\\t>>>>>>>>>>>>>>>>>>>> CMAKE building Achainplus has exited with the above error.\\n\\n"
       exit -1
    fi
 
    if [ "${START_MAKE}" == "false" ]; then
-      printf "\\n\\t>>>>>>>>>>>>>>>>>>>> EOSIO has been successfully configured but not yet built.\\n\\n"
+      printf "\\n\\t>>>>>>>>>>>>>>>>>>>> Achainplus has been successfully configured but not yet built.\\n\\n"
       exit 0
    fi
 
    if [ -z ${JOBS} ]; then JOBS=$CPU_CORE; fi # Future proofing: Ensure $JOBS is set (usually set in scripts/eosio_build_*.sh scripts)
    if ! make -j"${JOBS}"
    then
-      printf "\\n\\t>>>>>>>>>>>>>>>>>>>> MAKE building EOSIO has exited with the above error.\\n\\n"
+      printf "\\n\\t>>>>>>>>>>>>>>>>>>>> MAKE building Achainplus has exited with the above error.\\n\\n"
       exit -1
    fi
 
@@ -288,6 +288,6 @@
 
    printf "\\n\\tACTX has been successfully built. %02d:%02d:%02d\\n\\n" $(($TIME_END/3600)) $(($TIME_END%3600/60)) $(($TIME_END%60))
    printf "\\tTo verify your installation run the following commands:\\n"
-
+   sed -i 's/ACTX/EOS/' ./libraries/fc/include/fc/crypto/public_key.hpp
    print_instructions
 
