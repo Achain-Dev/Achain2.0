@@ -5,11 +5,11 @@ the next generation of blockchain  technique Achain
 git clone git@github.com:Achain-Dev/Achainplus.git --recursive
 
 # Compile Achainplus
-cd Achainplus
+cd Achainplus  
 ./actx_build.sh
 
 The above process takes about 20-30 minutes, depending on the network
 
 # Install Achainplus
-cd ../build
+cd ../build  
 sudo make install
