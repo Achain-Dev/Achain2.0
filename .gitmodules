@@ -23,3 +23,6 @@
 	branch = eosio
 	path = contracts/musl/upstream
 	url = https://github.com/EOSIO/musl.git
+[submodule "libraries/fc"]
+	path = libraries/fc
+	url = https://github.com/Achain-Dev/fc
