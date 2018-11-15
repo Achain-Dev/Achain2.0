@@ -285,9 +285,8 @@
    fi
 
    TIME_END=$(( $(date -u +%s) - ${TIME_BEGIN} ))
-
-   printf "\\n\\tACTX has been successfully built. %02d:%02d:%02d\\n\\n" $(($TIME_END/3600)) $(($TIME_END%3600/60)) $(($TIME_END%60))
+   sed -i 's/ACTX/EOS/' ${SOURCE_DIR}/libraries/fc/include/fc/crypto/public_key.hpp
+   printf "\\n\\tAchainplus has been successfully built. %02d:%02d:%02d\\n\\n" $(($TIME_END/3600)) $(($TIME_END%3600/60)) $(($TIME_END%60))
    printf "\\tTo verify your installation run the following commands:\\n"
-   sed -i 's/ACTX/EOS/' ./libraries/fc/include/fc/crypto/public_key.hpp
    print_instructions
 
