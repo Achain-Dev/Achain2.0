@@ -22,7 +22,7 @@ Makefile
 compile_commands.json
 moc_*
 *.moc
-
+public_key.hpp
 genesis.json
 hardfork.hpp
 
