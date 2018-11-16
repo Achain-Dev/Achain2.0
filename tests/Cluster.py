@@ -1002,7 +1002,7 @@ class Cluster(object):
                     setProdsStr=f.read()
 
                     Utils.Print("Setting producers.")
-                    opts="--permission eosio@active"
+                    opts="--permission actx@active"
                     myTrans=biosNode.pushMessage("actx", "setprods", setProdsStr, opts)
                     if myTrans is None or not myTrans[0]:
                         Utils.Print("ERROR: Failed to set producers.")
@@ -1027,7 +1027,7 @@ class Cluster(object):
                 setProdsStr += ' ] }'
                 if Utils.Debug: Utils.Print("setprods: %s" % (setProdsStr))
                 Utils.Print("Setting producers: %s." % (", ".join(prodNames)))
-                opts="--permission eosio@active"
+                opts="--permission actx@active"
                 # pylint: disable=redefined-variable-type
                 trans=biosNode.pushMessage("actx", "setprods", setProdsStr, opts)
                 if trans is None or not trans[0]:
