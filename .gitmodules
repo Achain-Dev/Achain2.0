@@ -16,9 +16,6 @@
 [submodule "externals/magic_get"]
 	path = externals/magic_get
 	url = https://github.com/EOSIO/magic_get
-[submodule "libraries/fc"]
-	path = libraries/fc
-	url = https://github.com/EOSIO/fc
 [submodule "libraries/wabt"]
 	path = libraries/wabt
 	url = http://github.com/EOSIO/wabt
@@ -26,3 +23,6 @@
 	branch = eosio
 	path = contracts/musl/upstream
 	url = https://github.com/EOSIO/musl.git
+[submodule "libraries/fc"]
+	path = libraries/fc
+	url = https://github.com/Achain-Dev/fc
