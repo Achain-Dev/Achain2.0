@@ -384,6 +384,8 @@ parser.add_argument('--producer-sync-delay', metavar='', help="Time (s) to sleep
 parser.add_argument('-a', '--all', action='store_true', help="Do everything marked with (*)")
 parser.add_argument('-H', '--http-port', type=int, default=8000, metavar='', help='HTTP port for cleos')
 
+print('\nthe host ip is :' + HOST_IP + '\n')
+
 for (flag, command, function, inAll, help) in commands:
     prefix = ''
     if inAll: prefix += '*'
@@ -420,5 +422,4 @@ for (flag, command, function, inAll, help) in commands:
             haveCommand = True
             function()
 if not haveCommand:
-    print(get_host_ip())
     print('bios-boot-tutorial.py: Tell me what to do. -a does almost everything. -h shows options.')
