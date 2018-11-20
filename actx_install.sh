@@ -65,7 +65,7 @@ fi
    }
 
    install_symlinks() {
-      printf "\\n\\tInstalling EOSIO Binary Symlinks\\n\\n"
+      printf "\\n\\tInstalling Achainplus Binary Symlinks\\n\\n"
       create_symlink "cleos"
       create_symlink "eosio-abigen"
       create_symlink "eosio-launcher"
@@ -77,7 +77,7 @@ fi
    }
 
    if [ ! -d "${BUILD_DIR}" ]; then
-      printf "\\n\\tError, eosio_build.sh has not ran.  Please run ./eosio_build.sh first!\\n\\n"
+      printf "\\n\\tError, actx_build.sh has not ran.  Please run ./actx_build.sh first!\\n\\n"
       exit -1
    fi
 
@@ -95,26 +95,10 @@ fi
    
    if ! make install
    then
-      printf "\\n\\t>>>>>>>>>>>>>>>>>>>> MAKE installing EOSIO has exited with the above error.\\n\\n"
+      printf "\\n\\t>>>>>>>>>>>>>>>>>>>> MAKE installing Achainplus has exited with the above error.\\n\\n"
       exit -1
    fi
    popd &> /dev/null 
 
    install_symlinks   
    create_cmake_symlink "eosio-config.cmake"
-
-   printf "\n\n${bldred}\t _______  _______  _______ _________ _______\n"
-   printf '\t(  ____ \(  ___  )(  ____ \\\\__   __/(  ___  )\n'
-   printf "\t| (    \/| (   ) || (    \/   ) (   | (   ) |\n"
-   printf "\t| (__    | |   | || (_____    | |   | |   | |\n"
-   printf "\t|  __)   | |   | |(_____  )   | |   | |   | |\n"
-   printf "\t| (      | |   | |      ) |   | |   | |   | |\n"
-   printf "\t| (____/\| (___) |/\____) |___) (___| (___) |\n"
-   printf "\t(_______/(_______)\_______)\_______/(_______)\n${txtrst}"
-
-   printf "\\tFor more information:\\n"
-   printf "\\tEOSIO website: https://eos.io\\n"
-   printf "\\tEOSIO Telegram channel @ https://t.me/EOSProject\\n"
-   printf "\\tEOSIO resources: https://eos.io/resources/\\n"
-   printf "\\tEOSIO Stack Exchange: https://eosio.stackexchange.com\\n"
-   printf "\\tEOSIO wiki: https://github.com/EOSIO/eos/wiki\\n\\n\\n"
