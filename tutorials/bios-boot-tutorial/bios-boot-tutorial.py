@@ -9,6 +9,7 @@ import re
 import subprocess
 import sys
 import time
+import socket
 
 args = None
 logFile = None
@@ -27,6 +28,18 @@ systemAccounts = [
     'actx.token',
     'actx.vpay',
 ]
+
+def get_host_ip():
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(('8.8.8.8', 80))
+        ip = s.getsockname()[0]
+    finally:
+        s.close()
+ 
+    return ip
+
+HOST_IP = get_host_ip()
 
 def jsonArg(a):
     return " '" + json.dumps(a) + "' "
@@ -72,7 +85,7 @@ def sleep(t):
 def startWallet():
     run('rm -rf ' + os.path.abspath(args.wallet_dir))
     run('mkdir -p ' + os.path.abspath(args.wallet_dir))
-    background(args.keosd + ' --unlock-timeout %d --http-server-address 127.0.0.1:6666 --wallet-dir %s' % (unlockTimeout, os.path.abspath(args.wallet_dir)))
+    background(args.keosd + ' --unlock-timeout %d --http-server-address %s:6666 --wallet-dir %s' % (unlockTimeout, HOST_IP, os.path.abspath(args.wallet_dir)))
     sleep(.4)
     run(args.cleos + 'wallet create --to-console')
 
@@ -97,7 +110,7 @@ def startNode(nodeIndex, account):
     dir = args.nodes_dir + ('%02d-' % nodeIndex) + account['name'] + '/'
     run('rm -rf ' + dir)
     run('mkdir -p ' + dir)
-    otherOpts = ''.join(list(map(lambda i: '    --p2p-peer-address localhost:' + str(9000 + i), range(nodeIndex))))
+    otherOpts = ''.join(list(map(lambda i: '    --p2p-peer-address ' + HOST_IP + ':' + str(9000 + i), range(nodeIndex))))
     if not nodeIndex: otherOpts += (
         '    --plugin eosio::history_plugin'
         '    --plugin eosio::history_api_plugin'
@@ -111,8 +124,8 @@ def startNode(nodeIndex, account):
         '    --config-dir ' + os.path.abspath(dir) +
         '    --data-dir ' + os.path.abspath(dir) +
         '    --chain-state-db-size-mb 1024'
-        '    --http-server-address 127.0.0.1:' + str(8000 + nodeIndex) +
-        '    --p2p-listen-endpoint 127.0.0.1:' + str(9000 + nodeIndex) +
+        '    --http-server-address ' + HOST_IP + ':' + str(8000 + nodeIndex) +
+        '    --p2p-listen-endpoint ' + HOST_IP + ':' + str(9000 + nodeIndex) +
         '    --max-clients ' + str(maxClients) +
         '    --p2p-max-nodes-per-host ' + str(maxClients) +
         '    --enable-stale-production'
@@ -120,6 +133,7 @@ def startNode(nodeIndex, account):
         '    --private-key \'["' + account['pub'] + '","' + account['pvt'] + '"]\''
         '    --plugin eosio::http_plugin'
         '    --plugin eosio::chain_api_plugin'
+        '    --plugin eosio::net_api_plugin'
         '    --plugin eosio::producer_plugin' +
         otherOpts)
     with open(dir + 'stderr', mode='w') as f:
@@ -347,7 +361,7 @@ commands = [
 
 parser.add_argument('--public-key', metavar='', help="ACTX Public Key", default='ACTX7cvL5oqAPJRe6vGz73sthbdnKHryf1RbmaYCax1E3k2KDh7bem', dest="public_key")
 parser.add_argument('--private-Key', metavar='', help="ACTX Private Key", default='5JAaSV9atydvYzEdBErjVCVAtx2SYdo3PykoHwrtYA57Xk3QKgQ', dest="private_key")
-parser.add_argument('--cleos', metavar='', help="Cleos command", default='../../build/programs/cleos/cleos --wallet-url http://127.0.0.1:6666 ')
+parser.add_argument('--cleos', metavar='', help="Cleos command", default='../../build/programs/cleos/cleos --wallet-url http://' + HOST_IP + ':6666 ')
 parser.add_argument('--nodeos', metavar='', help="Path to nodeos binary", default='../../build/programs/nodeos/nodeos')
 parser.add_argument('--keosd', metavar='', help="Path to keosd binary", default='../../build/programs/keosd/keosd')
 parser.add_argument('--contracts-dir', metavar='', help="Path to contracts directory", default='../../build/contracts/')
@@ -381,7 +395,7 @@ for (flag, command, function, inAll, help) in commands:
         
 args = parser.parse_args()
 
-args.cleos += '--url http://127.0.0.1:%d ' % args.http_port
+args.cleos += '--url http://' + HOST_IP + ':%d ' % args.http_port
 
 logFile = open(args.log_path, 'a')
 
@@ -406,4 +420,5 @@ for (flag, command, function, inAll, help) in commands:
             haveCommand = True
             function()
 if not haveCommand:
+    print(get_host_ip())
     print('bios-boot-tutorial.py: Tell me what to do. -a does almost everything. -h shows options.')
