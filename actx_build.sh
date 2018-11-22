@@ -160,7 +160,7 @@
 
       case "$OS_NAME" in
          "Amazon Linux AMI"|"Amazon Linux")
-            FILE="${SOURCE_DIR}/scripts/eosio_build_amazon.sh"
+            FILE="${SOURCE_DIR}/scripts/actx_build_amazon.sh"
             CXX_COMPILER=g++
             C_COMPILER=gcc
             MONGOD_CONF=${HOME}/opt/mongodb/mongod.conf
@@ -169,7 +169,7 @@
             export PATH=${HOME}/opt/mongodb/bin:$PATH
          ;;
          "CentOS Linux")
-            FILE="${SOURCE_DIR}/scripts/eosio_build_centos.sh"
+            FILE="${SOURCE_DIR}/scripts/actx_build_centos.sh"
             CXX_COMPILER=g++
             C_COMPILER=gcc
             MONGOD_CONF=${HOME}/opt/mongodb/mongod.conf
@@ -178,35 +178,35 @@
             export PATH=${HOME}/opt/mongodb/bin:$PATH
          ;;
          "elementary OS")
-            FILE="${SOURCE_DIR}/scripts/eosio_build_ubuntu.sh"
+            FILE="${SOURCE_DIR}/scripts/actx_build_ubuntu.sh"
             CXX_COMPILER=clang++-4.0
             C_COMPILER=clang-4.0
             MONGOD_CONF=${HOME}/opt/mongodb/mongod.conf
             export PATH=${HOME}/opt/mongodb/bin:$PATH
          ;;
          "Fedora")
-            FILE="${SOURCE_DIR}/scripts/eosio_build_fedora.sh"
+            FILE="${SOURCE_DIR}/scripts/actx_build_fedora.sh"
             CXX_COMPILER=g++
             C_COMPILER=gcc
             MONGOD_CONF=/etc/mongod.conf
             export LLVM_DIR=${HOME}/opt/wasm/lib/cmake/llvm
          ;;
          "Linux Mint")
-            FILE="${SOURCE_DIR}/scripts/eosio_build_ubuntu.sh"
+            FILE="${SOURCE_DIR}/scripts/actx_build_ubuntu.sh"
             CXX_COMPILER=clang++-4.0
             C_COMPILER=clang-4.0
             MONGOD_CONF=${HOME}/opt/mongodb/mongod.conf
             export PATH=${HOME}/opt/mongodb/bin:$PATH
          ;;
          "Ubuntu")
-            FILE="${SOURCE_DIR}/scripts/eosio_build_ubuntu.sh"
+            FILE="${SOURCE_DIR}/scripts/actx_build_ubuntu.sh"
             CXX_COMPILER=clang++-4.0
             C_COMPILER=clang-4.0
             MONGOD_CONF=${HOME}/opt/mongodb/mongod.conf
             export PATH=${HOME}/opt/mongodb/bin:$PATH
          ;;
          "Debian GNU/Linux")
-            FILE=${SOURCE_DIR}/scripts/eosio_build_ubuntu.sh
+            FILE=${SOURCE_DIR}/scripts/actx_build_ubuntu.sh
             CXX_COMPILER=clang++-4.0
             C_COMPILER=clang-4.0
             MONGOD_CONF=${HOME}/opt/mongodb/mongod.conf
@@ -222,7 +222,7 @@
    fi
 
    if [ "$ARCH" == "Darwin" ]; then
-      FILE="${SOURCE_DIR}/scripts/eosio_build_darwin.sh"
+      FILE="${SOURCE_DIR}/scripts/actx_build_darwin.sh"
       CXX_COMPILER=clang++
       C_COMPILER=clang
       MONGOD_CONF=/usr/local/etc/mongod.conf
@@ -275,7 +275,7 @@
       exit 0
    fi
 
-   if [ -z ${JOBS} ]; then JOBS=$CPU_CORE; fi # Future proofing: Ensure $JOBS is set (usually set in scripts/eosio_build_*.sh scripts)
+   if [ -z ${JOBS} ]; then JOBS=$CPU_CORE; fi # Future proofing: Ensure $JOBS is set (usually set in scripts/actx_build_*.sh scripts)
    if ! make -j"${JOBS}"
    then
       printf "\\n\\t>>>>>>>>>>>>>>>>>>>> MAKE building Achainplus has exited with the above error.\\n\\n"
