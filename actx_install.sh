@@ -101,4 +101,4 @@ fi
    popd &> /dev/null 
 
    install_symlinks   
-   create_cmake_symlink "eosio-config.cmake"
+   create_cmake_symlink "actx-config.cmake"
