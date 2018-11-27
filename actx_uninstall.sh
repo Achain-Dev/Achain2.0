@@ -10,26 +10,26 @@ binaries=(cleos
           nodeos
           eosio-applesdemo)
 
-if [ -d "/usr/local/eosio" ]; then
+if [ -d "/usr/local/actx" ]; then
    printf "\tDo you wish to remove this install? (requires sudo)\n"
    select yn in "Yes" "No"; do
       case $yn in
          [Yy]* )
             if [ "$(id -u)" -ne 0 ]; then
-               printf "\n\tThis requires sudo, please run ./eosio_uninstall.sh with sudo\n\n"
+               printf "\n\tThis requires sudo, please run ./actx_uninstall.sh with sudo\n\n"
                exit -1
             fi
 
             pushd /usr/local &> /dev/null
-            rm -rf eosio
+            rm -rf actx
             pushd bin &> /dev/null
             for binary in ${binaries[@]}; do
                rm ${binary}
             done
             # Handle cleanup of directories created from installation
             if [ "$1" == "--full" ]; then
-               if [ -d ~/Library/Application\ Support/eosio ]; then rm -rf ~/Library/Application\ Support/eosio; fi # Mac OS
-               if [ -d ~/.local/share/eosio ]; then rm -rf ~/.local/share/eosio; fi # Linux
+               if [ -d ~/Library/Application\ Support/actx ]; then rm -rf ~/Library/Application\ Support/actx; fi # Mac OS
+               if [ -d ~/.local/share/actx ]; then rm -rf ~/.local/share/actx; fi # Linux
             fi
             popd &> /dev/null
             break;;
