@@ -1,6 +1,6 @@
 #!/bin/bash
 ##########################################################################
-# This is the EOSIO automated install script for Linux and Mac OS.
+# This is the ACTX automated install script for Linux and Mac OS.
 # This file was downloaded from https://github.com/EOSIO/eos
 #
 # Copyright (c) 2017, Respective Authors all rights reserved.
@@ -27,7 +27,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #
-# https://github.com/EOSIO/eos/blob/master/LICENSE.txt
+# https://github.com/Achain-Dev/Achainplus/blob/master/LICENSE
 ##########################################################################
 
 if [ "$(id -u)" -ne 0 ]; then
@@ -44,7 +44,7 @@ fi
    BUILD_DIR="${PWD}/build"
    CMAKE_BUILD_TYPE=Release
    TIME_BEGIN=$( date -u +%s )
-   INSTALL_PREFIX="/usr/local/eosio"
+   INSTALL_PREFIX="/usr/local/actx"
    VERSION=1.2
 
    txtbld=$(tput bold)
@@ -53,14 +53,14 @@ fi
 
    create_symlink() {
       pushd /usr/local/bin &> /dev/null
-      ln -sf ../eosio/bin/$1 $1
+      ln -sf ../actx/bin/$1 $1
       popd &> /dev/null
    }
 
    create_cmake_symlink() {
-      mkdir -p /usr/local/lib/cmake/eosio
-      pushd /usr/local/lib/cmake/eosio &> /dev/null
-      ln -sf ../../../eosio/lib/cmake/eosio/$1 $1
+      mkdir -p /usr/local/lib/cmake/actx
+      pushd /usr/local/lib/cmake/actx &> /dev/null
+      ln -sf ../../../actx/lib/cmake/actx/$1 $1
       popd &> /dev/null
    }
 
