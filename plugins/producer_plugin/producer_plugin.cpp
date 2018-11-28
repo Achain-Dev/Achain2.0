@@ -460,13 +460,13 @@ class producer_plugin_impl : public std::enable_shared_from_this<producer_plugin
 void new_chain_banner(const eosio::chain::controller& db)
 {
    std::cerr << "\n"
-      "*******************************\n"
-      "*                             *\n"
-      "*   ------ NEW CHAIN ------   *\n"
-      "*   -  Welcome to EOSIO!  -   *\n"
-      "*   -----------------------   *\n"
-      "*                             *\n"
-      "*******************************\n"
+      "**********************************\n"
+      "*                                *\n"
+      "*   -------- NEW CHAIN -------   *\n"
+      "*   --Welcome to ACHAINPLUS!--   *\n"
+      "*   --------------------------   *\n"
+      "*                                *\n"
+      "**********************************\n"
       "\n";
 
    if( db.head_block_state()->header.timestamp.to_time_point() < (fc::time_point::now() - fc::milliseconds(200 * config::block_interval_ms)))
@@ -509,10 +509,10 @@ void producer_plugin::set_program_options(
          ("signature-provider", boost::program_options::value<vector<string>>()->composing()->multitoken()->default_value({std::string(default_priv_key.get_public_key()) + "=KEY:" + std::string(default_priv_key)}, std::string(default_priv_key.get_public_key()) + "=KEY:" + std::string(default_priv_key)),
           "Key=Value pairs in the form <public-key>=<provider-spec>\n"
           "Where:\n"
-          "   <public-key>    \tis a string form of a vaild EOSIO public key\n\n"
+          "   <public-key>    \tis a string form of a vaild AchainPlus public key\n\n"
           "   <provider-spec> \tis a string in the form <provider-type>:<data>\n\n"
           "   <provider-type> \tis KEY, or KEOSD\n\n"
-          "   KEY:<data>      \tis a string form of a valid EOSIO private key which maps to the provided public key\n\n"
+          "   KEY:<data>      \tis a string form of a valid AchainPlus private key which maps to the provided public key\n\n"
           "   KEOSD:<data>    \tis the URL where keosd is available and the approptiate wallet(s) are unlocked")
          ("keosd-provider-timeout", boost::program_options::value<int32_t>()->default_value(5),
           "Limits the maximum time (in milliseconds) that is allowd for sending blocks to a keosd provider for signing")
