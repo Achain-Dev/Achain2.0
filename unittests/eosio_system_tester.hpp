@@ -320,7 +320,6 @@ public:
    action_result vote( const account_name& voter, const std::vector<account_name>& producers, const account_name& proxy = name(0) ) {
       return push_action(voter, N(voteproducer), mvo()
                          ("voter",     voter)
-                         ("proxy",     proxy)
                          ("producers", producers));
    }
 
@@ -469,7 +468,6 @@ public:
          BOOST_REQUIRE_EQUAL(success(), buyram( "alice1111111", "alice1111111", core_from_string("30000000.0000") ) );
          BOOST_REQUIRE_EQUAL(success(), push_action(N(alice1111111), N(voteproducer), mvo()
                                                     ("voter",  "alice1111111")
-                                                    ("proxy", name(0).to_string())
                                                     ("producers", vector<account_name>(producer_names.begin(), producer_names.begin()+21))
                              )
          );
@@ -504,7 +502,6 @@ public:
                                                vector<permission_level>{{N(producer1111), config::active_name}},
                                                mvo()
                                                ("voter", "producer1111")
-                                               ("proxy", name(0).to_string())
                                                ("producers", vector<account_name>(1, N(producer1111)))
                                              )
                                  );

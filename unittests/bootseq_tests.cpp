@@ -251,7 +251,6 @@ BOOST_FIXTURE_TEST_CASE( bootseq_test, bootseq_tester ) {
           std::sort( producers.begin(), producers.end() );
           base_tester::push_action(config::system_account_name, N(voteproducer), voter, mvo()
                                 ("voter",  name(voter))
-                                ("proxy", name(0) )
                                 ("producers", producers)
                      );
         };
