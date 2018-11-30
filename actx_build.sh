@@ -1,7 +1,7 @@
 #!/bin/bash
 ##########################################################################
-# This is the EOSIO automated install script for Linux and Mac OS.
-# This file was downloaded from https://github.com/EOSIO/eos
+# This is the ACTX automated install script for Linux and Mac OS.
+# This file was downloaded from https://github.com/Achain-Dev/Achainplus
 #
 # Copyright (c) 2017, Respective Authors all rights reserved.
 #
@@ -27,7 +27,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #
-# https://github.com/EOSIO/eos/blob/master/LICENSE
+# https://github.com/Achain-Dev/Achainplus/blob/master/LICENSE
 ##########################################################################
 
    SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
@@ -120,8 +120,8 @@
 
    if [ ! -d "${SOURCE_DIR}/.git" ]; then
       printf "\\n\\tThis build script only works with sources cloned from git\\n"
-      printf "\\tPlease clone a new eos directory with 'git clone https://github.com/EOSIO/eos --recursive'\\n"
-      printf "\\tSee the wiki for instructions: https://github.com/EOSIO/eos/wiki\\n"
+      printf "\\tPlease clone a new eos directory with 'git clone https://github.com/Achain-Dev/Achainplus.git --recursive'\\n"
+      printf "\\tSee the wiki for instructions: https://github.com/Achain-Dev/wiki\\n"
       exit 1
    fi
 
@@ -145,7 +145,7 @@
    if [ "$ARCH" == "Linux" ]; then
 
       if [ ! -e /etc/os-release ]; then
-         printf "\\n\\tEOSIO currently supports Amazon, Centos, Fedora, Mint & Ubuntu Linux only.\\n"
+         printf "\\n\\tACTX currently supports Amazon, Centos, Fedora, Mint & Ubuntu Linux only.\\n"
          printf "\\tPlease install on the latest version of one of these Linux distributions.\\n"
          printf "\\thttps://aws.amazon.com/amazon-linux-ami/\\n"
          printf "\\thttps://www.centos.org/\\n"
@@ -160,7 +160,7 @@
 
       case "$OS_NAME" in
          "Amazon Linux AMI"|"Amazon Linux")
-            FILE="${SOURCE_DIR}/scripts/eosio_build_amazon.sh"
+            FILE="${SOURCE_DIR}/scripts/actx_build_amazon.sh"
             CXX_COMPILER=g++
             C_COMPILER=gcc
             MONGOD_CONF=${HOME}/opt/mongodb/mongod.conf
@@ -169,7 +169,7 @@
             export PATH=${HOME}/opt/mongodb/bin:$PATH
          ;;
          "CentOS Linux")
-            FILE="${SOURCE_DIR}/scripts/eosio_build_centos.sh"
+            FILE="${SOURCE_DIR}/scripts/actx_build_centos.sh"
             CXX_COMPILER=g++
             C_COMPILER=gcc
             MONGOD_CONF=${HOME}/opt/mongodb/mongod.conf
@@ -178,35 +178,35 @@
             export PATH=${HOME}/opt/mongodb/bin:$PATH
          ;;
          "elementary OS")
-            FILE="${SOURCE_DIR}/scripts/eosio_build_ubuntu.sh"
+            FILE="${SOURCE_DIR}/scripts/actx_build_ubuntu.sh"
             CXX_COMPILER=clang++-4.0
             C_COMPILER=clang-4.0
             MONGOD_CONF=${HOME}/opt/mongodb/mongod.conf
             export PATH=${HOME}/opt/mongodb/bin:$PATH
          ;;
          "Fedora")
-            FILE="${SOURCE_DIR}/scripts/eosio_build_fedora.sh"
+            FILE="${SOURCE_DIR}/scripts/actx_build_fedora.sh"
             CXX_COMPILER=g++
             C_COMPILER=gcc
             MONGOD_CONF=/etc/mongod.conf
             export LLVM_DIR=${HOME}/opt/wasm/lib/cmake/llvm
          ;;
          "Linux Mint")
-            FILE="${SOURCE_DIR}/scripts/eosio_build_ubuntu.sh"
+            FILE="${SOURCE_DIR}/scripts/actx_build_ubuntu.sh"
             CXX_COMPILER=clang++-4.0
             C_COMPILER=clang-4.0
             MONGOD_CONF=${HOME}/opt/mongodb/mongod.conf
             export PATH=${HOME}/opt/mongodb/bin:$PATH
          ;;
          "Ubuntu")
-            FILE="${SOURCE_DIR}/scripts/eosio_build_ubuntu.sh"
+            FILE="${SOURCE_DIR}/scripts/actx_build_ubuntu.sh"
             CXX_COMPILER=clang++-4.0
             C_COMPILER=clang-4.0
             MONGOD_CONF=${HOME}/opt/mongodb/mongod.conf
             export PATH=${HOME}/opt/mongodb/bin:$PATH
          ;;
          "Debian GNU/Linux")
-            FILE=${SOURCE_DIR}/scripts/eosio_build_ubuntu.sh
+            FILE=${SOURCE_DIR}/scripts/actx_build_ubuntu.sh
             CXX_COMPILER=clang++-4.0
             C_COMPILER=clang-4.0
             MONGOD_CONF=${HOME}/opt/mongodb/mongod.conf
@@ -222,7 +222,7 @@
    fi
 
    if [ "$ARCH" == "Darwin" ]; then
-      FILE="${SOURCE_DIR}/scripts/eosio_build_darwin.sh"
+      FILE="${SOURCE_DIR}/scripts/actx_build_darwin.sh"
       CXX_COMPILER=clang++
       C_COMPILER=clang
       MONGOD_CONF=/usr/local/etc/mongod.conf
@@ -264,7 +264,7 @@
       -DCMAKE_C_COMPILER="${C_COMPILER}" -DWASM_ROOT="${WASM_ROOT}" -DCORE_SYMBOL_NAME="${CORE_SYMBOL_NAME}" \
       -DOPENSSL_ROOT_DIR="${OPENSSL_ROOT_DIR}" -DBUILD_MONGO_DB_PLUGIN=true \
       -DENABLE_COVERAGE_TESTING="${ENABLE_COVERAGE_TESTING}" -DBUILD_DOXYGEN="${DOXYGEN}" \
-      -DCMAKE_INSTALL_PREFIX="/usr/local/eosio" ${LOCAL_CMAKE_FLAGS} "${SOURCE_DIR}"
+      -DCMAKE_INSTALL_PREFIX="/usr/local/actx" ${LOCAL_CMAKE_FLAGS} "${SOURCE_DIR}"
    then
       printf "\\n\\t>>>>>>>>>>>>>>>>>>>> CMAKE building Achainplus has exited with the above error.\\n\\n"
       exit -1
@@ -275,7 +275,7 @@
       exit 0
    fi
 
-   if [ -z ${JOBS} ]; then JOBS=$CPU_CORE; fi # Future proofing: Ensure $JOBS is set (usually set in scripts/eosio_build_*.sh scripts)
+   if [ -z ${JOBS} ]; then JOBS=$CPU_CORE; fi # Future proofing: Ensure $JOBS is set (usually set in scripts/actx_build_*.sh scripts)
    if ! make -j"${JOBS}"
    then
       printf "\\n\\t>>>>>>>>>>>>>>>>>>>> MAKE building Achainplus has exited with the above error.\\n\\n"
