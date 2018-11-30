@@ -141,7 +141,7 @@ public:
    mongocxx::instance mongo_inst;
    fc::optional<mongocxx::pool> mongo_pool;
 
-   // consum thread
+   // consum thread comsume data from queue
    mongocxx::collection _accounts;
    mongocxx::collection _trans;
    mongocxx::collection _trans_traces;
