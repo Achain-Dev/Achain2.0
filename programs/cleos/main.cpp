@@ -995,24 +995,23 @@ struct vote_producer_proxy_subcommand {
 };
 #endif
 
-struct vote_producer_subcommand {
+struct vote_producers_subcommand {
    string voter_str;
-   eosio::name producer_name;
-   asset votes; 
+   vector<eosio::name> producer_names;
 
-   vote_producer_subcommand(CLI::App* actionRoot) {
-      auto vote_producer = actionRoot->add_subcommand("prods", localized("Vote for one producer"));
-      vote_producer->add_option("voter", voter_str, localized("The voting account"))->required();
-      vote_producer->add_option("producer", producer_names, localized("The account(s) to vote for."))->required();
-	  vote_producer->add_option("vote", votes, localized("The votes to vote, i.e \"100.0000 ACTX\"."))->required();
-      add_standard_transaction_options(vote_producer);
+   vote_producers_subcommand(CLI::App* actionRoot) {
+      auto vote_producers = actionRoot->add_subcommand("prods", localized("Vote for one or more producers"));
+      vote_producers->add_option("voter", voter_str, localized("The voting account"))->required();
+      vote_producers->add_option("producers", producer_names, localized("The account(s) to vote for. All options from this position and following will be treated as the producer list."))->required();
+      add_standard_transaction_options(vote_producers);
 
-      vote_producer->set_callback([this] {
+      vote_producers->set_callback([this] {
+
+         std::sort( producer_names.begin(), producer_names.end() );
 
          fc::variant act_payload = fc::mutable_variant_object()
                   ("voter", voter_str)
-                  ("producer", producer_name)
-                  ("vote", votes.to_string());
+                  ("producers", producer_names);
          send_actions({create_action({permission_level{voter_str,config::active_name}}, config::system_account_name, N(voteproducer), act_payload)});
       });
    }
@@ -3109,7 +3108,7 @@ int main( int argc, char** argv ) {
    auto voteProducer = system->add_subcommand("voteproducer", localized("Vote for a producer"));
    voteProducer->require_subcommand();
    //auto voteProxy = vote_producer_proxy_subcommand(voteProducer);
-   auto voteProducer = vote_producer_subcommand(voteProducer);
+   auto voteProducers = vote_producers_subcommand(voteProducer);
    auto approveProducer = approve_producer_subcommand(voteProducer);
    auto unapproveProducer = unapprove_producer_subcommand(voteProducer);
 
