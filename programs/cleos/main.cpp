@@ -1017,6 +1017,7 @@ struct vote_producers_subcommand {
    }
 };
 
+#if 0
 struct approve_producer_subcommand {
    eosio::name voter;
    eosio::name producer_name;
@@ -1061,18 +1062,19 @@ struct approve_producer_subcommand {
       });
    }
 };
+#endif
 
-struct unapprove_producer_subcommand {
+struct unvote_producer_subcommand {
    eosio::name voter;
    eosio::name producer_name;
 
-   unapprove_producer_subcommand(CLI::App* actionRoot) {
-      auto approve_producer = actionRoot->add_subcommand("unapprove", localized("Remove one producer from list of voted producers"));
-      approve_producer->add_option("voter", voter, localized("The voting account"))->required();
-      approve_producer->add_option("producer", producer_name, localized("The account to remove from voted producers"))->required();
-      add_standard_transaction_options(approve_producer);
+   unvote_producer_subcommand(CLI::App* actionRoot) {
+      auto unvote_producer = actionRoot->add_subcommand("unvote", localized("Remove one producer from list of voted producers"));
+      unvote_producer->add_option("voter", voter, localized("The voting account"))->required();
+      unvote_producer->add_option("producer", producer_name, localized("The account to remove from voted producers"))->required();
+      add_standard_transaction_options(unvote_producer);
 
-      approve_producer->set_callback([this] {
+      unvote_producer->set_callback([this] {
             auto result = call(get_table_func, fc::mutable_variant_object("json", true)
                                ("code", name(config::system_account_name).to_string())
                                ("scope", name(config::system_account_name).to_string())
@@ -3109,8 +3111,8 @@ int main( int argc, char** argv ) {
    voteProducer->require_subcommand();
    //auto voteProxy = vote_producer_proxy_subcommand(voteProducer);
    auto voteProducers = vote_producers_subcommand(voteProducer);
-   auto approveProducer = approve_producer_subcommand(voteProducer);
-   auto unapproveProducer = unapprove_producer_subcommand(voteProducer);
+   //auto approveProducer = approve_producer_subcommand(voteProducer);
+   auto unvoteProducer = unvote_producer_subcommand(voteProducer);
 
    auto listProducers = list_producers_subcommand(system);
 
