@@ -375,7 +375,7 @@ namespace eosiosystem {
          }
 
          if( from_voter->producers.size()) {
-            update_votes( from, from_voter->producers, false );
+            //update_votes( from, from_voter->producers, false );
          }
       }
    }
