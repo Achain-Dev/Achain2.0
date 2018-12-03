@@ -3114,9 +3114,9 @@ int main( int argc, char** argv ) {
    auto voteProducer = system->add_subcommand("voteproducer", localized("Vote for a producer"));
    voteProducer->require_subcommand();
    //auto voteProxy = vote_producer_proxy_subcommand(voteProducer);
-   auto voteProducer = vote_producer_subcommand(voteProducer);
+   auto voteproducer = vote_producer_subcommand(voteProducer);
    //auto approveProducer = approve_producer_subcommand(voteProducer);
-   auto unvoteProducer = unvote_producer_subcommand(voteProducer);
+   auto unvoteproducer = unvote_producer_subcommand(voteProducer);
 
    auto listProducers = list_producers_subcommand(system);
 
