@@ -998,21 +998,23 @@ struct vote_producer_proxy_subcommand {
 struct vote_producer_subcommand {
    string voter_str;
    eosio::name producer_name;
-   asset votes;
+   string votes_str;
 
    vote_producer_subcommand(CLI::App* actionRoot) {
       auto vote_producer = actionRoot->add_subcommand("prods", localized("Vote for one producer"));
       vote_producer->add_option("voter", voter_str, localized("The voting account"))->required();
       vote_producer->add_option("producer", producer_name, localized("The account to vote for."))->required();
-	  vote_producer->add_option("votes", votes, localized("The votes to vote, i.e.\"100.0000 ACTX\"."))->required();
+	  vote_producer->add_option("votes", votes_str, localized("The votes to vote, i.e.\"100.0000 ACTX\"."))->required();
 	  
       add_standard_transaction_options(vote_producer);
+
+	  asset votes = to_asset(votes_str);
 
       vote_producer->set_callback([this] {
 
          fc::variant act_payload = fc::mutable_variant_object()
                   ("voter", voter_str)
-                  ("producers", producer_names)
+                  ("producer", producer_name)
                   ("votes", votes.to_string());
          send_actions({create_action({permission_level{voter_str,config::active_name}}, config::system_account_name, N(voteproducer), act_payload)});
       });
