@@ -521,8 +521,9 @@ public:
          trx.sign( get_private_key( N(producer1111), "active" ), control->get_chain_id()  );
          push_transaction( trx );
       }
+   #endif
+
    }
-#endif
 
    abi_serializer abi_ser;
    abi_serializer token_abi_ser;
