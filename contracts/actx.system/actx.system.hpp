@@ -185,7 +185,7 @@ namespace eosiosystem {
 
          void setram( uint64_t max_ram_size );
 
-         void voteproducer( const account_name voter, const std::vector<account_name>& producers );
+         void voteproducer( const account_name voter, const account_name producer, asset stake );
 
          //void regproxy( const account_name proxy, bool isproxy );
 
