@@ -154,7 +154,7 @@ namespace eosiosystem {
 		 
 		 eosio_assert( producers.size() <= 30, "attempt to vote for too many producers" );
 
-		 producers.emplace(std::map::value_type(producer, stake.amount));
+		 producers.emplace(std::map<account_name, int64_t>::value_type(producer, stake.amount));
 	  }
 	  else
 	  {
