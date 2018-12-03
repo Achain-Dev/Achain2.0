@@ -522,10 +522,11 @@ public:
          push_transaction( trx );
       }
    }
+#endif
 
    abi_serializer abi_ser;
    abi_serializer token_abi_ser;
-   #endif
+   
 };
 
 inline fc::mutable_variant_object voter( account_name acct ) {
