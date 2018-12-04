@@ -156,7 +156,7 @@ namespace eosio {
          bool   operator ==( const block_timestamp& t )const   { return slot == t.slot; }
          bool   operator !=( const block_timestamp& t )const   { return slot != t.slot; }
          uint32_t slot;
-         static constexpr int32_t block_interval_ms = 500;
+         static constexpr int32_t block_interval_ms = 3000;
          static constexpr int64_t block_timestamp_epoch = 946684800000ll;  // epoch is year 2000
 
          EOSLIB_SERIALIZE( block_timestamp, (slot) )
