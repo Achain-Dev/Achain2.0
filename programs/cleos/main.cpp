@@ -973,6 +973,7 @@ struct unregister_producer_subcommand {
    }
 };
 
+#if 0
 struct vote_producer_proxy_subcommand {
    string voter_str;
    string proxy_str;
@@ -992,6 +993,7 @@ struct vote_producer_proxy_subcommand {
       });
    }
 };
+#endif
 
 struct vote_producers_subcommand {
    string voter_str;
@@ -1009,13 +1011,13 @@ struct vote_producers_subcommand {
 
          fc::variant act_payload = fc::mutable_variant_object()
                   ("voter", voter_str)
-                  ("proxy", "")
                   ("producers", producer_names);
          send_actions({create_action({permission_level{voter_str,config::active_name}}, config::system_account_name, N(voteproducer), act_payload)});
       });
    }
 };
 
+#if 0
 struct approve_producer_subcommand {
    eosio::name voter;
    eosio::name producer_name;
@@ -1055,24 +1057,24 @@ struct approve_producer_subcommand {
             }
             fc::variant act_payload = fc::mutable_variant_object()
                ("voter", voter)
-               ("proxy", "")
                ("producers", prods);
             send_actions({create_action({permission_level{voter,config::active_name}}, config::system_account_name, N(voteproducer), act_payload)});
       });
    }
 };
+#endif
 
-struct unapprove_producer_subcommand {
+struct unvote_producer_subcommand {
    eosio::name voter;
    eosio::name producer_name;
 
-   unapprove_producer_subcommand(CLI::App* actionRoot) {
-      auto approve_producer = actionRoot->add_subcommand("unapprove", localized("Remove one producer from list of voted producers"));
-      approve_producer->add_option("voter", voter, localized("The voting account"))->required();
-      approve_producer->add_option("producer", producer_name, localized("The account to remove from voted producers"))->required();
-      add_standard_transaction_options(approve_producer);
+   unvote_producer_subcommand(CLI::App* actionRoot) {
+      auto unvote_producer = actionRoot->add_subcommand("unvote", localized("Remove one producer from list of voted producers"));
+      unvote_producer->add_option("voter", voter, localized("The voting account"))->required();
+      unvote_producer->add_option("producer", producer_name, localized("The account to remove from voted producers"))->required();
+      add_standard_transaction_options(unvote_producer);
 
-      approve_producer->set_callback([this] {
+      unvote_producer->set_callback([this] {
             auto result = call(get_table_func, fc::mutable_variant_object("json", true)
                                ("code", name(config::system_account_name).to_string())
                                ("scope", name(config::system_account_name).to_string())
@@ -1100,7 +1102,6 @@ struct unapprove_producer_subcommand {
             prods.erase( it, prods.end() ); //should always delete only one element
             fc::variant act_payload = fc::mutable_variant_object()
                ("voter", voter)
-               ("proxy", "")
                ("producers", prods);
             send_actions({create_action({permission_level{voter,config::active_name}}, config::system_account_name, N(voteproducer), act_payload)});
       });
@@ -1412,6 +1413,7 @@ struct claimrewards_subcommand {
    }
 };
 
+#if 0
 struct regproxy_subcommand {
    string proxy;
 
@@ -1428,7 +1430,9 @@ struct regproxy_subcommand {
       });
    }
 };
+#endif
 
+#if 0
 struct unregproxy_subcommand {
    string proxy;
 
@@ -1445,6 +1449,7 @@ struct unregproxy_subcommand {
       });
    }
 };
+#endif
 
 struct canceldelay_subcommand {
    string canceling_account;
@@ -1708,23 +1713,18 @@ void get_account( const string& accountName, const string& coresym, bool json_fo
 
       if ( res.voter_info.is_object() ) {
          auto& obj = res.voter_info.get_object();
-         string proxy = obj["proxy"].as_string();
-         if ( proxy.empty() ) {
-            auto& prods = obj["producers"].get_array();
-            std::cout << "producers:";
-            if ( !prods.empty() ) {
-               for ( int i = 0; i < prods.size(); ++i ) {
-                  if ( i%3 == 0 ) {
-                     std::cout << std::endl << indent;
-                  }
-                  std::cout << std::setw(16) << std::left << prods[i].as_string();
+         auto& prods = obj["producers"].get_array();
+         std::cout << "producers:";
+         if ( !prods.empty() ) {
+            for ( int i = 0; i < prods.size(); ++i ) {
+               if ( i%3 == 0 ) {
+                  std::cout << std::endl << indent;
                }
-               std::cout << std::endl;
-            } else {
-               std::cout << indent << "<not voted>" << std::endl;
+               std::cout << std::setw(16) << std::left << prods[i].as_string();
             }
+            std::cout << std::endl;
          } else {
-            std::cout << "proxy:" << indent << proxy << std::endl;
+            std::cout << indent << "<not voted>" << std::endl;
          }
       }
       std::cout << std::endl;
@@ -3109,10 +3109,10 @@ int main( int argc, char** argv ) {
 
    auto voteProducer = system->add_subcommand("voteproducer", localized("Vote for a producer"));
    voteProducer->require_subcommand();
-   auto voteProxy = vote_producer_proxy_subcommand(voteProducer);
+   //auto voteProxy = vote_producer_proxy_subcommand(voteProducer);
    auto voteProducers = vote_producers_subcommand(voteProducer);
-   auto approveProducer = approve_producer_subcommand(voteProducer);
-   auto unapproveProducer = unapprove_producer_subcommand(voteProducer);
+   //auto approveProducer = approve_producer_subcommand(voteProducer);
+   auto unvoteProducer = unvote_producer_subcommand(voteProducer);
 
    auto listProducers = list_producers_subcommand(system);
 
@@ -3127,8 +3127,8 @@ int main( int argc, char** argv ) {
 
    auto claimRewards = claimrewards_subcommand(system);
 
-   auto regProxy = regproxy_subcommand(system);
-   auto unregProxy = unregproxy_subcommand(system);
+   //auto regProxy = regproxy_subcommand(system);
+   //auto unregProxy = unregproxy_subcommand(system);
 
    auto cancelDelay = canceldelay_subcommand(system);
 
