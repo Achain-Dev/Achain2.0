@@ -207,7 +207,8 @@ def vote(b, e):
         voter = accounts[i]['name']
         #prods = ' '.join(map(lambda x: accounts[x]['name'], prods))
         votes = '%u'%stakelist[i] + ' ' + 'ACTX'
-        retry(args.cleos + 'system voteproducer prods ' + voter + ' ' + prods[var] + ' ' + '"%s"' % votes )
+        prod = accounts[prods[var]]['name']
+        retry(args.cleos + 'system voteproducer prods ' + voter + ' ' + prod + ' ' + '"%s"' % votes )
         var = var + 1
         if var >= args.num_producers_vote:
             var = 0
