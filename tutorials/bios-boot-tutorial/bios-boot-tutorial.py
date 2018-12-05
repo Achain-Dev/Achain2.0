@@ -187,6 +187,8 @@ def createStakedAccounts(b, e):
         assert(funds == ramFunds + stakeNet + stakeCpu + unstaked)
         retry(args.cleos + 'system newaccount --transfer actx %s %s --stake-net "%s" --stake-cpu "%s" --buy-ram "%s"   ' % 
             (a['name'], a['pub'], intToCurrency(stakeNet), intToCurrency(stakeCpu), intToCurrency(ramFunds)))
+        stakeamount = (stakeNet + stakeCpu) // 10000
+        stakelist.append(stakeamount)
         if unstaked:
             retry(args.cleos + 'transfer actx %s "%s"' % (a['name'], intToCurrency(unstaked)))
 
@@ -199,11 +201,16 @@ def listProducers():
     run(args.cleos + 'system listproducers')
 
 def vote(b, e):
+    prods = random.sample(range(firstProducer, firstProducer + numProducers), args.num_producers_vote)
+    var = 0    
     for i in range(b, e):
         voter = accounts[i]['name']
-        prods = random.sample(range(firstProducer, firstProducer + numProducers), args.num_producers_vote)
-        prods = ' '.join(map(lambda x: accounts[x]['name'], prods))
-        retry(args.cleos + 'system voteproducer prods ' + voter + ' ' + prods)
+        #prods = ' '.join(map(lambda x: accounts[x]['name'], prods))
+        votes = '%u'%stakelist[i] + ' ' + 'ACTX'
+        retry(args.cleos + 'system voteproducer prods ' + voter + ' ' + prods[var] + ' ' + '"%s"' % votes )
+        var = var + 1
+        if var >= args.num_producers_vote:
+            var = 0
 
 def claimRewards():
     table = getJsonOutput(args.cleos + 'get table actx actx producers -l 100')
@@ -404,7 +411,7 @@ with open('accounts.json') as f:
     accounts = a['users'] + a['producers']
 
 maxClients = numProducers + 10
-
+stakelist = list()
 haveCommand = False
 for (flag, command, function, inAll, help) in commands:
     if getattr(args, command) or inAll and args.all:
