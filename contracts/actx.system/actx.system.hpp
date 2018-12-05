@@ -82,18 +82,10 @@ namespace eosiosystem {
    };
 
    struct voter_info {
-      account_name                owner = 0; /// the voter
-      std::vector<account_name>   producers; /// the producers approved by this voter if no proxy set
+      account_name                owner = 0;  /// the voter 
+      std::map<account_name, int64_t> producers;    
       int64_t                     staked = 0;
-
-      /**
-       *  Every time a vote is cast we must first "undo" the last vote weight, before casting the
-       *  new vote weight.  Vote weight is calculated as:
-       *
-       *  stated.amount * 2 ^ ( weeks_since_launch/weeks_per_year)
-       */
-      double                      last_vote_weight = 0; /// the vote weight cast the last time the vote was updated
-
+      int64_t                     current_stake = 0;
       uint32_t                    reserved1 = 0;
       time                        reserved2 = 0;
       eosio::asset                reserved3;
@@ -101,7 +93,7 @@ namespace eosiosystem {
       uint64_t primary_key()const { return owner; }
 
       // explicit serialization macro is not necessary, used here only to improve compilation time
-      EOSLIB_SERIALIZE( voter_info, (owner)(producers)(staked)(last_vote_weight)(reserved1)(reserved2)(reserved3) )
+      EOSLIB_SERIALIZE( voter_info, (owner)(producers)(staked)(current_stake)(reserved1)(reserved2)(reserved3) )
    };
 
    typedef eosio::multi_index< N(voters), voter_info>  voters_table;
@@ -193,7 +185,7 @@ namespace eosiosystem {
 
          void setram( uint64_t max_ram_size );
 
-         void voteproducer( const account_name voter, const std::vector<account_name>& producers );
+         void voteproducer( const account_name voter, const account_name producer, asset stake );
 
          //void regproxy( const account_name proxy, bool isproxy );
 
@@ -219,7 +211,7 @@ namespace eosiosystem {
          //defined in voting.hpp
          static eosio_global_state get_default_parameters();
 
-         void update_votes( const account_name voter, const std::vector<account_name>& producers, bool voting );
+         void update_votes( const account_name voter, const account_name producer, asset stake, bool voting );
 
          // defined in voting.cpp
          void propagate_weight_change( const voter_info& voter );
