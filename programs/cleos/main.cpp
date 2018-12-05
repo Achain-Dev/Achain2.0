@@ -1009,9 +1009,7 @@ struct vote_producer_subcommand {
       add_standard_transaction_options(vote_producer);
 
 	  //asset votes = to_asset(votes_str);
-
       vote_producer->set_callback([this] {
-
          fc::variant act_payload = fc::mutable_variant_object()
                   ("voter", voter_str)
                   ("producer", producer_name)

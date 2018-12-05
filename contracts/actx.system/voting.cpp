@@ -135,40 +135,35 @@ namespace eosiosystem {
          _gstate.thresh_activated_stake_time = current_time();
       }
 
-	  if (_gstate.total_activated_stake < min_activated_stake && _gstate.thresh_activated_stake_time > 0 )
-	  {
-	     _gstate.thresh_activated_stake_time = 0;
-	  }
+      if (_gstate.total_activated_stake < min_activated_stake && _gstate.thresh_activated_stake_time > 0 )
+      {
+          _gstate.thresh_activated_stake_time = 0;
+      }
+      auto producers = voter->producers;
 
-	  auto producers = voter->producers;
-
-	  //check count of producers
-
-	  auto p_iter = producers.find(producer);
-	  if (p_iter == producers.end())
-	  {
-	     if (stake.amount < 0)
-	     {
-			eosio_assert( false, "the producer is not in the vote list" );
-	     }
-		 
-		 eosio_assert( producers.size() <= 30, "attempt to vote for too many producers" );
-
-		 producers.emplace(std::map<account_name, int64_t>::value_type(producer, stake.amount));
-	  }
-	  else
-	  {
-	     if (stake.amount < 0)
-	     {
-			eosio_assert(p_iter->second + stake.amount >= 0, "attempt to unvote more votes" );
-	     }
-
-		 p_iter->second += stake.amount;
-	  }
-	  
-	  auto pitr = _producers.find(producer);
+      //check count of producers
+      auto p_iter = producers.find(producer);
+      if (p_iter == producers.end())
+      {
+         if (stake.amount < 0)
+	 {
+            eosio_assert( false, "the producer is not in the vote list" );
+	 }
+         eosio_assert( producers.size() <= 30, "attempt to vote for too many producers" );
+         producers.emplace(std::map<account_name, int64_t>::value_type(producer, stake.amount));
+      }
+      else
+      {
+         if (stake.amount < 0)
+	 {
+            eosio_assert(p_iter->second + stake.amount >= 0, "attempt to unvote more votes" );
+	 }
+         
+         p_iter->second += stake.amount;
+      }
+      
+      auto pitr = _producers.find(producer);
       if ( pitr != _producers.end() ) {
-         eosio_assert( !voting, "producer is not currently registered" );
          _producers.modify( pitr, 0, [&]( auto& p ) {
             p.total_votes += stake.amount;
             if ( p.total_votes < 0 ) { // floating point arithmetics can give small negative numbers
@@ -178,10 +173,9 @@ namespace eosiosystem {
       } else {
          eosio_assert( false, "producer is not registered" ); 
       }
-
       _voters.modify( voter, 0, [&]( auto& av ) {
          av.producers = producers;
-		 av.current_stake += stake.amount;
+         av.current_stake += stake.amount;
       });
    }
 
