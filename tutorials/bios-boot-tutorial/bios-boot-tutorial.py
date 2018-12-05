@@ -213,15 +213,6 @@ def claimRewards():
             times.append(getJsonOutput(args.cleos + 'system claimrewards -j ' + row['owner'])['processed']['elapsed'])
     print('Elapsed time for claimrewards:', times)
 
-def proxyVotes(b, e):
-    vote(firstProducer, firstProducer + 1)
-    proxy = accounts[firstProducer]['name']
-    retry(args.cleos + 'system regproxy ' + proxy)
-    sleep(1.0)
-    for i in range(b, e):
-        voter = accounts[i]['name']
-        retry(args.cleos + 'system voteproducer proxy ' + voter + ' ' + proxy)
-
 def updateAuth(account, permission, parent, controller):
     run(args.cleos + 'push action actx updateauth' + jsonArg({
         'account': account,
@@ -352,7 +343,6 @@ commands = [
     ('P', 'start-prod',     stepStartProducers,         True,    "Start producers"),
     ('v', 'vote',           stepVote,                   True,    "Vote for producers"),
     ('R', 'claim',          claimRewards,               True,    "Claim rewards"),
-    ('x', 'proxy',          stepProxyVotes,             True,    "Proxy votes"),
     ('q', 'resign',         stepResign,                 True,    "Resign actx"),
     ('m', 'msg-replace',    msigReplaceSystem,          False,   "Replace system contract using msig"),
     ('X', 'xfer',           stepTransfer,               False,   "Random transfer tokens (infinite loop)"),
