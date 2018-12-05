@@ -1091,20 +1091,19 @@ struct unvote_producer_subcommand {
                return;
             }
             EOS_ASSERT( 1 == res.rows.size(), multiple_voter_info, "More than one voter_info for account" );
-            auto prod_vars = res.rows[0]["producers"].get_array();
-            vector<eosio::name> prods;
-            for ( auto& x : prod_vars ) {
-               prods.push_back( name(x.as_string()) );
-            }
-            auto it = std::remove( prods.begin(), prods.end(), producer_name );
-            if (it == prods.end() ) {
-               std::cerr << "Cannot remove: producer \"" << producer_name << "\" is not on the list." << std::endl;
+            //auto prod_vars = res.rows[0]["producers"].get_array();
+            std::map<name, int64_t> prod_vars = fc::variant(res.rows[0]["producers"]).as<std::map<name, int64_t>>();
+            auto iter = prod_vars.find(producer_name);
+            if (iter == prod_vars.end())
+            {
+               std::cerr << "Voter info not found for account " << producer_name.to_string() << std::endl;
                return;
             }
-            prods.erase( it, prods.end() ); //should always delete only one element
+            asset asset_vote(-(iter->second));
             fc::variant act_payload = fc::mutable_variant_object()
                ("voter", voter)
-               ("producers", prods);
+               ("producer",producer_name )
+               ("votes", asset_vote.to_string());
             send_actions({create_action({permission_level{voter,config::active_name}}, config::system_account_name, N(voteproducer), act_payload)});
       });
    }
@@ -1715,14 +1714,17 @@ void get_account( const string& accountName, const string& coresym, bool json_fo
 
       if ( res.voter_info.is_object() ) {
          auto& obj = res.voter_info.get_object();
-         auto& prods = obj["producers"].get_array();
+         //auto& prods = obj["producers"].get_array();
+         auto prods = fc::variant(obj["producers"]).as<std::map<name, int64_t>>();
          std::cout << "producers:";
          if ( !prods.empty() ) {
-            for ( int i = 0; i < prods.size(); ++i ) {
+            uint32_t i = 0;
+            for ( auto& x : prods ) {
                if ( i%3 == 0 ) {
                   std::cout << std::endl << indent;
                }
-               std::cout << std::setw(16) << std::left << prods[i].as_string();
+               std::cout << std::setw(16) << std::left << x.first.to_string();
+               i++;
             }
             std::cout << std::endl;
          } else {

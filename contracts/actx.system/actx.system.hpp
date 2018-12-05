@@ -83,7 +83,7 @@ namespace eosiosystem {
 
    struct voter_info {
       account_name                owner = 0;  /// the voter 
-	  std::map<account_name, int64_t> producers;    
+      std::map<account_name, int64_t> producers;    
       int64_t                     staked = 0;
       int64_t                     current_stake = 0;
       uint32_t                    reserved1 = 0;
