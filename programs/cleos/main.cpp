@@ -1008,12 +1008,13 @@ struct vote_producer_subcommand {
 	  
       add_standard_transaction_options(vote_producer);
 
-	  //asset votes = to_asset(votes_str);
+      //const asset votes = to_asset(votes_str);
       vote_producer->set_callback([this] {
+         const asset votes = to_asset(votes_str);
          fc::variant act_payload = fc::mutable_variant_object()
                   ("voter", voter_str)
                   ("producer", producer_name)
-                  ("votes", votes_str);
+                  ("votes", votes.to_string());
          send_actions({create_action({permission_level{voter_str,config::active_name}}, config::system_account_name, N(voteproducer), act_payload)});
       });
    }
