@@ -1327,7 +1327,7 @@ read_only::get_producers_result read_only::get_producers( const read_only::get_p
          result.rows.emplace_back(fc::variant(data));
    }
 
-   result.total_producer_vote_weight = get_global_row(d, abi, abis, abi_serializer_max_time, shorten_abi_errors)["total_producer_vote_weight"].as_double();
+   result.total_producer_votes = get_global_row(d, abi, abis, abi_serializer_max_time, shorten_abi_errors)["total_activated_stake"].as_uint64();
    return result;
 }
 
