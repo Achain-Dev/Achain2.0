@@ -108,104 +108,75 @@ namespace eosiosystem {
       return double(staked) * std::pow( 2, weight );
    }
    /**
-    *  @pre producers must be sorted from lowest to highest and must be registered and active
-    *  @pre every listed producer or proxy must have been previously registered
+    *  @pre every listed producer must have been previously registered
     *  @pre voter must authorize this action
-    *  @pre voter must have previously staked some EOS for voting
+    *  @pre voter must have previously staked some ACTX for voting
     *  @pre voter->staked must be up to date
     *
     *  @post every producer previously voted for will have vote reduced by previous vote weight
     *  @post every producer newly voted for will have vote increased by new vote amount
     *
     */
-   void system_contract::voteproducer( const account_name voter_name, const std::vector<account_name>& producers ) {
+   void system_contract::voteproducer( const account_name voter_name, const account_name producer, asset stake ) {
       require_auth( voter_name );
-      update_votes( voter_name, producers, true );
+      update_votes( voter_name, producer, stake, true );
    }
 
-   void system_contract::update_votes( const account_name voter_name, const std::vector<account_name>& producers, bool voting ) {
-      //validate input
-      
-      eosio_assert( producers.size() <= 30, "attempt to vote for too many producers" );
-      for( size_t i = 1; i < producers.size(); ++i ) {
-         eosio_assert( producers[i-1] < producers[i], "producer votes must be unique and sorted" );
-      }
+   void system_contract::update_votes( const account_name voter_name, const account_name producer, asset stake, bool voting ) {
 
       auto voter = _voters.find(voter_name);
       eosio_assert( voter != _voters.end(), "user must stake before they can vote" ); /// staking creates voter object
 
-      /**
-       * The first time someone votes we calculate and set last_vote_weight, since they cannot unstake until
-       * after total_activated_stake hits threshold, we can use last_vote_weight to determine that this is
-       * their first vote and should consider their stake activated.
-       */
-      if( voter->last_vote_weight <= 0.0 ) {
-         _gstate.total_activated_stake += voter->staked;
-         if( _gstate.total_activated_stake >= min_activated_stake && _gstate.thresh_activated_stake_time == 0 ) {
-            _gstate.thresh_activated_stake_time = current_time();
-         }
+	  eosio_assert( voter->current_stake + stake.amount < voter->staked, "attempt to vote more votes" );
+	   
+
+      _gstate.total_activated_stake += stake.amount;
+      if ( _gstate.total_activated_stake >= min_activated_stake && _gstate.thresh_activated_stake_time == 0 ) {
+         _gstate.thresh_activated_stake_time = current_time();
       }
 
-      auto new_vote_weight = stake2vote( voter->staked );
-
-      boost::container::flat_map<account_name, pair<double, bool /*new*/> > producer_deltas;
-      if ( voter->last_vote_weight > 0 ) {
-         for( const auto& p : voter->producers ) {
-            auto& d = producer_deltas[p];
-            d.first -= voter->last_vote_weight;
-            d.second = false;
-         }
+      if (_gstate.total_activated_stake < min_activated_stake && _gstate.thresh_activated_stake_time > 0 )
+      {
+          _gstate.thresh_activated_stake_time = 0;
       }
+      auto producers = voter->producers;
 
+      //check count of producers
+      auto p_iter = producers.find(producer);
+      if (p_iter == producers.end())
+      {
+         if (stake.amount < 0)
+	 {
+            eosio_assert( false, "the producer is not in the vote list" );
+	 }
+         eosio_assert( producers.size() <= 30, "attempt to vote for too many producers" );
+         producers.emplace(std::map<account_name, int64_t>::value_type(producer, stake.amount));
+      }
+      else
+      {
+         if (stake.amount < 0)
+	 {
+            eosio_assert(p_iter->second + stake.amount >= 0, "attempt to unvote more votes" );
+	 }
+         
+         p_iter->second += stake.amount;
+      }
       
-      if( new_vote_weight >= 0 ) {
-         for( const auto& p : producers ) {
-            auto& d = producer_deltas[p];
-            d.first += new_vote_weight;
-            d.second = true;
-         }
+      auto pitr = _producers.find(producer);
+      if ( pitr != _producers.end() ) {
+         _producers.modify( pitr, 0, [&]( auto& p ) {
+            p.total_votes += stake.amount;
+            if ( p.total_votes < 0 ) { // floating point arithmetics can give small negative numbers
+               p.total_votes = 0;
+            }
+         });
+      } else {
+         eosio_assert( false, "producer is not registered" ); 
       }
-
-      for( const auto& pd : producer_deltas ) {
-         auto pitr = _producers.find( pd.first );
-         if( pitr != _producers.end() ) {
-            eosio_assert( !voting || pitr->active() || !pd.second.second /* not from new set */, "producer is not currently registered" );
-            _producers.modify( pitr, 0, [&]( auto& p ) {
-               p.total_votes += pd.second.first;
-               if ( p.total_votes < 0 ) { // floating point arithmetics can give small negative numbers
-                  p.total_votes = 0;
-               }
-               _gstate.total_producer_vote_weight += pd.second.first;
-               //eosio_assert( p.total_votes >= 0, "something bad happened" );
-            });
-         } else {
-            eosio_assert( !pd.second.second /* not from new set */, "producer is not registered" ); //data corruption
-         }
-      }
-
       _voters.modify( voter, 0, [&]( auto& av ) {
-         av.last_vote_weight = new_vote_weight;
          av.producers = producers;
+         av.current_stake += stake.amount;
       });
-   }
-
-   void system_contract::propagate_weight_change( const voter_info& voter ) {
-      double new_weight = stake2vote( voter.staked );
-      /// don't propagate small changes (1 ~= epsilon)
-      if ( fabs( new_weight - voter.last_vote_weight ) > 1 )  {
-         auto delta = new_weight - voter.last_vote_weight;
-         for ( auto acnt : voter.producers ) {
-            auto& pitr = _producers.get( acnt, "producer not found" ); //data corruption
-            _producers.modify( pitr, 0, [&]( auto& p ) {
-                  p.total_votes += delta;
-                  _gstate.total_producer_vote_weight += delta;
-            });
-         }
-      }
-      _voters.modify( voter, 0, [&]( auto& v ) {
-            v.last_vote_weight = new_weight;
-         }
-      );
    }
 
 } /// namespace eosiosystem

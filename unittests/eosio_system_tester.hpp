@@ -448,7 +448,7 @@ public:
          }
       }
       produce_blocks( 250);
-
+#if 0
       auto trace_auth = TESTER::push_action(config::system_account_name, updateauth::get_name(), config::system_account_name, mvo()
                                             ("account", name(config::system_account_name).to_string())
                                             ("permission", name(config::active_name).to_string())
@@ -477,11 +477,12 @@ public:
       auto producer_keys = control->head_block_state()->active_schedule.producers;
       BOOST_REQUIRE_EQUAL( 21, producer_keys.size() );
       BOOST_REQUIRE_EQUAL( name("defproducera"), producer_keys[0].producer_name );
-
+#endif
       return producer_names;
    }
 
    void cross_15_percent_threshold() {
+   #if 0
       setup_producer_accounts({N(producer1111)});
       regproducer(N(producer1111));
       {
@@ -520,10 +521,13 @@ public:
          trx.sign( get_private_key( N(producer1111), "active" ), control->get_chain_id()  );
          push_transaction( trx );
       }
+   #endif
+
    }
 
    abi_serializer abi_ser;
    abi_serializer token_abi_ser;
+   
 };
 
 inline fc::mutable_variant_object voter( account_name acct ) {

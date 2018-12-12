@@ -187,6 +187,8 @@ def createStakedAccounts(b, e):
         assert(funds == ramFunds + stakeNet + stakeCpu + unstaked)
         retry(args.cleos + 'system newaccount --transfer actx %s %s --stake-net "%s" --stake-cpu "%s" --buy-ram "%s"   ' % 
             (a['name'], a['pub'], intToCurrency(stakeNet), intToCurrency(stakeCpu), intToCurrency(ramFunds)))
+        stakeamount = (stakeNet + stakeCpu) // 10000
+        stakelist.append(stakeamount)
         if unstaked:
             retry(args.cleos + 'transfer actx %s "%s"' % (a['name'], intToCurrency(unstaked)))
 
@@ -199,11 +201,17 @@ def listProducers():
     run(args.cleos + 'system listproducers')
 
 def vote(b, e):
+    prods = random.sample(range(firstProducer, firstProducer + numProducers), args.num_producers_vote)
+    var = 0    
     for i in range(b, e):
         voter = accounts[i]['name']
-        prods = random.sample(range(firstProducer, firstProducer + numProducers), args.num_producers_vote)
-        prods = ' '.join(map(lambda x: accounts[x]['name'], prods))
-        retry(args.cleos + 'system voteproducer prods ' + voter + ' ' + prods)
+        #prods = ' '.join(map(lambda x: accounts[x]['name'], prods))
+        votes = '%u'%stakelist[i] + ' ' + 'ACTX'
+        prod = accounts[prods[var]]['name']
+        retry(args.cleos + 'system voteproducer prods ' + voter + ' ' + prod + ' ' + '"%s"' % votes )
+        var = var + 1
+        if var >= args.num_producers_vote:
+            var = 0
 
 def claimRewards():
     table = getJsonOutput(args.cleos + 'get table actx actx producers -l 100')
@@ -212,15 +220,6 @@ def claimRewards():
         if row['unpaid_blocks'] and not row['last_claim_time']:
             times.append(getJsonOutput(args.cleos + 'system claimrewards -j ' + row['owner'])['processed']['elapsed'])
     print('Elapsed time for claimrewards:', times)
-
-def proxyVotes(b, e):
-    vote(firstProducer, firstProducer + 1)
-    proxy = accounts[firstProducer]['name']
-    retry(args.cleos + 'system regproxy ' + proxy)
-    sleep(1.0)
-    for i in range(b, e):
-        voter = accounts[i]['name']
-        retry(args.cleos + 'system voteproducer proxy ' + voter + ' ' + proxy)
 
 def updateAuth(account, permission, parent, controller):
     run(args.cleos + 'push action actx updateauth' + jsonArg({
@@ -352,7 +351,6 @@ commands = [
     ('P', 'start-prod',     stepStartProducers,         True,    "Start producers"),
     ('v', 'vote',           stepVote,                   True,    "Vote for producers"),
     ('R', 'claim',          claimRewards,               True,    "Claim rewards"),
-    ('x', 'proxy',          stepProxyVotes,             True,    "Proxy votes"),
     ('q', 'resign',         stepResign,                 True,    "Resign actx"),
     ('m', 'msg-replace',    msigReplaceSystem,          False,   "Replace system contract using msig"),
     ('X', 'xfer',           stepTransfer,               False,   "Random transfer tokens (infinite loop)"),
@@ -414,7 +412,7 @@ with open('accounts.json') as f:
     accounts = a['users'] + a['producers']
 
 maxClients = numProducers + 10
-
+stakelist = list()
 haveCommand = False
 for (flag, command, function, inAll, help) in commands:
     if getattr(args, command) or inAll and args.all:
