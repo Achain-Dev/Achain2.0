@@ -160,6 +160,10 @@ namespace eosiosystem {
 	 }
          
          p_iter->second += stake.amount;
+         if (p_iter->second <= 0)
+         {
+            producers.erase(p_iter);
+         }
       }
       
       auto pitr = _producers.find(producer);
@@ -173,6 +177,7 @@ namespace eosiosystem {
       } else {
          eosio_assert( false, "producer is not registered" ); 
       }
+      
       _voters.modify( voter, 0, [&]( auto& av ) {
          av.producers = producers;
          av.current_stake += stake.amount;
