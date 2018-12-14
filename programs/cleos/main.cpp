@@ -1086,7 +1086,7 @@ struct vote_producer_subcommand {
    string voter_str;
    vector<eosio::name> producer_names;
 
-   vote_producers_subcommand(CLI::App* actionRoot) {
+   vote_producer_subcommand(CLI::App* actionRoot) {
       auto vote_producers = actionRoot->add_subcommand("prods", localized("Vote for one or more producers"));
       vote_producers->add_option("voter", voter_str, localized("The voting account"))->required();
       vote_producers->add_option("producers", producer_names, localized("The account(s) to vote for. All options from this position and following will be treated as the producer list."))->required();
@@ -1210,7 +1210,48 @@ struct unapprove_producer_subcommand {
       });
    }
 };
+struct unvote_producer_subcommand {
+   eosio::name voter;
+   eosio::name producer_name;
 
+   unvote_producer_subcommand(CLI::App* actionRoot) {
+      auto unvote_producer = actionRoot->add_subcommand("unvote", localized("Remove one producer from list of voted producers"));
+      unvote_producer->add_option("voter", voter, localized("The voting account"))->required();
+      unvote_producer->add_option("producer", producer_name, localized("The account to remove from voted producers"))->required();
+      add_standard_transaction_options(unvote_producer);
+
+      unvote_producer->set_callback([this] {
+            auto result = call(get_table_func, fc::mutable_variant_object("json", true)
+                               ("code", name(config::system_account_name).to_string())
+                               ("scope", name(config::system_account_name).to_string())
+                               ("table", "voters")
+                               ("table_key", "owner")
+                               ("lower_bound", voter.value)
+                               ("limit", 1)
+            );
+            auto res = result.as<eosio::chain_apis::read_only::get_table_rows_result>();
+            if ( res.rows.empty() || res.rows[0]["owner"].as_string() != name(voter).to_string() ) {
+               std::cerr << "Voter info not found for account " << voter << std::endl;
+               return;
+            }
+            EOS_ASSERT( 1 == res.rows.size(), multiple_voter_info, "More than one voter_info for account" );
+            //auto prod_vars = res.rows[0]["producers"].get_array();
+            std::map<name, int64_t> prod_vars = fc::variant(res.rows[0]["producers"]).as<std::map<name, int64_t>>();
+            auto iter = prod_vars.find(producer_name);
+            if (iter == prod_vars.end())
+            {
+               std::cerr << "Voter info not found for account " << producer_name.to_string() << std::endl;
+               return;
+            }
+            asset asset_vote(-(iter->second));
+            fc::variant act_payload = fc::mutable_variant_object()
+               ("voter", voter)
+               ("producer",producer_name )
+               ("votes", asset_vote.to_string());
+            send_actions({create_action({permission_level{voter,config::active_name}}, config::system_account_name, N(voteproducer), act_payload)});
+      });
+   }
+};
 struct list_producers_subcommand {
    bool print_json = false;
    uint32_t limit = 50;
