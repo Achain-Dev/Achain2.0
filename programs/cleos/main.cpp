@@ -1093,12 +1093,9 @@ struct vote_producer_subcommand {
       vote_producer->add_option("producer", producer_name, localized("The account to vote for."))->required();
 	  vote_producer->add_option("votes", votes_str, localized("The votes to vote, i.e.\"100.0000 ACTX\"."))->required();
       
-      add_standard_transaction_options(vote_producers, "voter@active");
+      add_standard_transaction_options(vote_producer, "voter@active");
 
-      vote_producers->set_callback([this] {
-
-
-         
+      vote_producer->set_callback([this] {
          const asset votes = to_asset(votes_str);
          fc::variant act_payload = fc::mutable_variant_object()
                   ("voter", voter_str)
@@ -1889,7 +1886,7 @@ int main( int argc, char** argv ) {
    version->require_subcommand();
 
    version->add_subcommand("client", localized("Retrieve version information of the client"))->set_callback([] {
-     std::cout << localized("Build version: ${ver}", ("ver", actx::client::config::version_str)) << std::endl;
+     std::cout << localized("Build version: ${ver}", ("ver", eosio::client::config::version_str)) << std::endl;
    });
 
    // Create subcommand
@@ -2485,7 +2482,7 @@ int main( int argc, char** argv ) {
 
         std::cerr << localized(("Reading WASM from " + wasmPath + "...").c_str()) << std::endl;
         fc::read_file_contents(wasmPath, wasm);
-        EOS_ASSERT( !wasm.empty(), wasm_file_not_found, "no wasm file found ${f}", ("f", wasmPath) );
+        EOS_ASSERT( !wasm.empty(), wast_file_not_found, "no wasm file found ${f}", ("f", wasmPath) );
 
         const string binary_wasm_header("\x00\x61\x73\x6d\x01\x00\x00\x00", 8);
         if(wasm.compare(0, 8, binary_wasm_header))
