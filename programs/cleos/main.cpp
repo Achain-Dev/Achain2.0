@@ -1084,22 +1084,26 @@ struct vote_producer_proxy_subcommand {
 
 struct vote_producer_subcommand {
    string voter_str;
-   vector<eosio::name> producer_names;
+   eosio::name producer_name;
+   string votes_str;
 
    vote_producer_subcommand(CLI::App* actionRoot) {
-      auto vote_producers = actionRoot->add_subcommand("prods", localized("Vote for one or more producers"));
-      vote_producers->add_option("voter", voter_str, localized("The voting account"))->required();
-      vote_producers->add_option("producers", producer_names, localized("The account(s) to vote for. All options from this position and following will be treated as the producer list."))->required();
+      auto vote_producer = actionRoot->add_subcommand("prods", localized("Vote for one producer"));
+      vote_producer->add_option("voter", voter_str, localized("The voting account"))->required();
+      vote_producer->add_option("producer", producer_name, localized("The account to vote for."))->required();
+	  vote_producer->add_option("votes", votes_str, localized("The votes to vote, i.e.\"100.0000 ACTX\"."))->required();
+      
       add_standard_transaction_options(vote_producers, "voter@active");
 
       vote_producers->set_callback([this] {
 
-         std::sort( producer_names.begin(), producer_names.end() );
 
+         
+         const asset votes = to_asset(votes_str);
          fc::variant act_payload = fc::mutable_variant_object()
                   ("voter", voter_str)
-                  ("proxy", "")
-                  ("producers", producer_names);
+                  ("producer", producer_name)
+                  ("votes", votes.to_string());
          auto accountPermissions = get_account_permissions(tx_permission, {voter_str,config::active_name});
          send_actions({create_action(accountPermissions, config::system_account_name, N(voteproducer), act_payload)});
       });
@@ -1161,55 +1165,6 @@ struct approve_producer_subcommand {
 };
 #endif
 
-struct unapprove_producer_subcommand {
-   eosio::name voter;
-   eosio::name producer_name;
-
-   unapprove_producer_subcommand(CLI::App* actionRoot) {
-      auto approve_producer = actionRoot->add_subcommand("unapprove", localized("Remove one producer from list of voted producers"));
-      approve_producer->add_option("voter", voter, localized("The voting account"))->required();
-      approve_producer->add_option("producer", producer_name, localized("The account to remove from voted producers"))->required();
-      add_standard_transaction_options(approve_producer, "voter@active");
-
-      approve_producer->set_callback([this] {
-            auto result = call(get_table_func, fc::mutable_variant_object("json", true)
-                               ("code", name(config::system_account_name).to_string())
-                               ("scope", name(config::system_account_name).to_string())
-                               ("table", "voters")
-                               ("table_key", "owner")
-                               ("lower_bound", voter.value)
-                               ("upper_bound", voter.value + 1)
-                               // Less than ideal upper_bound usage preserved so cleos can still work with old buggy nodeos versions
-                               // Change to voter.value when cleos no longer needs to support nodeos versions older than 1.5.0
-                               ("limit", 1)
-            );
-            auto res = result.as<eosio::chain_apis::read_only::get_table_rows_result>();
-            // Condition in if statement below can simply be res.rows.empty() when cleos no longer needs to support nodeos versions older than 1.5.0
-            // Although since this subcommand will actually change the voter's vote, it is probably better to just keep this check to protect
-            //  against future potential chain_plugin bugs.
-            if( res.rows.empty() || res.rows[0].get_object()["owner"].as_string() != name(voter).to_string() ) {
-               std::cerr << "Voter info not found for account " << voter << std::endl;
-               return;
-            }
-            EOS_ASSERT( 1 == res.rows.size(), multiple_voter_info, "More than one voter_info for account" );
-            //auto prod_vars = res.rows[0]["producers"].get_array();
-            std::map<name, int64_t> prod_vars = fc::variant(res.rows[0]["producers"]).as<std::map<name, int64_t>>();
-            auto iter = prod_vars.find(producer_name);
-            if (iter == prod_vars.end())
-            {
-               std::cerr << "Voter info not found for account " << producer_name.to_string() << std::endl;
-               return;
-            }
-            asset asset_vote(-(iter->second));
-            fc::variant act_payload = fc::mutable_variant_object()
-               ("voter", voter)
-               ("proxy", "")
-               ("producers", prods);
-            auto accountPermissions = get_account_permissions(tx_permission, {voter,config::active_name});
-            send_actions({create_action(accountPermissions, config::system_account_name, N(voteproducer), act_payload)});
-      });
-   }
-};
 struct unvote_producer_subcommand {
    eosio::name voter;
    eosio::name producer_name;
@@ -1870,9 +1825,8 @@ void get_account( const string& accountName, const string& coresym, bool json_fo
 
       if ( res.voter_info.is_object() ) {
          auto& obj = res.voter_info.get_object();
-         string proxy = obj["proxy"].as_string();
-         if ( proxy.empty() ) {
-         auto& prods = obj["producers"].get_array();
+         //auto& prods = obj["producers"].get_array();
+         auto prods = fc::variant(obj["producers"]).as<std::map<name, int64_t>>();
          std::cout << "producers:";
          if ( !prods.empty() ) {
             uint32_t i = 0;
@@ -1886,9 +1840,6 @@ void get_account( const string& accountName, const string& coresym, bool json_fo
             std::cout << std::endl;
          } else {
             std::cout << indent << "<not voted>" << std::endl;
-         }
-         } else {
-            std::cout << "proxy:" << indent << proxy << std::endl;
          }
       }
       std::cout << std::endl;
