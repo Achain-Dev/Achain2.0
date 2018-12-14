@@ -205,13 +205,12 @@ def vote(b, e):
     var = 0    
     for i in range(b, e):
         voter = accounts[i]['name']
-        #prods = ' '.join(map(lambda x: accounts[x]['name'], prods))
-        votes = '%u'%stakelist[i] + ' ' + 'ACTX'
-        prod = accounts[prods[var]]['name']
-        retry(args.cleos + 'system voteproducer prods ' + voter + ' ' + prod + ' ' + '"%s"' % votes )
-        var = var + 1
-        if var >= args.num_producers_vote:
-            var = 0
+        k = args.num_producers_vote
+        if k > numProducers:
+            k = numProducers - 1
+        prods = random.sample(range(firstProducer, firstProducer + numProducers), k)
+        prods = ' '.join(map(lambda x: accounts[x]['name'], prods))
+        retry(args.cleos + 'system voteproducer prods ' + voter + ' ' + prods)
 
 def claimRewards():
     table = getJsonOutput(args.cleos + 'get table actx actx producers -l 100')
