@@ -146,7 +146,7 @@ def startProducers(b, e):
 
 def createSystemAccounts():
     for a in systemAccounts:
-        run(args.cleos + 'create account actx ' + a + ' ' + args.public_key)
+        retry(args.cleos + 'create account actx ' + a + ' ' + args.public_key)
 
 def intToCurrency(i):
     return '%d.%04d %s' % (i // 10000, i % 10000, args.symbol)
@@ -205,12 +205,13 @@ def vote(b, e):
     var = 0    
     for i in range(b, e):
         voter = accounts[i]['name']
-        k = args.num_producers_vote
-        if k > numProducers:
-            k = numProducers - 1
-        prods = random.sample(range(firstProducer, firstProducer + numProducers), k)
-        prods = ' '.join(map(lambda x: accounts[x]['name'], prods))
-        retry(args.cleos + 'system voteproducer prods ' + voter + ' ' + prods)
+        #prods = ' '.join(map(lambda x: accounts[x]['name'], prods))
+        votes = '%u'%stakelist[i] + ' ' + 'ACTX'
+        prod = accounts[prods[var]]['name']
+        retry(args.cleos + 'system voteproducer prods ' + voter + ' ' + prod + ' ' + '"%s"' % votes )
+        var = var + 1
+        if var >= args.num_producers_vote:
+            var = 0
 
 def claimRewards():
     table = getJsonOutput(args.cleos + 'get table actx actx producers -l 100')
