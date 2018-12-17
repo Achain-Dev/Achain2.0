@@ -11,8 +11,6 @@
 #include <actx.system/actx.system.wast.hpp>
 #include <actx.system/actx.system.abi.hpp>
 
-#include <proxy/proxy.wast.hpp>
-#include <proxy/proxy.abi.hpp>
 
 #include <Runtime/Runtime.h>
 
