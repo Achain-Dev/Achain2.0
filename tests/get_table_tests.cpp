@@ -12,11 +12,7 @@
 #include <asserter/asserter.wast.hpp>
 #include <asserter/asserter.abi.hpp>
 
-#include <stltest/stltest.wast.hpp>
-#include <stltest/stltest.abi.hpp>
 
-#include <actx.system/actx.system.wast.hpp>
-#include <actx.system/actx.system.abi.hpp>
 
 #include <actx.token/actx.token.wast.hpp>
 #include <actx.token/actx.token.abi.hpp>
