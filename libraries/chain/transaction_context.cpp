@@ -26,7 +26,7 @@ namespace bacc = boost::accumulators;
    struct deadline_timer_verify {
       deadline_timer_verify() {
          //keep longest first in list. You're effectively going to take test_intervals[0]*sizeof(test_intervals[0])
-         //time to do the the "calibration" 
+         //time to do the the "calibration"
          int test_intervals[] = {50000, 10000, 5000, 1000, 500, 100, 50, 10};
 
          struct sigaction act;

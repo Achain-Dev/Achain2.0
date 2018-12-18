@@ -236,22 +236,22 @@ void apply_context::execute_inline( action&& a ) {
       control.check_actor_list( actors );
    }
 
-   // No need to check authorization if: replaying irreversible blocks; contract is privileged; or, contract is calling itself.
+   // No need to check authorization if replaying irreversible blocks or contract is privileged
    if( !control.skip_auth_check() && !privileged ) {
       try {
-      control.get_authorization_manager()
-             .check_authorization( {a},
-                                   {},
-                                   {{receiver, config::eosio_code_name}},
-                                   control.pending_block_time() - trx_context.published,
-                                   std::bind(&transaction_context::checktime, &this->trx_context),
+         control.get_authorization_manager()
+                .check_authorization( {a},
+                                      {},
+                                      {{receiver, config::eosio_code_name}},
+                                      control.pending_block_time() - trx_context.published,
+                                      std::bind(&transaction_context::checktime, &this->trx_context),
                                       false,
                                       inherited_authorizations
-                                 );
+                                    );
 
-      //QUESTION: Is it smart to allow a deferred transaction that has been delayed for some time to get away
-      //          with sending an inline action that requires a delay even though the decision to send that inline
-      //          action was made at the moment the deferred transaction was executed with potentially no forewarning?
+         //QUESTION: Is it smart to allow a deferred transaction that has been delayed for some time to get away
+         //          with sending an inline action that requires a delay even though the decision to send that inline
+         //          action was made at the moment the deferred transaction was executed with potentially no forewarning?
       } catch( const fc::exception& e ) {
          if( disallow_send_to_self_bypass || !send_to_self ) {
             throw;
@@ -308,8 +308,8 @@ void apply_context::schedule_deferred_transaction( const uint128_t& sender_id, a
          require_authorization(payer); /// uses payer's storage
       }
 
-      // if a contract is deferring only actions to itself then there is no need
-      // to check permissions, it could have done everything anyway.
+      // Originally this code bypassed authorization checks if a contract was deferring only actions to itself.
+      // The idea was that the code could already do whatever the deferred transaction could do, so there was no point in checking authorizations.
       // But this is not true. The original implementation didn't validate the authorizations on the actions which allowed for privilege escalation.
       // It would make it possible to bill RAM to some unrelated account.
       // Furthermore, even if the authorizations were forced to be a subset of the current action's authorizations, it would still violate the expectations
@@ -322,12 +322,12 @@ void apply_context::schedule_deferred_transaction( const uint128_t& sender_id, a
 
       auto is_sending_only_to_self = [&trx]( const account_name& self ) {
          bool send_to_self = true;
-      for( const auto& act : trx.actions ) {
+         for( const auto& act : trx.actions ) {
             if( act.account != self ) {
                send_to_self = false;
-            break;
+               break;
+            }
          }
-      }
          return send_to_self;
       };
 

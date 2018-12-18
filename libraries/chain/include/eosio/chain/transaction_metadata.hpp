@@ -48,7 +48,7 @@ class transaction_metadata {
                   return signing_keys->second;
                }
             }
-            signing_keys = std::make_pair( chain_id, trx.get_signature_keys( chain_id ) );
+            signing_keys = std::make_pair( chain_id, trx.get_signature_keys( chain_id ));
          }
          return signing_keys->second;
       }

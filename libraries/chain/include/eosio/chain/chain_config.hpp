@@ -99,7 +99,7 @@ struct chain_config {
                            rhs.max_inline_action_depth,
                            rhs.max_authority_depth
                         );
-};
+   };
 
    friend inline bool operator !=( const chain_config& lhs, const chain_config& rhs ) { return !(lhs == rhs); }
 

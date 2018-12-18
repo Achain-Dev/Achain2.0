@@ -490,9 +490,9 @@ namespace eosio { namespace chain {
             }
 
             if( satisfied_authorizations.find( declared_auth ) == satisfied_authorizations.end() ) {
-            auto res = permissions_to_satisfy.emplace( declared_auth, delay );
-            if( !res.second && res.first->second > delay) { // if the declared_auth was already in the map and with a higher delay
-               res.first->second = delay;
+               auto res = permissions_to_satisfy.emplace( declared_auth, delay );
+               if( !res.second && res.first->second > delay) { // if the declared_auth was already in the map and with a higher delay
+                  res.first->second = delay;
                }
             }
          }

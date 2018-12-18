@@ -361,15 +361,15 @@ struct controller_impl {
          auto end = blog.read_head();
          if( !end ) {
             blog.reset( conf.genesis, signed_block_ptr(), head->block_num + 1 );
-         } else if ( end->block_num() > head->block_num ) {
+         } else if( end->block_num() > head->block_num ) {
             replay( shutdown );
          } else {
             EOS_ASSERT( end->block_num() == head->block_num, fork_database_exception,
-                       "Block log is provided with snapshot but does not contain the head block from the snapshot" );
+                        "Block log is provided with snapshot but does not contain the head block from the snapshot" );
          }
       } else {
          if( !head ) {
-         initialize_fork_db(); // set head to genesis state
+            initialize_fork_db(); // set head to genesis state
          }
 
          auto end = blog.read_head();
@@ -1367,13 +1367,13 @@ struct controller_impl {
          auto branches = fork_db.fetch_branch_from( new_head->id, head->id );
 
          for( auto itr = branches.second.begin(); itr != branches.second.end(); ++itr ) {
-            fork_db.mark_in_current_chain( *itr , false );
+            fork_db.mark_in_current_chain( *itr, false );
             pop_block();
          }
          EOS_ASSERT( self.head_block_id() == branches.second.back()->header.previous, fork_database_exception,
-                    "loss of sync between fork_db and chainbase during fork switch" ); // _should_ never fail
+                     "loss of sync between fork_db and chainbase during fork switch" ); // _should_ never fail
 
-         for( auto ritr = branches.first.rbegin(); ritr != branches.first.rend(); ++ritr) {
+         for( auto ritr = branches.first.rbegin(); ritr != branches.first.rend(); ++ritr ) {
             optional<fc::exception> except;
             try {
                apply_block( (*ritr)->block, (*ritr)->validated ? controller::block_status::validated : controller::block_status::complete );
@@ -1383,7 +1383,7 @@ struct controller_impl {
             }
             catch (const fc::exception& e) { except = e; }
             if (except) {
-               elog("exception thrown while switching forks ${e}", ("e",except->to_detail_string()));
+               elog("exception thrown while switching forks ${e}", ("e", except->to_detail_string()));
 
                // ritr currently points to the block that threw
                // if we mark it invalid it will automatically remove all forks built off it.
@@ -1393,11 +1393,11 @@ struct controller_impl {
                // ritr base is a forward itr to the last block successfully applied
                auto applied_itr = ritr.base();
                for( auto itr = applied_itr; itr != branches.first.end(); ++itr ) {
-                  fork_db.mark_in_current_chain( *itr , false );
+                  fork_db.mark_in_current_chain( *itr, false );
                   pop_block();
                }
                EOS_ASSERT( self.head_block_id() == branches.second.back()->header.previous, fork_database_exception,
-                          "loss of sync between fork_db and chainbase during fork switch reversal" ); // _should_ never fail
+                           "loss of sync between fork_db and chainbase during fork switch reversal" ); // _should_ never fail
 
                // re-apply good blocks
                for( auto ritr = branches.second.rbegin(); ritr != branches.second.rend(); ++ritr ) {
@@ -1408,7 +1408,7 @@ struct controller_impl {
                throw *except;
             } // end if exception
          } /// end for each block in branch
-         ilog("successfully switched fork to new head ${new_head_id}", ("new_head_id", new_head->id));
+         ilog("successfully switched fork to new head ${new_head_id}", ("new_head_id", new_head->id) );
       }
    } /// push_block
 
@@ -1583,11 +1583,11 @@ struct controller_impl {
 
          // helper lambda to lazily calculate the actors for error messaging
          static auto generate_missing_actors = [](const flat_set<account_name>& actors, const flat_set<account_name>& whitelist) -> vector<account_name> {
-         vector<account_name> excluded;
-         excluded.reserve( actors.size() );
-         set_difference( actors.begin(), actors.end(),
+            vector<account_name> excluded;
+            excluded.reserve( actors.size() );
+            set_difference( actors.begin(), actors.end(),
                             whitelist.begin(), whitelist.end(),
-                         std::back_inserter(excluded) );
+                            std::back_inserter(excluded) );
             return excluded;
          };
 
@@ -1622,12 +1622,12 @@ struct controller_impl {
 
          // helper lambda to lazily calculate the actors for error messaging
          static auto generate_blacklisted_actors = [](const flat_set<account_name>& actors, const flat_set<account_name>& blacklist) -> vector<account_name> {
-         vector<account_name> blacklisted;
-         blacklisted.reserve( actors.size() );
-         set_intersection( actors.begin(), actors.end(),
+            vector<account_name> blacklisted;
+            blacklisted.reserve( actors.size() );
+            set_intersection( actors.begin(), actors.end(),
                               blacklist.begin(), blacklist.end(),
-                           std::back_inserter(blacklisted)
-                         );
+                              std::back_inserter(blacklisted)
+                            );
             return blacklisted;
          };
 
