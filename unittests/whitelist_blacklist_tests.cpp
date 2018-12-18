@@ -2,6 +2,8 @@
 #include <eosio/testing/tester.hpp>
 #include <eosio/testing/tester_network.hpp>
 
+#include <eosio/chain/generated_transaction_object.hpp>
+
 #include <fc/variant_object.hpp>
 
 #include <actx.token/actx.token.wast.hpp>
@@ -54,6 +56,7 @@ class whitelist_blacklist_tester {
          FC_ASSERT( !chain, "chain is already up" );
 
          auto cfg = get_default_chain_configuration( tempdir.path() );
+         cfg.sender_bypass_whiteblacklist = sender_bypass_whiteblacklist;
          cfg.actor_whitelist = actor_whitelist;
          cfg.actor_blacklist = actor_blacklist;
          cfg.contract_whitelist = contract_whitelist;
