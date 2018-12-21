@@ -298,7 +298,7 @@ class producer_plugin_impl : public std::enable_shared_from_this<producer_plugin
          auto existing = chain.fetch_block_by_id( id );
          if( existing ) { return; }
 
-         // abort the pending block
+         // start processing of block
          auto bsf = chain.create_block_state_future( block );
 
          // abort the pending block
