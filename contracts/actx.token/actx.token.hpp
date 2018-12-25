@@ -31,13 +31,13 @@ namespace eosio {
 
          EOSLIB_SERIALIZE( account_statistics, (owner)(create_time)(first_send_time)(first_receive_time)
                           (total_send_amount)(total_receive_amount)(res1)(res2) )
-      }
+      };
 
    typedef eosio::multi_index< N(statistics), account_statistics>  account_statistics_table;
 
    class token : public contract {
       public:
-         token( account_name self ):contract(self), _statistics_table(N(actx), N(actx)){}
+         token( account_name self ):contract(self), _statistics_table(N(actx.token), N(actx.token)){}
 
          void create( account_name issuer,
                       asset        maximum_supply);

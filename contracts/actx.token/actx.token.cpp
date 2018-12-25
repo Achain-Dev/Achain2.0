@@ -82,6 +82,7 @@ void token::transfer( account_name from,
 
     sub_balance( from, quantity );
     add_balance( to, quantity, from );
+    update_account_total_transfer(from, to, quantity);
 }
 
 void token::sub_balance( account_name owner, asset value ) {
@@ -115,9 +116,9 @@ void token::add_balance( account_name owner, asset value, account_name ram_payer
    }
 }
 
-void update_account_total_transfer(account_name from, account_name to, asset value)
+void token::update_account_total_transfer(account_name from, account_name to, asset value)
 {
-   if (value.symbol_name() != "ACTX")
+   if (value.symbol != CORE_SYMBOL)
       return;
    auto from_account = _statistics_table.find( from );
    if( from_account == _statistics_table.end() ) {
@@ -125,11 +126,12 @@ void update_account_total_transfer(account_name from, account_name to, asset val
         //a.balance = value.amount;
         a.owner = from;
         a.first_send_time = current_time();
-        a.total_send_amount += (value.amount * 100000);
+        a.total_send_amount += static_cast<uint64_t>(value.amount);
       });
    } else {
-      to_acnts.modify( from, 0, [&]( auto& a ) {
-        a.total_send_amount += (value.amount * 100000);
+      _statistics_table.modify( from_account, 0, [&]( auto& a ) {
+        a.total_send_amount += static_cast<uint64_t>(value.amount);
+        if (a.first_send_time == 0) a.first_send_time = current_time();
       });
    }
 
@@ -139,11 +141,12 @@ void update_account_total_transfer(account_name from, account_name to, asset val
         //a.balance = value.amount;
         a.owner = to;
         a.first_receive_time = current_time();
-        a.total_receive_amount += (value.amount * 100000);
+        a.total_receive_amount += static_cast<uint64_t>(value.amount);
       });
    } else {
-      to_acnts.modify( to, 0, [&]( auto& a ) {
-        a.total_receive_amount += (value.amount * 100000);
+      _statistics_table.modify( to_account, 0, [&]( auto& a ) {
+        a.total_receive_amount += static_cast<uint64_t>(value.amount);
+        if (a.first_receive_time == 0) a.first_receive_time = current_time();
       });
    }
 }
