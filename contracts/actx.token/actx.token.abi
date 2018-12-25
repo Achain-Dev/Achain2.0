@@ -42,6 +42,17 @@
         {"name":"max_supply", "type":"asset"},
         {"name":"issuer", "type":"account_name"}
       ]
+    },{
+      "name": "account_statistics",
+      "base": "",
+      "fields": [
+        {"name":"owner", "type":"account_name"},
+        {"name":"create_time", "type":"uint64"},
+        {"name":"first_send_time", "type":"uint64"},
+        {"name":"first_receive_time", "type":"uint64"},
+        {"name":"total_send_amount", "type":"uint64"},
+        {"name":"total_receive_amount", "type":"uint64"}
+      ]
     }
   ],
   "actions": [{
@@ -70,6 +81,12 @@
       "type": "currency_stats",
       "index_type": "i64",
       "key_names" : ["currency"],
+      "key_types" : ["uint64"]
+    },{
+      "name": "statistics",
+      "type": "account_statistics",
+      "index_type": "i64",
+      "key_names" : ["owner"],
       "key_types" : ["uint64"]
     }
   ],
