@@ -115,6 +115,39 @@ void token::add_balance( account_name owner, asset value, account_name ram_payer
    }
 }
 
+void update_account_total_transfer(account_name from, account_name to, asset value)
+{
+   if (value.symbol_name() != "ACTX")
+      return;
+   auto from_account = _statistics_table.find( from );
+   if( from_account == _statistics_table.end() ) {
+      _statistics_table.emplace( from, [&]( auto& a ){
+        //a.balance = value.amount;
+        a.owner = from;
+        a.first_send_time = current_time();
+        a.total_send_amount += (value.amount * 100000);
+      });
+   } else {
+      to_acnts.modify( from, 0, [&]( auto& a ) {
+        a.total_send_amount += (value.amount * 100000);
+      });
+   }
+
+   auto to_account = _statistics_table.find( to );
+   if( to_account == _statistics_table.end() ) {
+      _statistics_table.emplace( from, [&]( auto& a ){
+        //a.balance = value.amount;
+        a.owner = to;
+        a.first_receive_time = current_time();
+        a.total_receive_amount += (value.amount * 100000);
+      });
+   } else {
+      to_acnts.modify( to, 0, [&]( auto& a ) {
+        a.total_receive_amount += (value.amount * 100000);
+      });
+   }
+}
+
 } /// namespace eosio
 
 EOSIO_ABI( eosio::token, (create)(issue)(transfer) )
