@@ -2038,6 +2038,26 @@ int main( int argc, char** argv ) {
    getAccount->add_flag("--json,-j", print_json, localized("Output in JSON format") );
    getAccount->set_callback([&]() { get_account(accountName, coresym, print_json); });
 
+   ///add for achainplus
+   // get account statistics
+   string scope_stat = "actx.token";
+   string stat_table = "statistics";
+   auto getAccountstat = get->add_subcommand("statistics", localized("Retrieve an account statistics from the blockchain"), false);
+   getAccountstat->add_option("name", accountName, localized("The name of the account to retrieve"))->required();
+   getAccountstat->add_option("scope", scope_stat, localized("The scope within the contract in which the table is found"));
+   getAccountstat->set_callback([&] {
+      auto result = call(get_table_func, fc::mutable_variant_object("json", true)
+                         ("code",scope_stat)
+                         ("scope",scope_stat)
+                         ("table",stat_table)
+                         ("lower_bound",accountName)
+                         ("limit",1)
+                         );
+
+      std::cout << fc::json::to_pretty_string(result)
+                << std::endl;
+   });
+
    // get code
    string codeFilename;
    string abiFilename;
