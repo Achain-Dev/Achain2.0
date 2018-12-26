@@ -22,15 +22,18 @@ namespace eosio {
          uint64_t          create_time;
          uint64_t          first_send_time = 0; /// the first time to transfer ACTX to other
          uint64_t          first_receive_time = 0; /// the first time receive ACTX from other
-         uint64_t          total_send_amount; /// The total amount of ACTX transferred
-         uint64_t          total_receive_amount; /// The total amount of ACTX received
+         uint64_t          total_send_amount = 0; /// The total amount of ACTX transferred
+         uint64_t          total_receive_amount = 0; /// The total amount of ACTX received
+         uint32_t          total_sent_times = 0; /// the total times of sending transfer
+         uint32_t          total_receive_times = 0; /// the total times of receiving transfer
          uint16_t          res1 = 0;
          uint16_t          res2 = 0;
+         
 
          uint64_t primary_key()const { return owner; }
 
          EOSLIB_SERIALIZE( account_statistics, (owner)(create_time)(first_send_time)(first_receive_time)
-                          (total_send_amount)(total_receive_amount)(res1)(res2) )
+                          (total_send_amount)(total_receive_amount)(total_sent_times)(total_receive_times)(res1)(res2) )
       };
 
    typedef eosio::multi_index< N(statistics), account_statistics>  account_statistics_table;
