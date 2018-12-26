@@ -43,7 +43,7 @@ namespace eosio {
       public:
          token( account_name self ):contract(self), _statistics_table(self, self){}
 
-         void create( account_name issuer,ccount
+         void create( account_name issuer,
                       asset        maximum_supply);
 
          void issue( account_name to, asset quantity, string memo );
