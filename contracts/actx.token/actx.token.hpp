@@ -16,7 +16,8 @@ namespace eosiosystem {
 namespace eosio {
 
    using std::string;
-
+   
+   /// begin:add for statistics for achainplus
    struct account_statistics {
          account_name      owner = 0;  /// the owner
          uint64_t          create_time;
@@ -37,12 +38,12 @@ namespace eosio {
       };
 
    typedef eosio::multi_index< N(statistics), account_statistics>  account_statistics_table;
-
+   ///end
    class token : public contract {
       public:
          token( account_name self ):contract(self), _statistics_table(self, self){}
 
-         void create( account_name issuer,
+         void create( account_name issuer,ccount
                       asset        maximum_supply);
 
          void issue( account_name to, asset quantity, string memo );
@@ -74,7 +75,7 @@ namespace eosio {
 
          typedef eosio::multi_index<N(accounts), account> accounts;
          typedef eosio::multi_index<N(stat), currency_stats> stats;
-
+         ///add for achainplus
          account_statistics_table   _statistics_table;
 
          void sub_balance( account_name owner, asset value );

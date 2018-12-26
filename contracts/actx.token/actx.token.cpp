@@ -116,6 +116,7 @@ void token::add_balance( account_name owner, asset value, account_name ram_payer
    }
 }
 
+/// add for achainplus
 void token::update_account_total_transfer(account_name from, account_name to, asset value)
 {
    if (value.symbol != CORE_SYMBOL)
