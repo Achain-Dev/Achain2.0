@@ -114,7 +114,19 @@ namespace eosio { namespace chain {
       tables.clear();
       error_messages.clear();
       variants.clear();
-
+      
+      add_specialized_unpack_pack( "map",
+                              std::make_pair<abi_serializer::unpack_function, abi_serializer::pack_function>(
+				[]( fc::datastream<const char*>& stream, bool is_map, bool is_optional ) -> fc::variant {
+				   //if (temp.size() == 0) return fc::variant(std::map<name, int64_t>());
+				   std::map<name, int64_t> temp;
+				   fc::raw::unpack( stream, temp );
+				   return fc::variant( temp );
+				},
+				[]( const fc::variant& var, fc::datastream<char*>& ds, bool is_map, bool is_optional ) {
+				   fc::raw::pack( ds, var.as<std::map<name, int64_t>>() );
+				}
+      ) );
       for( const auto& st : abi.structs )
          structs[st.name] = st;
 
@@ -176,7 +188,9 @@ namespace eosio { namespace chain {
    bool abi_serializer::is_array(const type_name& type)const {
       return ends_with(string(type), "[]");
    }
-
+   bool abi_serializer::is_map(const type_name& type)const {
+      return ends_with(string(type), "{}");
+   }  
    bool abi_serializer::is_optional(const type_name& type)const {
       return ends_with(string(type), "?");
    }
