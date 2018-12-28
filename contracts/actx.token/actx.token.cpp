@@ -119,11 +119,11 @@ void token::add_balance( account_name owner, asset value, account_name ram_payer
 /// add for achainplus
 void token::update_account_total_transfer(account_name from, account_name to, asset value)
 {
-   if (value.symbol != CORE_SYMBOL)
-      return;
+   account_statistics_table _statistics_table(self, value.symbol);
+
    auto from_account = _statistics_table.find( from );
    if( from_account == _statistics_table.end() ) {
-      _statistics_table.emplace( from, [&]( auto& a ){
+      idx.emplace( from, [&]( auto& a ){
         //a.balance = value.amount;
         a.owner = from;
         a.first_send_time = current_time();
