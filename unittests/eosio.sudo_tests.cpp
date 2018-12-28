@@ -9,7 +9,6 @@
 #include <eosio.sudo/eosio.sudo.wast.hpp>
 #include <eosio.sudo/eosio.sudo.abi.hpp>
 
-#include <test_api/test_api.wast.hpp>
 
 #include <Runtime/Runtime.h>
 

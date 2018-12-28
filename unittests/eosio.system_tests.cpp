@@ -1026,6 +1026,7 @@ BOOST_FIXTURE_TEST_CASE( vote_for_two_producers, eosio_system_tester, * boost::u
 } FC_LOG_AND_RETHROW()
 
 
+#if 0
 BOOST_FIXTURE_TEST_CASE( proxy_register_unregister_keeps_stake, eosio_system_tester ) try {
    //register proxy by first action for this user ever
    BOOST_REQUIRE_EQUAL( success(), push_action(N(alice1111111), N(regproxy), mvo()
@@ -1080,8 +1081,9 @@ BOOST_FIXTURE_TEST_CASE( proxy_register_unregister_keeps_stake, eosio_system_tes
    REQUIRE_MATCHING_OBJECT( voter( "carol1111111", core_from_string("777.0003") ), get_voter_info( "carol1111111" ) );
 
 } FC_LOG_AND_RETHROW()
+#endif
 
-
+#if 0
 BOOST_FIXTURE_TEST_CASE( proxy_stake_unstake_keeps_proxy_flag, eosio_system_tester ) try {
    cross_15_percent_threshold();
 
@@ -1112,8 +1114,9 @@ BOOST_FIXTURE_TEST_CASE( proxy_stake_unstake_keeps_proxy_flag, eosio_system_test
    REQUIRE_MATCHING_OBJECT( proxy( "alice1111111" )( "staked", 0 ), get_voter_info( "alice1111111" ) );
 
 } FC_LOG_AND_RETHROW()
+#endif
 
-
+#if 0
 BOOST_FIXTURE_TEST_CASE( proxy_actions_affect_producers, eosio_system_tester, * boost::unit_test::tolerance(1e+5) ) try {
    cross_15_percent_threshold();
 
@@ -1182,6 +1185,7 @@ BOOST_FIXTURE_TEST_CASE( proxy_actions_affect_producers, eosio_system_tester, * 
    BOOST_TEST_REQUIRE( stake2votes(core_from_string("180.0003")) == get_producer_info( "defproducer3" )["total_votes"].as_double() );
 
 } FC_LOG_AND_RETHROW()
+#endif
 
 BOOST_FIXTURE_TEST_CASE(producer_pay, eosio_system_tester, * boost::unit_test::tolerance(1e-10)) try {
 
@@ -1883,6 +1887,7 @@ BOOST_FIXTURE_TEST_CASE(producer_onblock_check, eosio_system_tester) try {
 
 } FC_LOG_AND_RETHROW()
 
+#if 0
 BOOST_FIXTURE_TEST_CASE( voters_actions_affect_proxy_and_producers, eosio_system_tester, * boost::unit_test::tolerance(1e+6) ) try {
    cross_15_percent_threshold();
 
@@ -1962,8 +1967,9 @@ BOOST_FIXTURE_TEST_CASE( voters_actions_affect_proxy_and_producers, eosio_system
    BOOST_TEST_REQUIRE( 0.0 == get_producer_info( "defproducer3" )["total_votes"].as_double() );
 
 } FC_LOG_AND_RETHROW()
+#endif
 
-
+#if 0
 BOOST_FIXTURE_TEST_CASE( vote_both_proxy_and_producers, eosio_system_tester ) try {
    //alice1111111 becomes a proxy
    BOOST_REQUIRE_EQUAL( success(), push_action( N(alice1111111), N(regproxy), mvo()
@@ -1984,7 +1990,7 @@ BOOST_FIXTURE_TEST_CASE( vote_both_proxy_and_producers, eosio_system_tester ) tr
                         vote( N(bob111111111), { N(carol1111111) }, "alice1111111" ) );
 
 } FC_LOG_AND_RETHROW()
-
+#endif
 
 BOOST_FIXTURE_TEST_CASE( select_invalid_proxy, eosio_system_tester ) try {
    //accumulate proxied votes
@@ -2001,7 +2007,7 @@ BOOST_FIXTURE_TEST_CASE( select_invalid_proxy, eosio_system_tester ) try {
 
 } FC_LOG_AND_RETHROW()
 
-
+#if 0
 BOOST_FIXTURE_TEST_CASE( double_register_unregister_proxy_keeps_votes, eosio_system_tester ) try {
    //alice1111111 becomes a proxy
    BOOST_REQUIRE_EQUAL( success(), push_action( N(alice1111111), N(regproxy), mvo()
@@ -2047,8 +2053,9 @@ BOOST_FIXTURE_TEST_CASE( double_register_unregister_proxy_keeps_votes, eosio_sys
    REQUIRE_MATCHING_OBJECT( voter( "alice1111111" )( "proxied_vote_weight", stake2votes(core_from_string("150.0003")))( "staked", 100000 ), get_voter_info( "alice1111111" ) );
 
 } FC_LOG_AND_RETHROW()
+#endif
 
-
+#if 0
 BOOST_FIXTURE_TEST_CASE( proxy_cannot_use_another_proxy, eosio_system_tester ) try {
    //alice1111111 becomes a proxy
    BOOST_REQUIRE_EQUAL( success(), push_action( N(alice1111111), N(regproxy), mvo()
@@ -2086,6 +2093,7 @@ BOOST_FIXTURE_TEST_CASE( proxy_cannot_use_another_proxy, eosio_system_tester ) t
                         vote( N(bob111111111), vector<account_name>(), "bob111111111" ) );
 
 } FC_LOG_AND_RETHROW()
+#endif
 
 fc::mutable_variant_object config_to_variant( const eosio::chain::chain_config& config ) {
    return mutable_variant_object()

@@ -39,7 +39,7 @@ const static uint64_t owner_name  = N(owner);
 const static uint64_t eosio_any_name = N(actx.any);
 const static uint64_t eosio_code_name = N(actx.code);
 
-const static int      block_interval_ms = 500;
+const static int      block_interval_ms = 3000;
 const static int      block_interval_us = block_interval_ms*1000;
 const static uint64_t block_timestamp_epoch = 946684800000ll; // epoch is year 2000.
 
@@ -79,6 +79,7 @@ const static uint32_t   default_max_trx_delay                  = 45*24*3600; // 
 const static uint32_t   default_max_inline_action_size         = 4 * 1024;   // 4 KB
 const static uint16_t   default_max_inline_action_depth        = 4;
 const static uint16_t   default_max_auth_depth                 = 6;
+const static uint16_t   default_controller_thread_pool_size    = 2;
 
 const static uint32_t   min_net_usage_delta_between_base_and_max_for_trx  = 10*1024;
 // Should be large enough to allow recovery from badly set blockchain parameters without a hard fork
@@ -99,8 +100,8 @@ const static uint32_t   default_abi_serializer_max_time_ms = 15*1000; ///< defau
 /**
  *  The number of sequential blocks produced by a single producer
  */
-const static int producer_repetitions = 12;
-const static int max_producers = 125;
+const static int producer_repetitions = 3;
+const static int max_producers = 99;
 
 const static size_t maximum_tracked_dpos_confirmations = 1024;     ///<
 static_assert(maximum_tracked_dpos_confirmations >= ((max_producers * 2 / 3) + 1) * producer_repetitions, "Settings never allow for DPOS irreversibility" );

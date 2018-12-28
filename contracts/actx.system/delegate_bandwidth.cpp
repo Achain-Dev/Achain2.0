@@ -373,10 +373,12 @@ namespace eosiosystem {
          if( from == N(b1) ) {
             validate_b1_vesting( from_voter->staked );
          }
-
-         if( from_voter->producers.size() || from_voter->proxy ) {
-            update_votes( from, from_voter->proxy, from_voter->producers, false );
+         #if 0
+         /*no need to update votes*/
+         if( from_voter->producers.size()) {
+            update_votes( from, from_voter->producers, false );
          }
+         #endif
       }
    }
 

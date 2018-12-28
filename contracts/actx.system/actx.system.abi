@@ -16,7 +16,7 @@
       "new_type_name": "weight_type",
       "type": "uint16"
    }],
-   "____comment": "eosio.bios structs: set_account_limits, setpriv, set_global_limits, producer_key, set_producers, require_auth are provided so abi available for deserialization in future.",
+   "____comment": "actx.bios structs: set_account_limits, setpriv, set_global_limits, producer_key, set_producers, require_auth are provided so abi available for deserialization in future.",
    "structs": [{
       "name": "permission_level",
       "base": "",
@@ -295,31 +295,21 @@
         {"name":"max_ram_size",     "type":"uint64"}
       ]
     },{
-      "name": "regproxy",
-      "base": "",
-      "fields": [
-        {"name":"proxy",     "type":"account_name"},
-        {"name":"isproxy",   "type":"bool"}
-      ]
-    },{
       "name": "voteproducer",
       "base": "",
       "fields": [
         {"name":"voter",     "type":"account_name"},
-        {"name":"proxy",     "type":"account_name"},
-        {"name":"producers", "type":"account_name[]"}
+        {"name":"producer", "type":"account_name"},
+        {"name":"votes", "type":"asset"}
       ]
     },{
       "name": "voter_info",
       "base": "",
       "fields": [
         {"name":"owner",                "type":"account_name"},
-        {"name":"proxy",                "type":"account_name"},
-        {"name":"producers",            "type":"account_name[]"},
+        {"name":"producers",            "type":"map"},
         {"name":"staked",               "type":"int64"},
-        {"name":"last_vote_weight",     "type":"float64"},
-        {"name":"proxied_vote_weight",  "type":"float64"},
-        {"name":"is_proxy",             "type":"bool"}
+        {"name":"current_stake",        "type":"int64"}
       ]
     },{
       "name": "claimrewards",
@@ -481,10 +471,6 @@
    },{
       "name": "unregprod",
       "type": "unregprod",
-      "ricardian_contract": ""
-   },{
-      "name": "regproxy",
-      "type": "regproxy",
       "ricardian_contract": ""
    },{
       "name": "voteproducer",

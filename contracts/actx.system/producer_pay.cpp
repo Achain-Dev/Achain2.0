@@ -111,8 +111,8 @@ namespace eosiosystem {
          producer_per_block_pay = (_gstate.perblock_bucket * prod.unpaid_blocks) / _gstate.total_unpaid_blocks;
       }
       int64_t producer_per_vote_pay = 0;
-      if( _gstate.total_producer_vote_weight > 0 ) {
-         producer_per_vote_pay  = int64_t((_gstate.pervote_bucket * prod.total_votes ) / _gstate.total_producer_vote_weight);
+      if( _gstate.total_activated_stake > 0 ) {
+         producer_per_vote_pay  = int64_t((_gstate.pervote_bucket * prod.total_votes ) / _gstate.total_activated_stake);
       }
       if( producer_per_vote_pay < min_pervote_daily_pay ) {
          producer_per_vote_pay = 0;

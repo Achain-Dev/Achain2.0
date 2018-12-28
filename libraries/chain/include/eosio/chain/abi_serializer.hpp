@@ -38,6 +38,7 @@ struct abi_serializer {
 
    type_name resolve_type(const type_name& t)const;
    bool      is_array(const type_name& type)const;
+   bool      is_map(const type_name& type)const;
    bool      is_optional(const type_name& type)const;
    bool      is_type(const type_name& type, const fc::microseconds& max_serialization_time)const;
    bool      is_builtin_type(const type_name& type)const;
