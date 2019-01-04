@@ -47,11 +47,12 @@
       "base": "",
       "fields": [
         {"name":"owner", "type":"account_name"},
-        {"name":"create_time", "type":"uint64"},
-        {"name":"first_send_time", "type":"uint64"},
-        {"name":"first_receive_time", "type":"uint64"},
+        {"name":"first_send_time", "type":"uint32"},
+        {"name":"first_receive_time", "type":"uint32"},
         {"name":"total_send_amount", "type":"uint64"},
-        {"name":"total_receive_amount", "type":"uint64"}
+        {"name":"total_receive_amount", "type":"uint64"},
+        {"name":"total_sent_times", "type":"uint32"},
+        {"name":"total_receive_times", "type":"uint32"}
       ]
     }
   ],
