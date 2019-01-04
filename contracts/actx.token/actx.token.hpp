@@ -20,9 +20,8 @@ namespace eosio {
    /// begin:add for statistics for achainplus
    struct account_statistics {
          account_name      owner = 0;  /// the owner
-         uint64_t          create_time;
-         uint64_t          first_send_time = 0; /// the first time to transfer ACTX to other
-         uint64_t          first_receive_time = 0; /// the first time receive ACTX from other
+         uint32_t          first_send_time = 0; /// the first time to transfer ACTX to other
+         uint32_t          first_receive_time = 0; /// the first time receive ACTX from other
          uint64_t          total_send_amount = 0; /// The total amount of ACTX transferred
          uint64_t          total_receive_amount = 0; /// The total amount of ACTX received
          uint32_t          total_sent_times = 0; /// the total times of sending transfer
@@ -33,7 +32,7 @@ namespace eosio {
 
          uint64_t primary_key()const { return owner; }
 
-         EOSLIB_SERIALIZE( account_statistics, (owner)(create_time)(first_send_time)(first_receive_time)
+         EOSLIB_SERIALIZE( account_statistics, (owner)(first_send_time)(first_receive_time)
                           (total_send_amount)(total_receive_amount)(total_sent_times)(total_receive_times)(res1)(res2) )
       };
 
@@ -77,7 +76,7 @@ namespace eosio {
          typedef eosio::multi_index<N(accounts), account> accounts;
          typedef eosio::multi_index<N(stat), currency_stats> stats;
          ///add for achainplus
-         account_statistics_table   _statistics_table;
+         //account_statistics_table   _statistics_table;
 
          void sub_balance( account_name owner, asset value );
          void add_balance( account_name owner, asset value, account_name ram_payer );
