@@ -2037,6 +2037,54 @@ int main( int argc, char** argv ) {
    getAccount->add_option("core-symbol", coresym, localized("The expected core symbol of the chain you are querying"));
    getAccount->add_flag("--json,-j", print_json, localized("Output in JSON format") );
    getAccount->set_callback([&]() { get_account(accountName, coresym, print_json); });
+   ///add for achainplus
+   // get account statistics
+   string scope_stat = "actx.token";
+   string stat_table = "statistics";
+   string stat_symobl = "ACTX";
+   auto getAccountstat = get->add_subcommand("statistics", localized("Retrieve an account statistics from the blockchain"), false);
+   getAccountstat->add_option("name", accountName, localized("The name of the account to retrieve"))->required();
+   getAccountstat->add_option("code", scope_stat, localized("The code within the contract in which the table is found, the default is actx.token"));
+   getAccountstat->add_option("symbol", stat_symobl, localized("The symbol of the asset to retrieve, the default is ACTX"));
+   getAccountstat->add_flag("--json,-j", print_json, localized("print full json"));
+   getAccountstat->set_callback([&] {
+      auto result = call(get_table_func, fc::mutable_variant_object("json", true)
+                         ("code",scope_stat)
+                         ("scope",stat_symobl)
+                         ("table",stat_table)
+                         ("lower_bound",accountName)
+                         ("limit",1)
+                         );
+      const auto& rows = result["rows"].get_array();
+      if (rows.size() == 0)
+      {
+         cout << "no transfer info" << endl;
+         return;
+      }
+      const auto& row = rows[0];
+      if (row["owner"] != accountName)
+      {
+         cout << "no transfer info" << endl;
+      }else{
+         if (print_json)
+         {
+            std::cout << fc::json::to_pretty_string(result) << std::endl;
+         }else{
+            uint32_t first_send_time = uint32_t(row["first_send_time"].as_uint64());
+            uint32_t first_receive_time = uint32_t(row["first_receive_time"].as_uint64());
+            uint64_t total_send_amount = row["total_send_amount"].as_uint64();
+            uint64_t total_receive_amount = row["total_receive_amount"].as_uint64();
+            uint32_t total_sent_times = uint32_t(row["total_sent_times"].as_uint64());
+            uint32_t total_receive_times = uint32_t(row["total_receive_times"].as_uint64());
+
+            if (first_send_time == 0)
+               cout << "your account has not transfer yet." << endl;
+            else
+               cout << "you transfer the first " << stat_symobl << "  at " << time_point_sec(first_send_time).to_iso_string() << endl;
+         }
+      }
+
+   });
 
    // get code
    string codeFilename;
