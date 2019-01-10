@@ -32,6 +32,7 @@ namespace eosio { namespace chain {
       optional<block_num_type>          proposed_schedule_block_num;
       shared_producer_schedule_type     proposed_schedule;
       chain_config                      configuration;
+      optional<schedule_size_type>      proposed_schedule_size;
    };
 
 
@@ -82,5 +83,5 @@ FC_REFLECT(eosio::chain::dynamic_global_property_object,
           )
 
 FC_REFLECT(eosio::chain::global_property_object,
-           (proposed_schedule_block_num)(proposed_schedule)(configuration)
+           (proposed_schedule_block_num)(proposed_schedule)(configuration)(proposed_schedule_size)
           )
