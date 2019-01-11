@@ -236,7 +236,8 @@ namespace eosio { namespace chain {
          bool contracts_console()const;
 
          chain_id_type get_chain_id()const;
-         //add for achainplus         
+         //add for achainplus  
+         bool set_proposed_schedule_size( schedule_size_type size );       
          uint32_t get_proposed_schedule_size();
 
          db_read_mode get_read_mode()const;

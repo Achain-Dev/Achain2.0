@@ -2018,8 +2018,22 @@ int64_t controller::set_proposed_producers( vector<producer_key> producers ) {
    return version;
 }
 
-//return the proposed_schedule_size 
 //add for achainplus
+//set the count of schedule producers
+bool controller::set_proposed_schedule_size( schedule_size_type size )
+{
+   const auto& gpo = get_global_properties();
+
+   if(size < gpo.proposed_schedule_size)
+      return false;
+   
+   my->db.modify( gpo, [&]( auto& gp ) {
+      gp.proposed_schedule_size = size;
+   });
+
+   return true;
+}
+//return the proposed_schedule_size 
 uint32_t controller::get_proposed_schedule_size()
 {
    const auto& gpo = get_global_properties();
