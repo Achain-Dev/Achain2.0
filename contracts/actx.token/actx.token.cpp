@@ -1,4 +1,4 @@
-/**
+/*
  *  @file
  *  @copyright defined in eos/LICENSE.txt
  */
@@ -116,22 +116,26 @@ void token::add_balance( account_name owner, asset value, account_name ram_payer
    }
 }
 
+/// add for achainplus
 void token::update_account_total_transfer(account_name from, account_name to, asset value)
 {
-   if (value.symbol != CORE_SYMBOL)
-      return;
+   account_statistics_table _statistics_table(_self, value.symbol.name());
+
    auto from_account = _statistics_table.find( from );
    if( from_account == _statistics_table.end() ) {
       _statistics_table.emplace( from, [&]( auto& a ){
         //a.balance = value.amount;
         a.owner = from;
-        a.first_send_time = current_time();
+        a.first_send_time = now();
         a.total_send_amount += static_cast<uint64_t>(value.amount);
+        a.total_sent_times = 1;
+        a.total_receive_times = 0;
       });
    } else {
       _statistics_table.modify( from_account, 0, [&]( auto& a ) {
         a.total_send_amount += static_cast<uint64_t>(value.amount);
-        if (a.first_send_time == 0) a.first_send_time = current_time();
+        if (a.first_send_time == 0) a.first_send_time = now();
+        a.total_sent_times += 1;
       });
    }
 
@@ -140,13 +144,16 @@ void token::update_account_total_transfer(account_name from, account_name to, as
       _statistics_table.emplace( from, [&]( auto& a ){
         //a.balance = value.amount;
         a.owner = to;
-        a.first_receive_time = current_time();
+        a.first_receive_time = now();
         a.total_receive_amount += static_cast<uint64_t>(value.amount);
+        a.total_sent_times = 0;
+        a.total_receive_times = 1;
       });
    } else {
       _statistics_table.modify( to_account, 0, [&]( auto& a ) {
         a.total_receive_amount += static_cast<uint64_t>(value.amount);
-        if (a.first_receive_time == 0) a.first_receive_time = current_time();
+        if (a.first_receive_time == 0) a.first_receive_time = now();
+        a.total_receive_times += 1;
       });
    }
 }
