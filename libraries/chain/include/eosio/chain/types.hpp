@@ -187,6 +187,8 @@ namespace eosio { namespace chain {
    using digest_type         = checksum_type;
    using weight_type         = uint16_t;
    using block_num_type      = uint32_t;
+   //add for achainplus
+   using schedule_size_type  = uint32_t;
    using share_type          = int64_t;
    using int128_t            = __int128;
    using uint128_t           = unsigned __int128;

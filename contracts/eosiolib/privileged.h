@@ -55,6 +55,9 @@ extern "C" {
     * @pre `producer_data` is a valid pointer to a range of memory at least `producer_data_size` bytes long that contains serialized produced schedule data
     */
    void set_active_producers( char *producer_data, uint32_t producer_data_size );
+   
+   //add for achainplus
+   uint32_t get_proposed_schedule_size();
    /**
     * @brief Check if an account is privileged
     * Check if an account is privileged

@@ -116,6 +116,9 @@ static_assert(maximum_tracked_dpos_confirmations >= ((max_producers * 2 / 3) + 1
 const static int irreversible_threshold_percent= 70 * percent_1;
 
 const static uint64_t billable_alignment = 16;
+//the initail schedule proposed producer is 17
+//add for achainplus
+const static uint32_t initial_schedule_size = 17;
 
 template<typename T>
 struct billable_size;
