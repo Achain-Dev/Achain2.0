@@ -1,6 +1,6 @@
 /**
  *  @file
- *  @copyright defined in eos/LICENSE.txt
+ *  @copyright defined in Achainplus/LICENSE
  */
 #include <eosio/chain/block_log.hpp>
 #include <eosio/chain/exceptions.hpp>

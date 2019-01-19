@@ -1,6 +1,6 @@
 /**
  *  @file
- *  @copyright defined in eos/LICENSE.txt
+ *  @copyright defined in Achainplus/LICENSE
  */
 
 #include <asserter/asserter.hpp> /// defines assert_def struct (abi)

@@ -1,6 +1,6 @@
 /**
  *  @file
- *  @copyright defined in eos/LICENSE.txt
+ *  @copyright defined in Achainplus/LICENSE
  */
 #include <eosiolib/action.h>
 #include <eosiolib/chain.h>

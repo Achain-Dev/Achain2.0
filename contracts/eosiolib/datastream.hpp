@@ -1,6 +1,6 @@
 /**
  *  @file datastream.hpp
- *  @copyright defined in eos/LICENSE.txt
+ *  @copyright defined in Achainplus/LICENSE
  */
 #pragma once
 #include <eosiolib/system.h>
