@@ -1,6 +1,6 @@
 /**
  *  @file
- *  @copyright defined in eos/LICENSE.txt
+ *  @copyright defined in Achainplus/LICENSE
  */
 #include <eosio/chain/types.hpp>
 
@@ -1103,7 +1103,7 @@ namespace eosio {
       fc::datastream<char*> ds( send_buffer->data(), buffer_size);
       ds.write( header, header_size );
       fc::raw::pack( ds, m );
-      connection_wptr weak_this = shared_from_this();
+      connection_wptr weak_this = shared_from_this();\
       queue_write(send_buffer,trigger_send,
                   [weak_this, close_after_send](boost::system::error_code ec, std::size_t ) {
                      connection_ptr conn = weak_this.lock();
