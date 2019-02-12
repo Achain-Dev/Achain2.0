@@ -199,6 +199,10 @@ namespace eosiosystem {
          void rmvproducer( account_name producer );
 
          void bidname( account_name bidder, account_name newname, asset bid );
+         
+         //add for achainplus
+         //set BP number dynamically, the number just be increased
+         void setbpnum(uint32_t bp_number);
       private:
          void update_elected_producers( block_timestamp timestamp );
 

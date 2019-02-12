@@ -181,6 +181,17 @@ namespace eosiosystem {
       set_resource_limits( newact, 0, 0, 0 );
    }
 
+   void system_contract::setbpnum(uint32_t bp_number){
+
+      require_auth( N(actx) );
+
+      uint32_t schedule_size = get_proposed_schedule_size();
+      
+      eosio_assert( bp_number > schedule_size, "new size must be larger than current size" );
+
+      set_proposed_schedule_size(bp_number);
+   }
+
 } /// eosio.system
 
 
@@ -188,7 +199,7 @@ EOSIO_ABI( eosiosystem::system_contract,
      // native.hpp (newaccount definition is actually in eosio.system.cpp)
      (newaccount)(updateauth)(deleteauth)(linkauth)(unlinkauth)(canceldelay)(onerror)
      // eosio.system.cpp
-     (setram)(setparams)(setpriv)(rmvproducer)(bidname)
+     (setram)(setparams)(setpriv)(rmvproducer)(bidname)(setbpnum)
      // delegate_bandwidth.cpp
      (buyrambytes)(buyram)(sellram)(delegatebw)(undelegatebw)(refund)
      // voting.cpp

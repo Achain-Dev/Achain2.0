@@ -394,6 +394,12 @@
           {"name":"high_bid", "type":"int64"},
           {"name":"last_bid_time", "type":"uint64"}
        ]
+    }, {
+       "name": "setbpnum",
+       "base": "",
+       "fields":[
+         {"name":"counts", "type":"int64"}
+       ]
     }
    ],
    "actions": [{
@@ -508,7 +514,12 @@
       "name": "setparams",
       "type": "setparams",
       "ricardian_contract": ""
-    }],
+    },{
+      "name": "setbpnum",
+      "type": "setbpnum",
+      "ricardian_contract": ""
+    }
+   ],
    "tables": [{
       "name": "producers",
       "type": "producer_info",
