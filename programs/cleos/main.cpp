@@ -2242,7 +2242,7 @@ int main( int argc, char** argv ) {
                          ("reverse", reverse)
                          ("show_payer", show_payer)
                          //add for chainplus
-                         ("run_time"), run_time)
+                         ("run_time", run_time)
                          );
 
       std::cout << fc::json::to_pretty_string(result)
