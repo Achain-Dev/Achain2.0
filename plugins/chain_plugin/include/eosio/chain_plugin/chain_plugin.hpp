@@ -274,6 +274,8 @@ public:
       string      encode_type{"dec"}; //dec, hex , default=dec
       optional<bool>  reverse;
       optional<bool>  show_payer; // show RAM pyer
+      //add for achainplus
+      uint32_t    run_time = 10;
     };
 
    struct get_table_rows_result {
@@ -442,7 +444,7 @@ public:
 
          auto walk_table_row_range = [&]( auto itr, auto end_itr ) {
             auto cur_time = fc::time_point::now();
-            auto end_time = cur_time + fc::microseconds(1000 * 10); /// 10ms max time
+            auto end_time = cur_time + fc::microseconds(1000 * p.run_time);
          vector<char> data;
             for( unsigned int count = 0; cur_time <= end_time && count < p.limit && itr != end_itr; ++itr, cur_time = fc::time_point::now() ) {
             const auto* itr2 = d.find<chain::key_value_object, chain::by_scope_primary>(boost::make_tuple(t_id->id, itr->primary_key));
@@ -519,7 +521,7 @@ public:
 
          auto walk_table_row_range = [&]( auto itr, auto end_itr ) {
             auto cur_time = fc::time_point::now();
-            auto end_time = cur_time + fc::microseconds(1000 * 10); /// 10ms max time
+            auto end_time = cur_time + fc::microseconds(1000 * p.run_time);
          vector<char> data;
             for( unsigned int count = 0; cur_time <= end_time && count < p.limit && itr != end_itr; ++count, ++itr, cur_time = fc::time_point::now() ) {
             copy_inline_row(*itr, data);
