@@ -1991,8 +1991,9 @@ namespace eosio {
 
 
    void net_plugin_impl::start_listen_loop( ) {
-      auto socket = std::make_shared<tcp::socket>( std::ref( app().get_io_service() ) );
-      acceptor->async_accept( *socket, [socket,this]( boost::system::error_code ec ) {
+      auto socket = std::make_shared<tcp::socket>( std::ref( *server_ioc ) );
+      acceptor->async_accept( *socket, [socket, this, ioc = server_ioc]( boost::system::error_code ec ) {
+            app().post( priority::low, [socket, this, ec, ioc{std::move(ioc)}]() {
             if( !ec ) {
                uint32_t visitors = 0;
                uint32_t from_addr = 0;
@@ -3044,18 +3045,32 @@ namespace eosio {
    void net_plugin::plugin_shutdown() {
       try {
          ilog( "shutdown.." );
+         if( my->server_ioc_work )
+            my->server_ioc_work->reset();
+         if( my->connector_check )
+            my->connector_check->cancel();
+         if( my->transaction_check )
+            my->transaction_check->cancel();
+         if( my->keepalive_timer )
+            my->keepalive_timer->cancel();
          my->done = true;
          if( my->acceptor ) {
             ilog( "close acceptor" );
+            my->acceptor->cancel();
             my->acceptor->close();
 
             ilog( "close ${s} connections",( "s",my->connections.size()) );
-            auto cons = my->connections;
-            for( auto con : cons ) {
-               my->close( con);
+            for( auto& con : my->connections ) {
+               my->close( con );
             }
+            my->connections.clear();
+         }
 
-            my->acceptor.reset(nullptr);
+         if( my->server_ioc )
+            my->server_ioc->stop();
+         if( my->thread_pool ) {
+            my->thread_pool->join();
+            my->thread_pool->stop();
          }
          ilog( "exit shutdown" );
       }
