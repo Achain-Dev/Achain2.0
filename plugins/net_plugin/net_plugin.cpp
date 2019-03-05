@@ -2053,6 +2053,7 @@ namespace eosio {
             }
             start_listen_loop();
          });
+      });
    }
 
    void net_plugin_impl::start_read_message( connection_ptr conn ) {
