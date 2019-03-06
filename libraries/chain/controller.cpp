@@ -661,7 +661,7 @@ struct controller_impl {
       conf.genesis.initial_configuration.validate();
       db.create<global_property_object>([&](auto& gpo ){
         gpo.configuration = conf.genesis.initial_configuration;
-        gpo.proposed_schedule_size = config::initial_schedule_size;
+        gpo.proposed_schedule_size = self._initial_bp_num;
       });
       db.create<dynamic_global_property_object>([](auto&){});
 
@@ -2018,14 +2018,28 @@ int64_t controller::set_proposed_producers( vector<producer_key> producers ) {
    return version;
 }
 
-//return the proposed_schedule_size 
 //add for achainplus
+//set the count of schedule producers
+bool controller::set_proposed_schedule_size( schedule_size_type size )
+{
+   const auto& gpo = get_global_properties();
+
+   if(size < gpo.proposed_schedule_size)
+      return false;
+   
+   my->db.modify( gpo, [&]( auto& gp ) {
+      gp.proposed_schedule_size = size;
+   });
+
+   return true;
+}
+//return the proposed_schedule_size 
 uint32_t controller::get_proposed_schedule_size()
 {
    const auto& gpo = get_global_properties();
    
    if (gpo.proposed_schedule_size.valid()) return *gpo.proposed_schedule_size;
-   return ::eosio::chain::config::initial_schedule_size;
+   return _initial_bp_num;
 }
 
 const producer_schedule_type&    controller::active_producers()const {

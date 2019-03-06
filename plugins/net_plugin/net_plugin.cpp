@@ -1981,9 +1981,8 @@ namespace eosio {
 
 
    void net_plugin_impl::start_listen_loop( ) {
-      auto socket = std::make_shared<tcp::socket>( std::ref( *server_ioc ) );
-      acceptor->async_accept( *socket, [socket, this, ioc = server_ioc]( boost::system::error_code ec ) {
-            app().post( priority::low, [socket, this, ec, ioc{std::move(ioc)}]() {
+      auto socket = std::make_shared<tcp::socket>( std::ref( app().get_io_service() ) );
+      acceptor->async_accept( *socket, [socket,this]( boost::system::error_code ec ) {
             if( !ec ) {
                uint32_t visitors = 0;
                uint32_t from_addr = 0;
@@ -2044,7 +2043,6 @@ namespace eosio {
             }
             start_listen_loop();
          });
-      });
    }
 
    void net_plugin_impl::start_read_message( connection_ptr conn ) {
@@ -3034,32 +3032,18 @@ namespace eosio {
    void net_plugin::plugin_shutdown() {
       try {
          fc_ilog( logger, "shutdown.." );
-         if( my->server_ioc_work )
-            my->server_ioc_work->reset();
-         if( my->connector_check )
-            my->connector_check->cancel();
-         if( my->transaction_check )
-            my->transaction_check->cancel();
-         if( my->keepalive_timer )
-            my->keepalive_timer->cancel();
          my->done = true;
          if( my->acceptor ) {
-            fc_ilog( logger, "close acceptor" );
-            my->acceptor->cancel();
+            ilog( "close acceptor" );
             my->acceptor->close();
 
             fc_ilog( logger, "close ${s} connections",( "s",my->connections.size()) );
-            for( auto& con : my->connections ) {
-               my->close( con );
+            auto cons = my->connections;
+            for( auto con : cons ) {
+               my->close( con);
             }
-            my->connections.clear();
-         }
 
-         if( my->server_ioc )
-            my->server_ioc->stop();
-         if( my->thread_pool ) {
-            my->thread_pool->join();
-            my->thread_pool->stop();
+            my->acceptor.reset(nullptr);
          }
          fc_ilog( logger, "exit shutdown" );
       }
