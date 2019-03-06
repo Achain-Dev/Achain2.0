@@ -192,6 +192,11 @@ class privileged_api : public context_aware_api {
          });
       }
       //add for achainplus
+      bool set_proposed_schedule_size( uint32_t size )
+      {
+         return context.control.set_proposed_schedule_size( size );
+      }
+
       uint32_t get_proposed_schedule_size()
       {
          return context.control.get_proposed_schedule_size();
@@ -1688,6 +1693,7 @@ REGISTER_INTRINSICS(privileged_api,
    (set_proposed_producers,           int64_t(int,int)                      )
    (get_blockchain_parameters_packed, int(int, int)                         )
    (set_blockchain_parameters_packed, void(int,int)                         )
+   (set_proposed_schedule_size,       int(int)                              )
    (get_proposed_schedule_size,       int()                                 )
    (is_privileged,                    int(int64_t)                          )
    (set_privileged,                   void(int64_t, int)                    )

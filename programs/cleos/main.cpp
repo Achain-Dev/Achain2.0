@@ -1079,6 +1079,22 @@ struct vote_producer_proxy_subcommand {
    }
 };
 #endif
+//add for achainplus: set BP number
+struct setbpnum_subcommand {
+   uint32_t bp_num;
+
+   setbpnum_subcommand(CLI::App* actionRoot) {
+      auto set_bp_num = actionRoot->add_subcommand("setbpnum", localized("increase BP counts"));
+      set_bp_num->add_option("counts", bp_num, localized("new counts of BP, must be larger than current counts"))->required();
+
+      set_bp_num->set_callback([this] {
+         fc::variant schedulesize_var = fc::mutable_variant_object()
+                  ("counts", bp_num);
+         auto accountPermissions = get_account_permissions(tx_permission, {config::system_account_name, config::active_name});
+         send_actions({create_action(accountPermissions, config::system_account_name, N(setbpnum), schedulesize_var)});
+      });
+   }
+};
 
 struct vote_producer_subcommand {
    string voter_str;
@@ -3453,6 +3469,8 @@ int main( int argc, char** argv ) {
    auto createAccountSystem = create_account_subcommand( system, false /*simple*/ );
    auto registerProducer = register_producer_subcommand(system);
    auto unregisterProducer = unregister_producer_subcommand(system);
+   //addd for achainplus: set BP number
+   auto setbpnum = setbpnum_subcommand(system);
 
    auto voteProducer = system->add_subcommand("voteproducer", localized("Vote for a producer"));
    voteProducer->require_subcommand();
@@ -3460,7 +3478,6 @@ int main( int argc, char** argv ) {
    auto voteproducer = vote_producer_subcommand(voteProducer);
    //auto approveProducer = approve_producer_subcommand(voteProducer);
    auto unvoteproducer = unvote_producer_subcommand(voteProducer);
-
    auto listProducers = list_producers_subcommand(system);
 
    auto delegateBandWidth = delegate_bandwidth_subcommand(system);

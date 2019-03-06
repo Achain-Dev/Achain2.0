@@ -86,7 +86,7 @@ namespace eosio { namespace chain {
             complete   = 2, ///< this is a complete block signed by a valid producer but is not yet irreversible nor has it yet been applied by this node
             incomplete  = 3, ///< this is an incomplete block (either being produced by a producer or speculatively produced by a node)
          };
-
+         uint32_t _initial_bp_num = chain::config::initial_schedule_size;  
          controller( const config& cfg );
          ~controller();
 
@@ -236,7 +236,8 @@ namespace eosio { namespace chain {
          bool contracts_console()const;
 
          chain_id_type get_chain_id()const;
-         //add for achainplus         
+         //add for achainplus  
+         bool set_proposed_schedule_size( schedule_size_type size );       
          uint32_t get_proposed_schedule_size();
 
          db_read_mode get_read_mode()const;
