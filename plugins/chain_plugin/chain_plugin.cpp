@@ -250,7 +250,7 @@ void chain_plugin::set_program_options(options_description& cli, options_descrip
          ("disable-ram-billing-notify-checks", bpo::bool_switch()->default_value(false),
           "Disable the check which subjectively fails a transaction if a contract bills more RAM to another account within the context of a notification handler (i.e. when the receiver is not the code of the action).")
          ("trusted-producer", bpo::value<vector<string>>()->composing(), "Indicate a producer whose blocks headers signed by it will be fully validated, but transactions in those validated blocks will be trusted.")
-         ("initial-bp-num", boost::program_options::value<uint32_t>()->default_value(chain::config::initial_schedule_size), "the initail number of block producer")
+         ("initial-bp-num", bpo::value<uint32_t>()->default_value(chain::config::initial_schedule_size), "the initail number of block producer")
          ;
 
 // TODO: rate limiting
@@ -631,7 +631,7 @@ void chain_plugin::plugin_initialize(const variables_map& options) {
       if ( options.count("validation-mode") ) {
          my->chain_config->block_validation_mode = options.at("validation-mode").as<validation_mode>();
       }
-      my->chain->_initial_bp_num = options.at("initial-bp-num").as<uint32_t>();
+      my->chain_config->_initial_bp_num = options.at("initial-bp-num").as<uint32_t>();
 
       my->chain.emplace( *my->chain_config );
       my->chain_id.emplace( my->chain->get_chain_id());

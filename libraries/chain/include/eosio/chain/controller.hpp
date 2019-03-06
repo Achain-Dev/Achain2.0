@@ -78,6 +78,7 @@ namespace eosio { namespace chain {
 
             flat_set<account_name>   resource_greylist;
             flat_set<account_name>   trusted_producers;
+            uint32_t _initial_bp_num = chain::config::initial_schedule_size;
          };
 
          enum class block_status {
@@ -86,7 +87,7 @@ namespace eosio { namespace chain {
             complete   = 2, ///< this is a complete block signed by a valid producer but is not yet irreversible nor has it yet been applied by this node
             incomplete  = 3, ///< this is an incomplete block (either being produced by a producer or speculatively produced by a node)
          };
-         uint32_t _initial_bp_num = chain::config::initial_schedule_size;  
+         //uint32_t _initial_bp_num = chain::config::initial_schedule_size;  
          controller( const config& cfg );
          ~controller();
 
@@ -318,4 +319,5 @@ FC_REFLECT( eosio::chain::controller::config,
             (wasm_runtime)
             (resource_greylist)
             (trusted_producers)
+            (_initial_bp_num)
           )

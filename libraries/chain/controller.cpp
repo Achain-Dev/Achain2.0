@@ -661,7 +661,7 @@ struct controller_impl {
       conf.genesis.initial_configuration.validate();
       db.create<global_property_object>([&](auto& gpo ){
         gpo.configuration = conf.genesis.initial_configuration;
-        gpo.proposed_schedule_size = self._initial_bp_num;
+        gpo.proposed_schedule_size = conf._initial_bp_num;
       });
       db.create<dynamic_global_property_object>([](auto&){});
 
@@ -2039,7 +2039,7 @@ uint32_t controller::get_proposed_schedule_size()
    const auto& gpo = get_global_properties();
    
    if (gpo.proposed_schedule_size.valid()) return *gpo.proposed_schedule_size;
-   return _initial_bp_num;
+   return my->conf._initial_bp_num;
 }
 
 const producer_schedule_type&    controller::active_producers()const {
