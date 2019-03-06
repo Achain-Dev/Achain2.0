@@ -910,7 +910,7 @@ namespace eosio {
       syncing = false;
    }
 
-   void connection::blk_send(const vector<block_id_type> &ids) {
+   void connection::blk_send(const vector<block_id_type> &ids)  {
       controller &cc = my_impl->chain_plug->chain();
       int count = 0;
       for(auto &blkid : ids) {
@@ -919,22 +919,19 @@ namespace eosio {
             signed_block_ptr b = cc.fetch_block_by_id(blkid);
             if(b) {
                fc_dlog(logger,"found block for id at num ${n}",("n",b->block_num()));
-               enqueue(net_message(*b));
+                enqueue(net_message(*b));
             }
             else {
-            fc_ilog( logger, "fetch block by id returned null, id ${id} for ${p}",
-                     ("id",blkid)("p",peer_name()) );
+            fc_ilog( logger, "fetch block by id returned null, id ${id} for ${p}", ("id",blkid)("p",peer_name()) );
             }
          }
          catch (const assert_exception &ex) {
-         fc_elog( logger, "caught assert on fetch_block_by_id, ${ex}, id ${id} for ${p}",
-                  ("ex",ex.to_string())("id",blkid)("p",peer_name()) );
+         fc_elog( logger, "caught assert on fetch_block_by_id, ${ex}, id ${id} for ${p}", ("ex",ex.to_string())("id",blkid)("p",peer_name()) );
          }
          catch (...) {
-         fc_elog( logger, "caught other exception fetching block id ${id} for ${p}",
-                  ("id",blkid)("p",peer_name()) );
+         fc_elog( logger, "caught other exception fetching block id ${id} for ${p}", ("id",blkid)("p",peer_name()) );
+         }
       }
-
    }
 
    void connection::stop_send() {
