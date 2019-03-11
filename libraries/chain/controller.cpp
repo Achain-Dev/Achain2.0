@@ -1013,6 +1013,8 @@ struct controller_impl {
    {
       EOS_ASSERT(deadline != fc::time_point(), transaction_exception, "deadline cannot be uninitialized");
 
+      const bool check_auth = !self.skip_auth_check() && !trx->implicit;
+      const flat_set<public_key_type>& recovered_keys = check_auth ? trx->recover_keys( chain_id ) : flat_set<public_key_type>();
       transaction_trace_ptr trace;
       try {
          transaction_context trx_context(self, trx->trx, trx->id);
@@ -1037,10 +1039,10 @@ struct controller_impl {
 
             trx_context.delay = fc::seconds(trx->trx.delay_sec);
 
-            if( !self.skip_auth_check() && !trx->implicit ) {
+            if( check_auth ) {
                authorization.check_authorization(
                        trx->trx.actions,
-                       trx->recover_keys( chain_id ),
+                       recovered_keys,
                        {},
                        trx_context.delay,
                        [](){}
