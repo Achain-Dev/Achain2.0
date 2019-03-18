@@ -1044,26 +1044,24 @@ struct set_config_subcommand {
    name config_name;   //the key of table
    name config_key;    
    int64_t config_value;
-   asset config_asset;
+   string config_asset;
    string desc = "";
    
    set_config_subcommand(CLI::App* actionRoot){
-	  auto setConfig = actionRoot->add_subcommand("setconfig", localized("Set a new configuration on the blockchain"));
+      auto setConfig = actionRoot->add_subcommand("setconfig", localized("Set a new configuration on the blockchain"));
       setConfig->add_option("configname", config_name, localized("The name of the configuration, the name must be unique"))->required();
       setConfig->add_option("value", config_value, localized("The blocknum of the configuration take effects"))->required();
-	  setConfig->add_option("configtype", config_key, localized("The type of the configuration"));
-
-	  if (!config_key.empty())
-	     setConfig->add_option("assetinfo", config_asset, localized("The assetinfo of the type"))->required();
-
-	  setConfig->add_option("description", desc, localized("The desc of the configuration"));
+      setConfig->add_option("configtype", config_key, localized("The type of the configuration"));
+      setConfig->add_option("assetinfo", config_asset, localized("The assetinfo of the type"));
+      setConfig->add_option("description", desc, localized("The desc of the configuration"));
 	  
-      set_bp_num->set_callback([this] {
+      setConfig->set_callback([this] {
+         const asset asset_info = to_asset(config_asset);
          fc::variant schedulesize_var = fc::mutable_variant_object()
                   ("name", config_name)
                   ("value", config_value)
                   ("key", config_key)
-                  ("asset_info", config_asset)
+                  ("asset_info", asset_info.to_string())
                   ("desc", desc);
          auto accountPermissions = get_account_permissions(tx_permission, {config::system_account_name, config::active_name});
          send_actions({create_action(accountPermissions, config::system_account_name, N(setconfig), schedulesize_var)});
