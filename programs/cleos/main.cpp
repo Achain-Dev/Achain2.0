@@ -1039,6 +1039,41 @@ struct create_account_subcommand {
    }
 };
 
+//set config
+struct set_config_subcommand {
+   name config_name;   //the key of table
+   name config_key;    
+   int64_t config_value;
+   asset config_asset;
+   string desc = "";
+   
+   set_config_subcommand(CLI::App* actionRoot){
+	  auto setConfig = actionRoot->add_subcommand("setconfig", localized("Set a new configuration on the blockchain"));
+      setConfig->add_option("configname", config_name, localized("The name of the configuration, the name must be unique"))->required();
+      setConfig->add_option("value", config_value, localized("The blocknum of the configuration take effects"))->required();
+	  setConfig->add_option("configtype", config_key, localized("The type of the configuration"));
+
+	  if (!config_key.empty())
+	     setConfig->add_option("assetinfo", config_asset, localized("The assetinfo of the type"))->required();
+
+	  setConfig->add_option("description", desc, localized("The desc of the configuration"));
+	  
+      set_bp_num->set_callback([this] {
+         fc::variant schedulesize_var = fc::mutable_variant_object()
+                  ("name", config_name)
+                  ("value", config_value)
+                  ("key", config_key)
+                  ("asset_info", config_asset)
+                  ("desc", desc);
+         auto accountPermissions = get_account_permissions(tx_permission, {config::system_account_name, config::active_name});
+         send_actions({create_action(accountPermissions, config::system_account_name, N(setconfig), schedulesize_var)});
+      });
+
+     
+   }
+};
+
+
 struct unregister_producer_subcommand {
    string producer_str;
 
@@ -1936,6 +1971,9 @@ int main( int argc, char** argv ) {
 
    // create account
    auto createAccount = create_account_subcommand( create, true /*simple*/ );
+
+   // set config
+   auto setConfig = set_config_subcommand(&app);
 
    // convert subcommand
    auto convert = app.add_subcommand("convert", localized("Pack and unpack transactions"), false); // TODO also add converting action args based on abi from here ?
