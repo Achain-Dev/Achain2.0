@@ -172,6 +172,7 @@ namespace eosio { namespace chain {
       account_history_object_type,              ///< Defined by history_plugin
       action_history_object_type,               ///< Defined by history_plugin
       reversible_block_object_type,
+      config_data_object_type, // add for achainplus
       OBJECT_TYPE_COUNT ///< Sentry value which contains the number of different object types
    };
 

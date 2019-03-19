@@ -214,6 +214,9 @@ struct controller_impl {
 */
 
    SET_APP_HANDLER( actx, actx, canceldelay );
+   //add for achainplus
+   SET_APP_HANDLER( actx, actx, setconfig );
+
 
    fork_db.irreversible.connect( [&]( auto b ) {
                                  on_irreversible(b);

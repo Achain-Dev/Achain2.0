@@ -199,6 +199,16 @@ abi_def eosio_contract_abi(const abi_def& eosio_system_abi)
          {"trx_id", "transaction_id_type"},
       }
    });
+   //add for achainplus
+   eos_abi.structs.emplace_back( struct_def {
+      "setconfig", "", {
+         {"type", "account_name"},
+         {"value", "int64"},
+         {"key", "account_name"},
+         {"asset_info", "asset"},
+         {"desc", "bytes"}
+      }
+   });
 
    eos_abi.structs.emplace_back( struct_def {
          "onerror", "", {
@@ -224,6 +234,7 @@ abi_def eosio_contract_abi(const abi_def& eosio_system_abi)
    eos_abi.actions.push_back( action_def{name("canceldelay"), "canceldelay",""} );
    eos_abi.actions.push_back( action_def{name("onerror"), "onerror",""} );
    eos_abi.actions.push_back( action_def{name("onblock"), "onblock",""} );
+   eos_abi.actions.push_back( action_def{name("setconfig"), "setconfig",""} );
 
    return eos_abi;
 }

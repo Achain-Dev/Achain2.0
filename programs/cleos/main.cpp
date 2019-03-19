@@ -1044,7 +1044,7 @@ struct set_config_subcommand {
    name config_name;   //the key of table
    name config_key;    
    int64_t config_value;
-   asset config_asset;
+   string config_asset;
    string desc = "";
    
    set_config_subcommand(CLI::App* actionRoot){
@@ -1059,11 +1059,12 @@ struct set_config_subcommand {
 	  setConfig->add_option("description", desc, localized("The desc of the configuration"));
 	  
       set_bp_num->set_callback([this] {
+         const asset asset_info = to_asset(config_asset);
          fc::variant schedulesize_var = fc::mutable_variant_object()
                   ("name", config_name)
                   ("value", config_value)
                   ("key", config_key)
-                  ("asset_info", config_asset)
+                  ("asset_info", asset_info.to_string())
                   ("desc", desc);
          auto accountPermissions = get_account_permissions(tx_permission, {config::system_account_name, config::active_name});
          send_actions({create_action(accountPermissions, config::system_account_name, N(setconfig), schedulesize_var)});

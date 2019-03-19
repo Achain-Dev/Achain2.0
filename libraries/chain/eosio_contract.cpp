@@ -371,4 +371,16 @@ void apply_actx_canceldelay(apply_context& context) {
    context.cancel_deferred_transaction(transaction_id_to_sender_id(trx_id), account_name());
 }
 
+//add for achainplus
+void apply_actx_setconfig(apply_context& context) {
+   auto cfg_data = context.act.data_as<setconfig>();
+   if( !context.has_authorization(config::system_account_name)) {
+	  EOS_THROW(missing_auth_exception, "setconfig need auth by actx");
+	  return;
+   }
+   
+   set_config(context.db, cfg_data);
+}
+
+
 } } // namespace eosio::chain
