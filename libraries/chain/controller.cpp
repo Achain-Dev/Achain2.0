@@ -661,7 +661,7 @@ struct controller_impl {
       conf.genesis.initial_configuration.validate();
       db.create<global_property_object>([&](auto& gpo ){
         gpo.configuration = conf.genesis.initial_configuration;
-        gpo.proposed_schedule_size = self._initial_bp_num;
+        gpo.proposed_schedule_size = conf._initial_bp_num;
       });
       db.create<dynamic_global_property_object>([](auto&){});
 
@@ -1013,6 +1013,8 @@ struct controller_impl {
    {
       EOS_ASSERT(deadline != fc::time_point(), transaction_exception, "deadline cannot be uninitialized");
 
+      const bool check_auth = !self.skip_auth_check() && !trx->implicit;
+      const flat_set<public_key_type>& recovered_keys = check_auth ? trx->recover_keys( chain_id ) : flat_set<public_key_type>();
       transaction_trace_ptr trace;
       try {
          transaction_context trx_context(self, trx->trx, trx->id);
@@ -1037,10 +1039,10 @@ struct controller_impl {
 
             trx_context.delay = fc::seconds(trx->trx.delay_sec);
 
-            if( !self.skip_auth_check() && !trx->implicit ) {
+            if( check_auth ) {
                authorization.check_authorization(
                        trx->trx.actions,
-                       trx->recover_keys( chain_id ),
+                       recovered_keys,
                        {},
                        trx_context.delay,
                        [](){}
@@ -2039,7 +2041,7 @@ uint32_t controller::get_proposed_schedule_size()
    const auto& gpo = get_global_properties();
    
    if (gpo.proposed_schedule_size.valid()) return *gpo.proposed_schedule_size;
-   return _initial_bp_num;
+   return my->conf._initial_bp_num;
 }
 
 const producer_schedule_type&    controller::active_producers()const {
