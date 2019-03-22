@@ -10,42 +10,35 @@
 
 namespace eosio { namespace chain {
 
-
-//get config by name
-const setconfig& get_config_by_name(const chainbase::database& db, const name& name)
+//get config.value by name
+int64_t get_config_value( const chainbase::database& db, const name& name)
 {
    const auto cfg_itr = db.find<config_data_object, by_name>(name);
 
    if( cfg_itr == nullptr ) {
-      return setconf::default_value::default_config;
+      return eosio::chain::setconf::default_value::default_config_value;
    }
 
-   return *cfg_itr;
-}
-
-//get config.value by name
-int64_t get_config_value( const chainbase::database& db, const name& name)
-{
-   const auto cfg = get_config_by_name(db, name);
-
-   return cfg.value;
+   return cfg_itr->value;
 }
 
 void set_config( chainbase::database& db, const setconfig &cfg ) {
-   auto itr = db.find<config_data_object, by_name>(cfg.type);
+   auto itr = db.find<config_data_object, by_name>(cfg.name);
    if( itr == nullptr ) {
-      ilog("set num config ${n} to ${v}", ( "n", cfg.type )("v", cfg));
+      ilog("set num config ${n} to ${v}", ( "n", cfg.name )("v", cfg));
       db.create<config_data_object>([&]( auto& c ) {
-         c.type = cfg.type;
+         c.name = cfg.name;
          c.value = cfg.value;
          c.key = cfg.key;
          c.asset_info = cfg.asset_info;
+         c.desc = cfg.desc;
       });
    } else {
       db.modify<config_data_object>(*itr, [&]( auto& c ) {
          c.value = cfg.value;
          c.key = cfg.key;
          c.asset_info = cfg.asset_info;
+         c.desc = cfg.desc;
       });
    }
 }

@@ -13,6 +13,8 @@
 
 namespace eosio { namespace chain {
 
+class config_data_object;
+
 namespace setconf{
    namespace res_type{
       static const auto cpu_per_fee = N(r.cpufee);
@@ -29,22 +31,19 @@ namespace setconf{
 
    namespace default_value{
       static const auto default_config_value = -1;
-	  static const auto default_config_key = N(k.null);
-	  static const auto default_asset_info = asset(0,symbol(0,"null"));
-	  static const setconfig default_config = {N(null), default_config_value, default_config_key, default_asset_info, ""};
+      static const auto default_config_key = N(k.null);
    }
 };
 
 // some spec type for fast
 class config_data_object : public chainbase::object<config_data_object_type, config_data_object> {
    OBJECT_CTOR(config_data_object);
-
    id_type id;
    account_name name;
-   int64_t value;
-   account_name key;
+   int64_t value = setconf::default_value::default_config_value;
+   account_name key = setconf::default_value::default_config_key;
    asset asset_info;
-   string desc;
+   string desc = "";
 };
 
 
@@ -52,19 +51,10 @@ struct by_name;
 using config_data_object_index = chainbase::shared_multi_index_container<
       config_data_object,
       indexed_by<
-            ordered_unique< tag<by_id>,
-                  BOOST_MULTI_INDEX_MEMBER(config_data_object, config_data_object::id_type, id)
-            >,
-            ordered_unique< tag<by_name>,
-                  BOOST_MULTI_INDEX_MEMBER(config_data_object, name, type)
-            >
+            ordered_unique< tag<by_id>,member<config_data_object, config_data_object::id_type, &config_data_object::id>>,
+            ordered_unique< tag<by_name>,member<config_data_object, account_name, &config_data_object::name>>
       >
 >;
-
-//get value from table
-
-const setconfig& get_config_by_name(const chainbase::database& db, const name& name);
-
 
 int64_t get_config_value( const chainbase::database& db, const name& name);
 
@@ -82,7 +72,7 @@ bool is_func_open( const controller& ctl, const name &func_typ, const int64_t de
 
 } } /// namespace eosio::chain
 
-FC_REFLECT(eosio::chain::config_data_object, (id)(name)(value)(key)(asset_info)(desc))
+FC_REFLECT(eosio::chain::config_data_object, (name)(value)(key)(asset_info)(desc))
 CHAINBASE_SET_INDEX_TYPE(eosio::chain::config_data_object, eosio::chain::config_data_object_index)
 
 

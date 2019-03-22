@@ -1044,7 +1044,7 @@ struct set_config_subcommand {
    name config_name;   //the key of table
    name config_key;    
    int64_t config_value;
-   string config_asset;
+   string config_asset = "";
    string desc = "";
    
    set_config_subcommand(CLI::App* actionRoot){
@@ -1055,7 +1055,9 @@ struct set_config_subcommand {
       setConfig->add_option("assetinfo", config_asset, localized("The assetinfo of the type"));
       setConfig->add_option("description", desc, localized("The desc of the configuration"));
 	  
-      set_bp_num->set_callback([this] {
+      setConfig->set_callback([this] {
+         if (config_asset.empty())
+            config_asset = "0.0000 ACTX";
          const asset asset_info = to_asset(config_asset);
          fc::variant schedulesize_var = fc::mutable_variant_object()
                   ("name", config_name)

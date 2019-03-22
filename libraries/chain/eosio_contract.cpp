@@ -23,6 +23,7 @@
 
 #include <eosio/chain/authorization_manager.hpp>
 #include <eosio/chain/resource_limits.hpp>
+#include <eosio/chain/set_config.hpp>
 
 namespace eosio { namespace chain {
 
@@ -378,7 +379,6 @@ void apply_actx_setconfig(apply_context& context) {
 	  EOS_THROW(missing_auth_exception, "setconfig need auth by actx");
 	  return;
    }
-   
    set_config(context.db, cfg_data);
 }
 

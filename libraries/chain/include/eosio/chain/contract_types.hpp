@@ -4,7 +4,7 @@
 #include <eosio/chain/chain_config.hpp>
 #include <eosio/chain/config.hpp>
 #include <eosio/chain/types.hpp>
-
+#include <eosio/chain/asset.hpp>
 namespace eosio { namespace chain {
 
 using action_name    = eosio::chain::action_name;
@@ -55,12 +55,12 @@ struct setabi {
 //for achainplus: dynamic configuration  
 //This table stores less data
 struct setconfig {
-   account_name      name;				//the name of configuration
+   account_name           name;				//the name of configuration
 
-   int64_t           value = 0;     //the value of this type
-   account_name      key;             //reserve
-   asset             asset_info;        //asset info,may be a fee, or a award and so on
-   string            desc;             // the desc of this configuration
+   int64_t                value = 0;     //the value of this type
+   account_name           key;             //reserve
+   eosio::chain::asset    asset_info;        //asset info,may be a fee, or a award and so on
+   string                 desc;             // the desc of this configuration
 
    static account_name get_account() {
       return config::system_account_name;
