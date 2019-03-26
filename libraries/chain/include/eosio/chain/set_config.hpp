@@ -58,11 +58,10 @@ using config_data_object_index = chainbase::shared_multi_index_container<
 
 int64_t get_config_value( const chainbase::database& db, const name& name);
 
-/*
-account_name get_config_key( const chainbase::database& db, const name& name){}
+account_name get_config_key( const chainbase::database& db, const name& name);
 
-asset get_config_asset(const chainbase::database& db, const name& name){}
-*/
+asset get_config_asset(const chainbase::database& db, const name& name);
+
 
 //set chain cfg
 void set_config( chainbase::database& db, const setconfig &cfg );

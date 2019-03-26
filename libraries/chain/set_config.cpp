@@ -22,6 +22,28 @@ int64_t get_config_value( const chainbase::database& db, const name& name)
    return cfg_itr->value;
 }
 
+account_name get_config_key(const chainbase::database& db, const name& name)
+{
+   const auto cfg_itr = db.find<config_data_object, by_name>(name);
+
+   if( cfg_itr == nullptr ) {
+      return eosio::chain::setconf::default_value::default_config_key;
+   }
+
+   return cfg_itr->key;
+}
+
+asset get_config_asset(const chainbase::database& db, const name& name)
+{
+   const auto cfg_itr = db.find<config_data_object, by_name>(name);
+
+   if( cfg_itr == nullptr ) {
+      return asset();
+   }
+
+   return cfg_itr->asset_info;
+}
+
 void set_config( chainbase::database& db, const setconfig &cfg ) {
    auto itr = db.find<config_data_object, by_name>(cfg.name);
    if( itr == nullptr ) {
