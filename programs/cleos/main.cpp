@@ -268,6 +268,12 @@ eosio::chain_apis::read_only::get_info_results get_info() {
    return call(url, get_info_func).as<eosio::chain_apis::read_only::get_info_results>();
 }
 
+//add for achainplus
+eosio::chain_apis::read_only::get_chain_config_results get_chain_config() {
+   return call(url, get_chain_config_func).as<eosio::chain_apis::read_only::get_chain_config_results>();
+}
+
+
 string generate_nonce_string() {
    return fc::to_string(fc::time_point::now().time_since_epoch().count());
 }
@@ -2145,6 +2151,9 @@ int main( int argc, char** argv ) {
       }
 
    });
+
+   // get chain config
+   
 
    // get code
    string codeFilename;

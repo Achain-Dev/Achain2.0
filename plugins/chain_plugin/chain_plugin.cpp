@@ -1037,6 +1037,19 @@ read_only::get_info_results read_only::get_info(const read_only::get_info_params
    };
 }
 
+//add for achainplus
+read_only::get_chain_config_results read_only::get_chain_config(const read_only::get_chain_config_params&) const {
+   const auto& cfg = db.get_mutable_index<config_data_object_type>();
+   auto& iter = cfg.begin();
+   
+   while (iter != cfg.end())
+   {
+      iter++;
+   }
+
+   return read_only::get_chain_config_results();
+}
+
 uint64_t read_only::get_table_index_name(const read_only::get_table_rows_params& p, bool& primary) {
    using boost::algorithm::starts_with;
    // see multi_index packing of index name
