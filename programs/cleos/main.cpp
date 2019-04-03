@@ -2151,9 +2151,12 @@ int main( int argc, char** argv ) {
       }
 
    });
-
+   // add for achainplus
    // get chain config
-   
+   get->add_subcommand("chainconfig", localized("Get current blockchain config information"))->set_callback([] {
+      std::cout << fc::json::to_pretty_string(get_chain_config()) << std::endl;
+   });
+
 
    // get code
    string codeFilename;

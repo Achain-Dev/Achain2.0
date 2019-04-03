@@ -292,6 +292,7 @@ namespace eosio { namespace chain {
       private:
          friend class apply_context;
          friend class transaction_context;
+         friend class eosio::chain_apis::read_only;
 
          chainbase::database& mutable_db()const;
 

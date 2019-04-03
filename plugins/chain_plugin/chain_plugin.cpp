@@ -15,6 +15,7 @@
 #include <eosio/chain/controller.hpp>
 #include <eosio/chain/generated_transaction_object.hpp>
 #include <eosio/chain/snapshot.hpp>
+#include <eosio/chain/set_config.hpp>
 
 #include <eosio/chain/eosio_contract.hpp>
 
@@ -1039,15 +1040,24 @@ read_only::get_info_results read_only::get_info(const read_only::get_info_params
 
 //add for achainplus
 read_only::get_chain_config_results read_only::get_chain_config(const read_only::get_chain_config_params&) const {
-   const auto& cfg = db.get_mutable_index<config_data_object_type>();
-   auto& iter = cfg.begin();
+   chainbase::database& db_t = db.mutable_db();
+   auto& cfg = db_t.get_mutable_index<config_data_object_index>().indices().get<by_name>();
+   auto iter = cfg.begin();
+   read_only::get_chain_config_results results;
    
    while (iter != cfg.end())
    {
+      chain_config _cfg;
+      _cfg.name = iter->name;
+      _cfg.value = iter->value;
+      _cfg.key = iter->key;
+      _cfg.asset_info = iter->asset_info;
+      _cfg.desc = iter->desc;
+      results._chain_config.emplace_back(_cfg);
       iter++;
    }
 
-   return read_only::get_chain_config_results();
+   return results;
 }
 
 uint64_t read_only::get_table_index_name(const read_only::get_table_rows_params& p, bool& primary) {
