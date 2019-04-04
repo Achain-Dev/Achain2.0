@@ -17,14 +17,11 @@ class config_data_object;
 
 namespace setconf{
    namespace res_type{
-      static const auto cpu_per_fee = N(r.cpufee);
-      static const auto net_per_fee = N(r.netfee);
       static const auto free_ram_per_account = N(r.freeram);
    };
 
 
    namespace func_type{
-      static const auto vote_for_ram = N(f.ram4vote);
       static const auto onfee_action = N(f.onfeeact);
    }
 
