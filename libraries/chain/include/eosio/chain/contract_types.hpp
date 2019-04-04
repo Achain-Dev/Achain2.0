@@ -4,7 +4,7 @@
 #include <eosio/chain/chain_config.hpp>
 #include <eosio/chain/config.hpp>
 #include <eosio/chain/types.hpp>
-
+#include <eosio/chain/asset.hpp>
 namespace eosio { namespace chain {
 
 using action_name    = eosio::chain::action_name;
@@ -51,6 +51,26 @@ struct setabi {
       return N(setabi);
    }
 };
+
+//for achainplus: dynamic configuration  
+//This table stores less data
+struct setconfig {
+   account_name           name;				//the name of configuration
+
+   int64_t                value = 0;     //the value of this type
+   account_name           key;             //reserve
+   eosio::chain::asset    asset_info;        //asset info,may be a fee, or a award and so on
+   string                 desc;             // the desc of this configuration
+
+   static account_name get_account() {
+      return config::system_account_name;
+   }
+
+   static action_name get_name() {
+      return N(setconfig);
+   }
+};
+
 
 
 struct updateauth {
@@ -165,3 +185,5 @@ FC_REFLECT( eosio::chain::linkauth                         , (account)(code)(typ
 FC_REFLECT( eosio::chain::unlinkauth                       , (account)(code)(type) )
 FC_REFLECT( eosio::chain::canceldelay                      , (canceling_auth)(trx_id) )
 FC_REFLECT( eosio::chain::onerror                          , (sender_id)(sent_trx) )
+FC_REFLECT( eosio::chain::setconfig                        , (name)(value)(key)(asset_info)(desc) )
+
