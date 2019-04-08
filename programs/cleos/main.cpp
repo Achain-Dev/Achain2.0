@@ -268,6 +268,12 @@ eosio::chain_apis::read_only::get_info_results get_info() {
    return call(url, get_info_func).as<eosio::chain_apis::read_only::get_info_results>();
 }
 
+//add for achainplus
+eosio::chain_apis::read_only::get_chain_config_results get_chain_config() {
+   return call(url, get_chain_config_func).as<eosio::chain_apis::read_only::get_chain_config_results>();
+}
+
+
 string generate_nonce_string() {
    return fc::to_string(fc::time_point::now().time_since_epoch().count());
 }
@@ -1038,6 +1044,39 @@ struct create_account_subcommand {
       });
    }
 };
+
+//set config
+struct set_config_subcommand {
+   name config_name;   //the key of table
+   name config_key;    
+   int64_t config_value;
+   string config_asset = "";
+   string desc = "";
+   
+   set_config_subcommand(CLI::App* actionRoot){
+      auto setConfig = actionRoot->add_subcommand("setconfig", localized("Set a new configuration on the blockchain"));
+      setConfig->add_option("configname", config_name, localized("The name of the configuration, the name must be unique"))->required();
+      setConfig->add_option("value", config_value, localized("The blocknum of the configuration take effects"))->required();
+      setConfig->add_option("configtype", config_key, localized("The type of the configuration"));
+      setConfig->add_option("assetinfo", config_asset, localized("The assetinfo of the type"));
+      setConfig->add_option("description", desc, localized("The desc of the configuration"));
+	  
+      setConfig->set_callback([this] {
+         if (config_asset.empty())
+            config_asset = "0.0000 ACTX";
+         const asset asset_info = to_asset(config_asset);
+         fc::variant schedulesize_var = fc::mutable_variant_object()
+                  ("name", config_name)
+                  ("value", config_value)
+                  ("key", config_key)
+                  ("asset_info", asset_info.to_string())
+                  ("desc", desc);
+         auto accountPermissions = get_account_permissions(tx_permission, {config::system_account_name, config::active_name});
+         send_actions({create_action(accountPermissions, config::system_account_name, N(setconfig), schedulesize_var)});
+      }); 
+   }
+};
+
 
 struct unregister_producer_subcommand {
    string producer_str;
@@ -1937,6 +1976,9 @@ int main( int argc, char** argv ) {
    // create account
    auto createAccount = create_account_subcommand( create, true /*simple*/ );
 
+   // set config
+   auto setConfig = set_config_subcommand(&app);
+
    // convert subcommand
    auto convert = app.add_subcommand("convert", localized("Pack and unpack transactions"), false); // TODO also add converting action args based on abi from here ?
    convert->require_subcommand();
@@ -2109,6 +2151,12 @@ int main( int argc, char** argv ) {
          }
       }
    });
+   // add for achainplus
+   // get chain config
+   get->add_subcommand("chainconfig", localized("Get current blockchain config information"))->set_callback([] {
+      std::cout << fc::json::to_pretty_string(get_chain_config()) << std::endl;
+   });
+
 
    // get code
    string codeFilename;

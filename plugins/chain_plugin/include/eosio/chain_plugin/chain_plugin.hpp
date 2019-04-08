@@ -21,6 +21,7 @@
 
 #include <fc/static_variant.hpp>
 
+
 namespace fc { class variant; }
 
 namespace eosio {
@@ -106,6 +107,20 @@ public:
       optional<string>        server_version_string;
    };
    get_info_results get_info(const get_info_params&) const;
+
+   //add for achainplus
+   using get_chain_config_params = empty;
+   struct chain_config{
+      account_name name;
+      int64_t value;
+      account_name key;
+      asset asset_info;
+      string desc = "";
+   };
+   struct get_chain_config_results{
+      vector<chain_config> _chain_config;
+   };
+   get_chain_config_results get_chain_config(const get_chain_config_params&) const;
 
    struct producer_info {
       name                       producer_name;
@@ -752,3 +767,8 @@ FC_REFLECT( eosio::chain_apis::read_only::abi_bin_to_json_params, (code)(action)
 FC_REFLECT( eosio::chain_apis::read_only::abi_bin_to_json_result, (args) )
 FC_REFLECT( eosio::chain_apis::read_only::get_required_keys_params, (transaction)(available_keys) )
 FC_REFLECT( eosio::chain_apis::read_only::get_required_keys_result, (required_keys) )
+//add for achainplus
+FC_REFLECT( eosio::chain_apis::read_only::chain_config, (name)(value)(key)(asset_info)(desc) )
+FC_REFLECT( eosio::chain_apis::read_only::get_chain_config_results, (_chain_config) )
+
+
