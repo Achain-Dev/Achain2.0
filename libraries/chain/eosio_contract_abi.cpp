@@ -204,6 +204,7 @@ abi_def eosio_contract_abi(const abi_def& eosio_system_abi)
       "setconfig", "", {
          {"name", "account_name"},
          {"value", "int64"},
+         {"valid_block", "int64"},
          {"key", "account_name"},
          {"asset_info", "asset"},
          {"desc", "bytes"}

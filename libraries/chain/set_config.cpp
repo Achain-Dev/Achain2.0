@@ -51,6 +51,7 @@ void set_config( chainbase::database& db, const setconfig &cfg ) {
       db.create<config_data_object>([&]( auto& c ) {
          c.name = cfg.name;
          c.value = cfg.value;
+         c.valid_block = cfg.valid_block;
          c.key = cfg.key;
          c.asset_info = cfg.asset_info;
          c.desc = cfg.desc;
@@ -58,6 +59,7 @@ void set_config( chainbase::database& db, const setconfig &cfg ) {
    } else {
       db.modify<config_data_object>(*itr, [&]( auto& c ) {
          c.value = cfg.value;
+         c.valid_block = cfg.valid_block;
          c.key = cfg.key;
          c.asset_info = cfg.asset_info;
          c.desc = cfg.desc;
@@ -65,12 +67,11 @@ void set_config( chainbase::database& db, const setconfig &cfg ) {
    }
 }
 
-bool is_func_open( const controller& ctl, const name &func_typ, const int64_t default_open_block) {
+bool is_func_open( const controller& ctl, const name &func_typ) {
    const auto head_num = static_cast<int64_t>( ctl.head_block_num() );
    const auto open_num = get_config_value( ctl.db(), func_typ );
     
-   return (head_num >= 0) && ((open_num >= 0 && head_num >= open_num)
-                              || (open_num == setconf::default_value::default_config_value && default_open_block != 0 && head_num >= default_open_block));
+   return (head_num >= 0) && ((open_num >= 0 && head_num >= open_num));
 }
 
 } }  /// eosio::chain
