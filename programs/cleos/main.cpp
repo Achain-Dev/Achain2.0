@@ -2099,6 +2099,7 @@ int main( int argc, char** argv ) {
    // get account statistics
    string scope_stat = "actx.token";
    string stat_table = "statistics";
+   //default
    string stat_symobl = "ACTX";
    auto getAccountstat = get->add_subcommand("statistics", localized("Retrieve an account statistics from the blockchain"), false);
    getAccountstat->add_option("name", accountName, localized("The name of the account to retrieve"))->required();
@@ -2149,7 +2150,6 @@ int main( int argc, char** argv ) {
             }
          }
       }
-
    });
    // add for achainplus
    // get chain config

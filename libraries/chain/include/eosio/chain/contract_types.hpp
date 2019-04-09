@@ -58,6 +58,7 @@ struct setconfig {
    account_name           name;				//the name of configuration
 
    int64_t                value = 0;     //the value of this type
+   int64_t                valid_block;
    account_name           key;             //reserve
    eosio::chain::asset    asset_info;        //asset info,may be a fee, or a award and so on
    string                 desc;             // the desc of this configuration
@@ -185,5 +186,5 @@ FC_REFLECT( eosio::chain::linkauth                         , (account)(code)(typ
 FC_REFLECT( eosio::chain::unlinkauth                       , (account)(code)(type) )
 FC_REFLECT( eosio::chain::canceldelay                      , (canceling_auth)(trx_id) )
 FC_REFLECT( eosio::chain::onerror                          , (sender_id)(sent_trx) )
-FC_REFLECT( eosio::chain::setconfig                        , (name)(value)(key)(asset_info)(desc) )
+FC_REFLECT( eosio::chain::setconfig                        , (name)(value)(valid_block)(key)(asset_info)(desc) )
 

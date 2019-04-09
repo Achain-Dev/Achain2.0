@@ -1050,6 +1050,7 @@ read_only::get_chain_config_results read_only::get_chain_config(const read_only:
       chain_config _cfg;
       _cfg.name = iter->name;
       _cfg.value = iter->value;
+      _cfg.valid_block = iter->valid_block;
       _cfg.key = iter->key;
       _cfg.asset_info = iter->asset_info;
       _cfg.desc = iter->desc;

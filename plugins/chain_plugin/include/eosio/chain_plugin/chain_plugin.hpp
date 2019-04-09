@@ -113,6 +113,7 @@ public:
    struct chain_config{
       account_name name;
       int64_t value;
+      int64_t valid_block;
       account_name key;
       asset asset_info;
       string desc = "";
@@ -768,7 +769,7 @@ FC_REFLECT( eosio::chain_apis::read_only::abi_bin_to_json_result, (args) )
 FC_REFLECT( eosio::chain_apis::read_only::get_required_keys_params, (transaction)(available_keys) )
 FC_REFLECT( eosio::chain_apis::read_only::get_required_keys_result, (required_keys) )
 //add for achainplus
-FC_REFLECT( eosio::chain_apis::read_only::chain_config, (name)(value)(key)(asset_info)(desc) )
+FC_REFLECT( eosio::chain_apis::read_only::chain_config, (name)(value)(valid_block)(key)(asset_info)(desc) )
 FC_REFLECT( eosio::chain_apis::read_only::get_chain_config_results, (_chain_config) )
 
 
