@@ -385,6 +385,10 @@ struct controller_impl {
          }
       }
 
+      //init chain config
+      //add for achainplus
+      init_chain_config();
+
       if( shutdown() ) return;
 
       const auto& ubi = reversible_blocks.get_index<reversible_block_index,by_num>();
@@ -429,6 +433,20 @@ struct controller_impl {
 
       db.flush();
       reversible_blocks.flush();
+   }
+
+   //add for achainplus
+   void init_chain_config(){
+      setconfig cfg;
+      //set free_ram_per_account
+      cfg.name = setconf::res_type::free_ram_per_account;
+      cfg.value = setconf::res_value::free_ram;
+      cfg.valid_block = 1;  //from block 1
+      cfg.key = setconf::default_value::default_config_key;
+      cfg.desc = "every account has 8k ram for free from block 1";
+      set_config( db, cfg );
+
+      return;
    }
 
    void add_indices() {
