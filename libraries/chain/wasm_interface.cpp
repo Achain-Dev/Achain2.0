@@ -202,7 +202,15 @@ class privileged_api : public context_aware_api {
       {
          return context.control.get_proposed_schedule_size();
       }
-
+      
+      bool is_chain_func_open(const account_name  &func_type)
+      {
+         return context.control.is_func_open( func_type );
+      }
+      int64_t get_chain_config_value(const account_name  &func_type)
+      {
+         return context.control.get_chain_config_value( func_type );
+      }
       bool is_privileged( account_name n )const {
          return context.db.get<account_object, by_name>( n ).privileged;
       }
@@ -1701,6 +1709,8 @@ REGISTER_INTRINSICS(privileged_api,
    (set_blockchain_parameters_packed, void(int,int)                         )
    (set_proposed_schedule_size,       int(int)                              )
    (get_proposed_schedule_size,       int()                                 )
+   (is_chain_func_open,               int(int64_t)                          )
+   (get_chain_config_value,           int64_t(int64_t)                      )
    (is_privileged,                    int(int64_t)                          )
    (set_privileged,                   void(int64_t, int)                    )
 );

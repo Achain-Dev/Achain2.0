@@ -448,7 +448,12 @@ struct controller_impl {
 
       return;
    }
-
+   /* 
+   bool is_func_valid(const account_name& func_type)
+   {
+      return is_func_open( self, func_type);
+   }
+   */
    void add_indices() {
       reversible_blocks.add_index<reversible_block_index>();
 
@@ -2064,6 +2069,16 @@ uint32_t controller::get_proposed_schedule_size()
    
    if (gpo.proposed_schedule_size.valid()) return *gpo.proposed_schedule_size;
    return my->conf._initial_bp_num;
+}
+
+bool controller::is_func_open(const account_name& func_type)
+{
+   return eosio::chain::is_func_open(*this, func_type);
+}
+
+int64_t controller::get_chain_config_value(const account_name  &func_type)
+{
+   return eosio::chain::get_config_value(this->db(), func_type);
 }
 
 const producer_schedule_type&    controller::active_producers()const {

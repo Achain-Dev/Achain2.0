@@ -1050,13 +1050,15 @@ struct set_config_subcommand {
    name config_name;   //the key of table
    name config_key;    
    int64_t config_value;
+   int64_t block_num;
    string config_asset = "";
    string desc = "";
    
    set_config_subcommand(CLI::App* actionRoot){
       auto setConfig = actionRoot->add_subcommand("setconfig", localized("Set a new configuration on the blockchain"));
       setConfig->add_option("configname", config_name, localized("The name of the configuration, the name must be unique"))->required();
-      setConfig->add_option("value", config_value, localized("The blocknum of the configuration take effects"))->required();
+      setConfig->add_option("value", config_value, localized("The value of the configuration"))->required();
+      setConfig->add_option("block_num", config_value, localized("The blocknum of the configuration take effects"))->required();
       setConfig->add_option("configtype", config_key, localized("The type of the configuration"));
       setConfig->add_option("assetinfo", config_asset, localized("The assetinfo of the type"));
       setConfig->add_option("description", desc, localized("The desc of the configuration"));
@@ -1068,6 +1070,7 @@ struct set_config_subcommand {
          fc::variant schedulesize_var = fc::mutable_variant_object()
                   ("name", config_name)
                   ("value", config_value)
+                  ("valid_block", block_num)
                   ("key", config_key)
                   ("asset_info", asset_info.to_string())
                   ("desc", desc);

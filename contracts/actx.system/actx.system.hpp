@@ -41,6 +41,10 @@ namespace eosiosystem {
       uint64_t             max_ram_size = 64ll*1024 * 1024 * 1024;
       uint64_t             total_ram_bytes_reserved = 0;
       int64_t              total_ram_stake = 0;
+      uint64_t             total_ram_bytes_forfree = 0;   
+      uint32_t             total_free_ram_accounts = 0;
+      ///total_ram_bytes_forfree if part of total_ram_bytes_reserved
+      ///total_ram_bytes_reserved - total_ram_bytes_forfree = the ram_bytes by total_ram_stake
 
       block_timestamp      last_producer_schedule_update;
       uint64_t             last_pervote_bucket_fill = 0;
@@ -55,10 +59,11 @@ namespace eosiosystem {
 
       // explicit serialization macro is not necessary, used here only to improve compilation time
       EOSLIB_SERIALIZE_DERIVED( eosio_global_state, eosio::blockchain_parameters,
-                                (max_ram_size)(total_ram_bytes_reserved)(total_ram_stake)
-                                (last_producer_schedule_update)(last_pervote_bucket_fill)
-                                (pervote_bucket)(perblock_bucket)(total_unpaid_blocks)(total_activated_stake)(thresh_activated_stake_time)
-                                (last_producer_schedule_size)(total_producer_vote_weight)(last_name_close) )
+                                (max_ram_size)(total_ram_bytes_reserved)(total_ram_stake)(total_ram_bytes_forfree)
+                                (total_free_ram_accounts)(last_producer_schedule_update)(last_pervote_bucket_fill)
+                                (pervote_bucket)(perblock_bucket)(total_unpaid_blocks)(total_activated_stake)
+                                (thresh_activated_stake_time)(last_producer_schedule_size)(total_producer_vote_weight)
+                                (last_name_close) )
    };
 
    struct producer_info {
@@ -121,11 +126,12 @@ namespace eosiosystem {
       public:
          system_contract( account_name s );
          ~system_contract();
-
+         
          // Actions:
          void onblock( block_timestamp timestamp, account_name producer );
                       // const block_header& header ); /// only parse first 3 fields of block header
-
+         void newaccount( account_name     creator,
+                            account_name     newact);
          // functions defined in delegate_bandwidth.cpp
 
          /**
