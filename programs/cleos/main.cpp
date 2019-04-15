@@ -1058,7 +1058,7 @@ struct set_config_subcommand {
       auto setConfig = actionRoot->add_subcommand("setconfig", localized("Set a new configuration on the blockchain"));
       setConfig->add_option("configname", config_name, localized("The name of the configuration, the name must be unique"))->required();
       setConfig->add_option("value", config_value, localized("The value of the configuration"))->required();
-      setConfig->add_option("block_num", config_value, localized("The blocknum of the configuration take effects"))->required();
+      setConfig->add_option("block_num", block_num, localized("The blocknum of the configuration take effects"))->required();
       setConfig->add_option("configtype", config_key, localized("The type of the configuration"));
       setConfig->add_option("assetinfo", config_asset, localized("The assetinfo of the type"));
       setConfig->add_option("description", desc, localized("The desc of the configuration"));
