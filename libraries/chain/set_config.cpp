@@ -22,6 +22,17 @@ int64_t get_config_value( const chainbase::database& db, const name& name)
    return cfg_itr->value;
 }
 
+int64_t get_config_open_block( const chainbase::database& db, const name& name)
+{
+   const auto cfg_itr = db.find<config_data_object, by_name>(name);
+
+   if( cfg_itr == nullptr ) {
+      return -1;
+   }
+
+   return cfg_itr->valid_block;
+}
+
 account_name get_config_key(const chainbase::database& db, const name& name)
 {
    const auto cfg_itr = db.find<config_data_object, by_name>(name);
@@ -69,7 +80,7 @@ void set_config( chainbase::database& db, const setconfig &cfg ) {
 
 bool is_func_open( const controller& ctl, const name &func_typ) {
    const auto head_num = static_cast<int64_t>( ctl.head_block_num() );
-   const auto open_num = get_config_value( ctl.db(), func_typ );
+   const auto open_num = get_config_open_block( ctl.db(), func_typ );
     
    return (head_num >= 0) && ((open_num >= 0 && head_num >= open_num));
 }
