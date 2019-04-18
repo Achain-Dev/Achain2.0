@@ -203,11 +203,11 @@ class privileged_api : public context_aware_api {
          return context.control.get_proposed_schedule_size();
       }
       
-      bool is_chain_func_open(const account_name  &func_type)
+      bool is_chain_func_open(account_name  func_type)
       {
          return context.control.is_func_open( func_type );
       }
-      int64_t get_chain_config_value(const account_name  &func_type)
+      int64_t get_chain_config_value(account_name  func_type)
       {
          return context.control.get_chain_config_value( func_type );
       }

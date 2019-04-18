@@ -60,8 +60,8 @@ extern "C" {
    bool set_proposed_schedule_size( uint32_t size );
    uint32_t get_proposed_schedule_size();
    
-   bool is_chain_func_open(const account_name  &func_typ);
-   int64_t get_chain_config_value(const account_name  &func_typ);
+   bool is_chain_func_open(account_name  func_typ);
+   int64_t get_chain_config_value(account_name func_typ);
    /**
     * @brief Check if an account is privileged
     * Check if an account is privileged
