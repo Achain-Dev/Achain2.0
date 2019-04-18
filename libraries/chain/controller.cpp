@@ -355,6 +355,10 @@ struct controller_impl {
 
       thread_pool.emplace( conf.thread_pool_size );
 
+      //init chain config
+      //add for achainplus
+      init_chain_config();
+
       bool report_integrity_hash = !!snapshot;
       if (snapshot) {
          EOS_ASSERT( !head, fork_database_exception, "" );
@@ -384,10 +388,6 @@ struct controller_impl {
             report_integrity_hash = true;
          }
       }
-
-      //init chain config
-      //add for achainplus
-      init_chain_config();
 
       if( shutdown() ) return;
 
