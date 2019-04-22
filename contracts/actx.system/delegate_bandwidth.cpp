@@ -36,11 +36,12 @@ namespace eosiosystem {
       asset         net_weight;
       asset         cpu_weight;
       int64_t       ram_bytes = 0;
+      int64_t       ram_bytes_forfree = 0;
 
       uint64_t primary_key()const { return owner; }
 
       // explicit serialization macro is not necessary, used here only to improve compilation time
-      EOSLIB_SERIALIZE( user_resources, (owner)(net_weight)(cpu_weight)(ram_bytes) )
+      EOSLIB_SERIALIZE( user_resources, (owner)(net_weight)(cpu_weight)(ram_bytes)(ram_bytes_forfree) )
    };
 
 
@@ -166,7 +167,7 @@ namespace eosiosystem {
       user_resources_table  userres( _self, account );
       auto res_itr = userres.find( account );
       eosio_assert( res_itr != userres.end(), "no resource row" );
-      eosio_assert( res_itr->ram_bytes >= bytes, "insufficient quota" );
+      eosio_assert( res_itr->ram_bytes - res_itr->ram_bytes_forfree >= bytes, "insufficient quota" );
 
       asset tokens_out;
       auto itr = _rammarket.find(S(4,RAMCORE));

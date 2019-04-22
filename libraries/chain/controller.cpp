@@ -355,6 +355,10 @@ struct controller_impl {
 
       thread_pool.emplace( conf.thread_pool_size );
 
+      //init chain config
+      //add for achainplus
+      init_chain_config();
+
       bool report_integrity_hash = !!snapshot;
       if (snapshot) {
          EOS_ASSERT( !head, fork_database_exception, "" );
@@ -431,6 +435,25 @@ struct controller_impl {
       reversible_blocks.flush();
    }
 
+   //add for achainplus
+   void init_chain_config(){
+      setconfig cfg;
+      //set free_ram_per_account
+      cfg.name = setconf::res_type::free_ram_per_account;
+      cfg.value = setconf::res_value::free_ram;
+      cfg.valid_block = 1;  //from block 1
+      cfg.key = setconf::default_value::default_config_key;
+      cfg.desc = "every account has 8k ram for free from block 1";
+      set_config( db, cfg );
+
+      return;
+   }
+   /* 
+   bool is_func_valid(const account_name& func_type)
+   {
+      return is_func_open( self, func_type);
+   }
+   */
    void add_indices() {
       reversible_blocks.add_index<reversible_block_index>();
 
@@ -2046,6 +2069,16 @@ uint32_t controller::get_proposed_schedule_size()
    
    if (gpo.proposed_schedule_size.valid()) return *gpo.proposed_schedule_size;
    return my->conf._initial_bp_num;
+}
+
+bool controller::is_func_open(const account_name& func_type)
+{
+   return eosio::chain::is_func_open(*this, func_type);
+}
+
+int64_t controller::get_chain_config_value(const account_name  &func_type)
+{
+   return eosio::chain::get_config_value(this->db(), func_type);
 }
 
 const producer_schedule_type&    controller::active_producers()const {

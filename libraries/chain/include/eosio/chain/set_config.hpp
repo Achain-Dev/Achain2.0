@@ -18,9 +18,15 @@ class config_data_object;
 namespace setconf{
    namespace res_type{
       static const auto free_ram_per_account = N(r.freeram);
+      //static const auto free_cpu_per_account = N(r.freecpu);
+      //static const auto free_net_per_acconnt = N(r.freenet);
    };
-
-
+   
+   namespace res_value{
+      static const auto free_ram = 8 * 1024;
+      //static const auto free_cpu = 1000; //1000ms
+      //static const auto free_net = 1024; //1024 bytes
+   }
    namespace func_type{
       static const auto onfee_action = N(f.onfeeact);
    }
