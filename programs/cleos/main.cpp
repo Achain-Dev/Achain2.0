@@ -985,7 +985,7 @@ struct create_account_subcommand {
    string buy_ram_eos;
    bool transfer;
    bool simple;
-
+   bool no_ram = 0;
    create_account_subcommand(CLI::App* actionRoot, bool s) : simple(s) {
       auto createAccount = actionRoot->add_subcommand(
                               (simple ? "account" : "newaccount"),
@@ -1026,19 +1026,38 @@ struct create_account_subcommand {
             } EOS_RETHROW_EXCEPTIONS(public_key_type_exception, "Invalid active public key: ${public_key}", ("public_key", active_key_str));
             auto create = create_newaccount(creator, account_name, owner_key, active_key);
             if (!simple) {
+               #if 0
                EOSC_ASSERT( buy_ram_eos.size() || buy_ram_bytes_in_kbytes || buy_ram_bytes, "ERROR: One of --buy-ram, --buy-ram-kbytes or --buy-ram-bytes should have non-zero value" );
+               #endif
                EOSC_ASSERT( !buy_ram_bytes_in_kbytes || !buy_ram_bytes, "ERROR: --buy-ram-kbytes and --buy-ram-bytes cannot be set at the same time" );
-               action buyram = !buy_ram_eos.empty() ? create_buyram(creator, account_name, to_asset(buy_ram_eos))
-                  : create_buyrambytes(creator, account_name, (buy_ram_bytes_in_kbytes) ? (buy_ram_bytes_in_kbytes * 1024) : buy_ram_bytes);
+               if (buy_ram_eos.empty() && buy_ram_bytes_in_kbytes == 0 && buy_ram_bytes == 0)
+                  no_ram = true;
+               
                auto net = to_asset(stake_net);
                auto cpu = to_asset(stake_cpu);
-               if ( net.get_amount() != 0 || cpu.get_amount() != 0 ) {
-                  action delegate = create_delegate( creator, account_name, net, cpu, transfer);
-                  send_actions( { create, buyram, delegate } );
-               } else {
-                  send_actions( { create, buyram } );
+
+               if (!no_ram)
+               {
+                  action buyram = !buy_ram_eos.empty() ? create_buyram(creator, account_name, to_asset(buy_ram_eos))
+                        : create_buyrambytes(creator, account_name, (buy_ram_bytes_in_kbytes) ? (buy_ram_bytes_in_kbytes * 1024) : buy_ram_bytes);
+                  if ( net.get_amount() != 0 || cpu.get_amount() != 0 ) {
+                     action delegate = create_delegate( creator, account_name, net, cpu, transfer);
+                     send_actions( { create, buyram, delegate } );
+                  } else {
+                     send_actions( { create, buyram } );
+                  }
                }
-            } else {
+               else
+               {
+                  if ( net.get_amount() != 0 || cpu.get_amount() != 0 ) {
+                     action delegate = create_delegate( creator, account_name, net, cpu, transfer);
+                     send_actions( { create, delegate } );
+                  } else {
+                     send_actions( { create } );
+                  }
+               }
+            }
+            else {
                send_actions( { create } );
             }
       });
