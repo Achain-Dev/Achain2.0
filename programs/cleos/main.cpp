@@ -268,6 +268,12 @@ eosio::chain_apis::read_only::get_info_results get_info() {
    return call(url, get_info_func).as<eosio::chain_apis::read_only::get_info_results>();
 }
 
+//add for achainplus
+eosio::chain_apis::read_only::get_chain_config_results get_chain_config() {
+   return call(url, get_chain_config_func).as<eosio::chain_apis::read_only::get_chain_config_results>();
+}
+
+
 string generate_nonce_string() {
    return fc::to_string(fc::time_point::now().time_since_epoch().count());
 }
@@ -979,7 +985,7 @@ struct create_account_subcommand {
    string buy_ram_eos;
    bool transfer;
    bool simple;
-
+   bool no_ram = 0;
    create_account_subcommand(CLI::App* actionRoot, bool s) : simple(s) {
       auto createAccount = actionRoot->add_subcommand(
                               (simple ? "account" : "newaccount"),
@@ -1020,24 +1026,79 @@ struct create_account_subcommand {
             } EOS_RETHROW_EXCEPTIONS(public_key_type_exception, "Invalid active public key: ${public_key}", ("public_key", active_key_str));
             auto create = create_newaccount(creator, account_name, owner_key, active_key);
             if (!simple) {
+               #if 0
                EOSC_ASSERT( buy_ram_eos.size() || buy_ram_bytes_in_kbytes || buy_ram_bytes, "ERROR: One of --buy-ram, --buy-ram-kbytes or --buy-ram-bytes should have non-zero value" );
+               #endif
                EOSC_ASSERT( !buy_ram_bytes_in_kbytes || !buy_ram_bytes, "ERROR: --buy-ram-kbytes and --buy-ram-bytes cannot be set at the same time" );
-               action buyram = !buy_ram_eos.empty() ? create_buyram(creator, account_name, to_asset(buy_ram_eos))
-                  : create_buyrambytes(creator, account_name, (buy_ram_bytes_in_kbytes) ? (buy_ram_bytes_in_kbytes * 1024) : buy_ram_bytes);
+               if (buy_ram_eos.empty() && buy_ram_bytes_in_kbytes == 0 && buy_ram_bytes == 0)
+                  no_ram = true;
+               
                auto net = to_asset(stake_net);
                auto cpu = to_asset(stake_cpu);
-               if ( net.get_amount() != 0 || cpu.get_amount() != 0 ) {
-                  action delegate = create_delegate( creator, account_name, net, cpu, transfer);
-                  send_actions( { create, buyram, delegate } );
-               } else {
-                  send_actions( { create, buyram } );
+
+               if (!no_ram)
+               {
+                  action buyram = !buy_ram_eos.empty() ? create_buyram(creator, account_name, to_asset(buy_ram_eos))
+                        : create_buyrambytes(creator, account_name, (buy_ram_bytes_in_kbytes) ? (buy_ram_bytes_in_kbytes * 1024) : buy_ram_bytes);
+                  if ( net.get_amount() != 0 || cpu.get_amount() != 0 ) {
+                     action delegate = create_delegate( creator, account_name, net, cpu, transfer);
+                     send_actions( { create, buyram, delegate } );
+                  } else {
+                     send_actions( { create, buyram } );
+                  }
                }
-            } else {
+               else
+               {
+                  if ( net.get_amount() != 0 || cpu.get_amount() != 0 ) {
+                     action delegate = create_delegate( creator, account_name, net, cpu, transfer);
+                     send_actions( { create, delegate } );
+                  } else {
+                     send_actions( { create } );
+                  }
+               }
+            }
+            else {
                send_actions( { create } );
             }
       });
    }
 };
+
+//set config
+struct set_config_subcommand {
+   name config_name;   //the key of table
+   name config_key;    
+   int64_t config_value;
+   int64_t block_num;
+   string config_asset = "";
+   string desc = "";
+   
+   set_config_subcommand(CLI::App* actionRoot){
+      auto setConfig = actionRoot->add_subcommand("setconfig", localized("Set a new configuration on the blockchain"));
+      setConfig->add_option("configname", config_name, localized("The name of the configuration, the name must be unique"))->required();
+      setConfig->add_option("value", config_value, localized("The value of the configuration"))->required();
+      setConfig->add_option("block_num", block_num, localized("The blocknum of the configuration take effects"))->required();
+      setConfig->add_option("configtype", config_key, localized("The type of the configuration"));
+      setConfig->add_option("assetinfo", config_asset, localized("The assetinfo of the type"));
+      setConfig->add_option("description", desc, localized("The desc of the configuration"));
+	  
+      setConfig->set_callback([this] {
+         if (config_asset.empty())
+            config_asset = "0.0000 ACTX";
+         const asset asset_info = to_asset(config_asset);
+         fc::variant schedulesize_var = fc::mutable_variant_object()
+                  ("name", config_name)
+                  ("value", config_value)
+                  ("valid_block", block_num)
+                  ("key", config_key)
+                  ("asset_info", asset_info.to_string())
+                  ("desc", desc);
+         auto accountPermissions = get_account_permissions(tx_permission, {config::system_account_name, config::active_name});
+         send_actions({create_action(accountPermissions, config::system_account_name, N(setconfig), schedulesize_var)});
+      }); 
+   }
+};
+
 
 struct unregister_producer_subcommand {
    string producer_str;
@@ -1937,6 +1998,9 @@ int main( int argc, char** argv ) {
    // create account
    auto createAccount = create_account_subcommand( create, true /*simple*/ );
 
+   // set config
+   auto setConfig = set_config_subcommand(&app);
+
    // convert subcommand
    auto convert = app.add_subcommand("convert", localized("Pack and unpack transactions"), false); // TODO also add converting action args based on abi from here ?
    convert->require_subcommand();
@@ -2057,6 +2121,7 @@ int main( int argc, char** argv ) {
    // get account statistics
    string scope_stat = "actx.token";
    string stat_table = "statistics";
+   //default
    string stat_symobl = "ACTX";
    auto getAccountstat = get->add_subcommand("statistics", localized("Retrieve an account statistics from the blockchain"), false);
    getAccountstat->add_option("name", accountName, localized("The name of the account to retrieve"))->required();
@@ -2107,8 +2172,13 @@ int main( int argc, char** argv ) {
             }
          }
       }
-
    });
+   // add for achainplus
+   // get chain config
+   get->add_subcommand("chainconfig", localized("Get current blockchain config information"))->set_callback([] {
+      std::cout << fc::json::to_pretty_string(get_chain_config()) << std::endl;
+   });
+
 
    // get code
    string codeFilename;

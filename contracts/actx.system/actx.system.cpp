@@ -143,7 +143,7 @@ namespace eosiosystem {
     *  who can create accounts with the creator's name as a suffix.
     *
     */
-   void native::newaccount( account_name     creator,
+   void system_contract::newaccount( account_name     creator,
                             account_name     newact
                             /*  no need to parse authorities
                             const authority& owner,
@@ -171,16 +171,39 @@ namespace eosiosystem {
             }
          }
       }
-
+      //add for achainplus
+      //free ram for every new account
+      int64_t free_ram = 0;
+      if (is_chain_func_open(N(r.freeram)))
+         free_ram = get_chain_config_value(N(r.freeram));
+      
+      _gstate.total_ram_bytes_reserved += free_ram;
+      _gstate.total_free_ram_accounts += 1;
+     
       user_resources_table  userres( _self, newact);
 
       userres.emplace( newact, [&]( auto& res ) {
         res.owner = newact;
+        res.ram_bytes = free_ram;
+        res.ram_bytes_forfree = free_ram;
       });
 
-      set_resource_limits( newact, 0, 0, 0 );
+      set_resource_limits( newact, free_ram, 0, 0 );
    }
+   /*
+   int64_t system_contract::newaccount( account_name     creator, account_name     newact)
+   {
+      native::newaccount(creator, newact);
+      int64_t free_ram = 0;
+      if (is_chain_func_open(N(r.freeram)))
+         free_ram = get_chain_config_value(N(r.freeram));
 
+      _gstate.total_ram_bytes_reserved += free_ram;
+      _gstate.total_free_ram_accounts += 1;
+      return 0;
+   }
+   */
+   
    void system_contract::setbpnum(uint32_t bp_number){
 
       require_auth( N(actx) );

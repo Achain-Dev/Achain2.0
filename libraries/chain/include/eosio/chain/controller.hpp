@@ -240,7 +240,8 @@ namespace eosio { namespace chain {
          //add for achainplus  
          bool set_proposed_schedule_size( schedule_size_type size );       
          uint32_t get_proposed_schedule_size();
-
+         bool is_func_open(const account_name& func_type);
+         int64_t get_chain_config_value(const account_name  &func_typ);
          db_read_mode get_read_mode()const;
          validation_mode get_validation_mode()const;
 
@@ -293,6 +294,7 @@ namespace eosio { namespace chain {
       private:
          friend class apply_context;
          friend class transaction_context;
+         friend class eosio::chain_apis::read_only;
 
          chainbase::database& mutable_db()const;
 

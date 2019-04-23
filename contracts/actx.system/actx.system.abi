@@ -198,7 +198,8 @@
          {"name":"owner", "type":"account_name"},
          {"name":"net_weight", "type":"asset"},
          {"name":"cpu_weight", "type":"asset"},
-         {"name":"ram_bytes", "type":"uint64"}
+         {"name":"ram_bytes", "type":"uint64"},
+         {"name":"ram_bytes_forfree", "type":"uint64"}
       ]
     },{
       "name": "total_resources",
@@ -249,6 +250,8 @@
          {"name":"max_ram_size",                  "type":"uint64"},
          {"name":"total_ram_bytes_reserved",      "type":"uint64"},
          {"name":"total_ram_stake",               "type":"int64"},
+         {"name":"total_ram_bytes_forfree",       "type":"uint64"},
+         {"name":"total_free_ram_accounts",       "type":"uint32"},
          {"name":"last_producer_schedule_update", "type":"block_timestamp_type"},
          {"name":"last_pervote_bucket_fill",      "type":"uint64"},
          {"name":"pervote_bucket",                "type":"int64"},
