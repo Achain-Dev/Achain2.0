@@ -1,6 +1,6 @@
 /**
  *  @file
- *  @copyright defined in eos/LICENSE.txt
+ *  @copyright defined in Achainplus/LICENSE
  */
 #pragma once
 
@@ -81,12 +81,13 @@ namespace eosiosystem {
           *     therefore, this method will execute an inline buyram from receiver for newacnt in
           *     an amount equal to the current new account creation fee.
           */
-         void newaccount( account_name     creator,
-                          account_name     newact
+         #if 0
+         //void newaccount( account_name     creator,
+         //                 account_name     newact
                           /*  no need to parse authorites
                           const authority& owner,
-                          const authority& active*/ );
-
+         //                 const authority& active*/ );
+         #endif
 
          void updateauth( /*account_name     account,
                                  permission_name  permission,

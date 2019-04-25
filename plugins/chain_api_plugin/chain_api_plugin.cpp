@@ -1,6 +1,6 @@
 /**
  *  @file
- *  @copyright defined in eos/LICENSE.txt
+ *  @copyright defined in Achainplus/LICENSE
  */
 #include <eosio/chain_api_plugin/chain_api_plugin.hpp>
 #include <eosio/chain/exceptions.hpp>
@@ -85,6 +85,7 @@ void chain_api_plugin::plugin_startup() {
    _http_plugin.add_api({
       CHAIN_RO_CALL(get_info, 200l),
       CHAIN_RO_CALL(get_block, 200),
+      CHAIN_RO_CALL(get_chain_config, 200),
       CHAIN_RO_CALL(get_block_header_state, 200),
       CHAIN_RO_CALL(get_account, 200),
       CHAIN_RO_CALL(get_code, 200),

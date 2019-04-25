@@ -1,6 +1,6 @@
 /**
  *  @file
- *  @copyright defined in eos/LICENSE.txt
+ *  @copyright defined in Achainplus/LICENSE
  */
 #pragma once
 
@@ -25,6 +25,8 @@ namespace eosio { namespace chain {
    void apply_actx_setabi(apply_context&);
 
    void apply_actx_canceldelay(apply_context&);
+   //add for achainplus
+   void apply_actx_setconfig(apply_context&);
    ///@}  end action handlers
 
 } } /// namespace eosio::chain

@@ -22,6 +22,7 @@
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <fstream>
+#include <string.h>
 
 namespace eosio { namespace chain {
    using namespace webassembly;
@@ -192,11 +193,24 @@ class privileged_api : public context_aware_api {
          });
       }
       //add for achainplus
+      bool set_proposed_schedule_size( uint32_t size )
+      {
+         return context.control.set_proposed_schedule_size( size );
+      }
+
       uint32_t get_proposed_schedule_size()
       {
          return context.control.get_proposed_schedule_size();
       }
-
+      
+      bool is_chain_func_open(account_name  func_type)
+      {
+         return context.control.is_func_open( func_type );
+      }
+      int64_t get_chain_config_value(account_name  func_type)
+      {
+         return context.control.get_chain_config_value( func_type );
+      }
       bool is_privileged( account_name n )const {
          return context.db.get<account_object, by_name>( n ).privileged;
       }
@@ -906,6 +920,9 @@ class system_api : public context_aware_api {
 
 };
 
+const size_t max_assert_message = 1024;
+
+
 class context_free_system_api :  public context_aware_api {
 public:
    explicit context_free_system_api( apply_context& ctx )
@@ -918,14 +935,16 @@ public:
    // Kept as intrinsic rather than implementing on WASM side (using eosio_assert_message and strlen) because strlen is faster on native side.
    void eosio_assert( bool condition, null_terminated_ptr msg ) {
       if( BOOST_UNLIKELY( !condition ) ) {
-         std::string message( msg );
+         const size_t sz = strnlen( msg, max_assert_message );
+         std::string message( msg, sz );
          EOS_THROW( eosio_assert_message_exception, "assertion failure with message: ${s}", ("s",message) );
       }
    }
 
    void eosio_assert_message( bool condition, array_ptr<const char> msg, size_t msg_len ) {
       if( BOOST_UNLIKELY( !condition ) ) {
-         std::string message( msg, msg_len );
+         const size_t sz = msg_len > max_assert_message ? max_assert_message : msg_len;
+         std::string message( msg, sz );
          EOS_THROW( eosio_assert_message_exception, "assertion failure with message: ${s}", ("s",message) );
       }
    }
@@ -1688,7 +1707,10 @@ REGISTER_INTRINSICS(privileged_api,
    (set_proposed_producers,           int64_t(int,int)                      )
    (get_blockchain_parameters_packed, int(int, int)                         )
    (set_blockchain_parameters_packed, void(int,int)                         )
+   (set_proposed_schedule_size,       int(int)                              )
    (get_proposed_schedule_size,       int()                                 )
+   (is_chain_func_open,               int(int64_t)                          )
+   (get_chain_config_value,           int64_t(int64_t)                      )
    (is_privileged,                    int(int64_t)                          )
    (set_privileged,                   void(int64_t, int)                    )
 );

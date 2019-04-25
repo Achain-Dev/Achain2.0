@@ -1,6 +1,6 @@
 /**
  *  @file
- *  @copyright defined in eos/LICENSE.txt
+ *  @copyright defined in Achainplus/LICENSE
  */
 #include <eosio/chain/eosio_contract.hpp>
 #include <eosio/chain/contract_table_objects.hpp>
@@ -23,6 +23,7 @@
 
 #include <eosio/chain/authorization_manager.hpp>
 #include <eosio/chain/resource_limits.hpp>
+#include <eosio/chain/set_config.hpp>
 
 namespace eosio { namespace chain {
 
@@ -155,10 +156,11 @@ void apply_actx_setcode(apply_context& context) {
       // TODO: update setcode message to include the hash, then validate it in validate
       a.last_code_update = context.control.pending_block_time();
       a.code_version = code_id;
-      a.code.resize( code_size );
-      if( code_size > 0 )
-         memcpy( a.code.data(), act.code.data(), code_size );
-
+      if ( code_size > 0 ) {
+         a.code.assign(act.code.data(), code_size);
+      } else {
+         a.code.resize(0);
+      }
    });
 
    const auto& account_sequence = db.get<account_sequence_object, by_name>(act.account);
@@ -185,9 +187,11 @@ void apply_actx_setabi(apply_context& context) {
    int64_t new_size = abi_size;
 
    db.modify( account, [&]( auto& a ) {
-      a.abi.resize( abi_size );
-      if( abi_size > 0 )
-         memcpy( a.abi.data(), act.abi.data(), abi_size );
+      if (abi_size > 0) {
+         a.abi.assign(act.abi.data(), abi_size);
+      } else {
+         a.abi.resize(0);
+      }
    });
 
    const auto& account_sequence = db.get<account_sequence_object, by_name>(act.account);
@@ -370,5 +374,16 @@ void apply_actx_canceldelay(apply_context& context) {
 
    context.cancel_deferred_transaction(transaction_id_to_sender_id(trx_id), account_name());
 }
+
+//add for achainplus
+void apply_actx_setconfig(apply_context& context) {
+   auto cfg_data = context.act.data_as<setconfig>();
+   if( !context.has_authorization(config::system_account_name)) {
+	  EOS_THROW(missing_auth_exception, "setconfig need auth by actx");
+	  return;
+   }
+   set_config(context.db, cfg_data);
+}
+
 
 } } // namespace eosio::chain

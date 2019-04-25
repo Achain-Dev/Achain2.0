@@ -143,7 +143,7 @@ namespace eosiosystem {
     *  who can create accounts with the creator's name as a suffix.
     *
     */
-   void native::newaccount( account_name     creator,
+   void system_contract::newaccount( account_name     creator,
                             account_name     newact
                             /*  no need to parse authorities
                             const authority& owner,
@@ -171,14 +171,48 @@ namespace eosiosystem {
             }
          }
       }
-
+      //add for achainplus
+      //free ram for every new account
+      int64_t free_ram = 0;
+      if (is_chain_func_open(N(r.freeram)))
+         free_ram = get_chain_config_value(N(r.freeram));
+      
+      _gstate.total_ram_bytes_reserved += free_ram;
+      _gstate.total_free_ram_accounts += 1;
+     
       user_resources_table  userres( _self, newact);
 
       userres.emplace( newact, [&]( auto& res ) {
         res.owner = newact;
+        res.ram_bytes = free_ram;
+        res.ram_bytes_forfree = free_ram;
       });
 
-      set_resource_limits( newact, 0, 0, 0 );
+      set_resource_limits( newact, free_ram, 0, 0 );
+   }
+   /*
+   int64_t system_contract::newaccount( account_name     creator, account_name     newact)
+   {
+      native::newaccount(creator, newact);
+      int64_t free_ram = 0;
+      if (is_chain_func_open(N(r.freeram)))
+         free_ram = get_chain_config_value(N(r.freeram));
+
+      _gstate.total_ram_bytes_reserved += free_ram;
+      _gstate.total_free_ram_accounts += 1;
+      return 0;
+   }
+   */
+   
+   void system_contract::setbpnum(uint32_t bp_number){
+
+      require_auth( N(actx) );
+
+      uint32_t schedule_size = get_proposed_schedule_size();
+      
+      eosio_assert( bp_number > schedule_size, "new size must be larger than current size" );
+
+      set_proposed_schedule_size(bp_number);
    }
 
 } /// eosio.system
@@ -188,7 +222,7 @@ EOSIO_ABI( eosiosystem::system_contract,
      // native.hpp (newaccount definition is actually in eosio.system.cpp)
      (newaccount)(updateauth)(deleteauth)(linkauth)(unlinkauth)(canceldelay)(onerror)
      // eosio.system.cpp
-     (setram)(setparams)(setpriv)(rmvproducer)(bidname)
+     (setram)(setparams)(setpriv)(rmvproducer)(bidname)(setbpnum)
      // delegate_bandwidth.cpp
      (buyrambytes)(buyram)(sellram)(delegatebw)(undelegatebw)(refund)
      // voting.cpp

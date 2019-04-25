@@ -1,6 +1,6 @@
 /**
  *  @file
- *  @copyright defined in eosio/LICENSE.txt
+ *  @copyright defined in Achainplus/LICENSE
  */
 #include <eosio/chain/abi_serializer.hpp>
 #include <eosio/chain/block_log.hpp>

@@ -1,6 +1,6 @@
 /**
  *  @file
- *  @copyright defined in eosio/LICENSE.txt
+ *  @copyright defined in Achainplus/LICENSE
  */
 #include <appbase/application.hpp>
 

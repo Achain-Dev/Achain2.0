@@ -1,6 +1,6 @@
 /**
  *  @file
- *  @copyright defined in eos/LICENSE.txt
+ *  @copyright defined in Achainplus/LICENSE
  */
 #include <eosio/chain_plugin/chain_plugin.hpp>
 #include <eosio/chain/fork_database.hpp>
@@ -15,6 +15,7 @@
 #include <eosio/chain/controller.hpp>
 #include <eosio/chain/generated_transaction_object.hpp>
 #include <eosio/chain/snapshot.hpp>
+#include <eosio/chain/set_config.hpp>
 
 #include <eosio/chain/eosio_contract.hpp>
 
@@ -250,6 +251,7 @@ void chain_plugin::set_program_options(options_description& cli, options_descrip
          ("disable-ram-billing-notify-checks", bpo::bool_switch()->default_value(false),
           "Disable the check which subjectively fails a transaction if a contract bills more RAM to another account within the context of a notification handler (i.e. when the receiver is not the code of the action).")
          ("trusted-producer", bpo::value<vector<string>>()->composing(), "Indicate a producer whose blocks headers signed by it will be fully validated, but transactions in those validated blocks will be trusted.")
+         ("initial-bp-num", bpo::value<uint32_t>()->default_value(chain::config::initial_schedule_size), "the initail number of block producer")
          ;
 
 // TODO: rate limiting
@@ -630,6 +632,7 @@ void chain_plugin::plugin_initialize(const variables_map& options) {
       if ( options.count("validation-mode") ) {
          my->chain_config->block_validation_mode = options.at("validation-mode").as<validation_mode>();
       }
+      my->chain_config->_initial_bp_num = options.at("initial-bp-num").as<uint32_t>();
 
       my->chain.emplace( *my->chain_config );
       my->chain_id.emplace( my->chain->get_chain_id());
@@ -1033,6 +1036,29 @@ read_only::get_info_results read_only::get_info(const read_only::get_info_params
       //__builtin_popcountll(db.get_dynamic_global_properties().recent_slots_filled) / 64.0,
       app().version_string(),
    };
+}
+
+//add for achainplus
+read_only::get_chain_config_results read_only::get_chain_config(const read_only::get_chain_config_params&) const {
+   chainbase::database& db_t = db.mutable_db();
+   auto& cfg = db_t.get_mutable_index<config_data_object_index>().indices().get<by_name>();
+   auto iter = cfg.begin();
+   read_only::get_chain_config_results results;
+   
+   while (iter != cfg.end())
+   {
+      chain_config _cfg;
+      _cfg.name = iter->name;
+      _cfg.value = iter->value;
+      _cfg.valid_block = iter->valid_block;
+      _cfg.key = iter->key;
+      _cfg.asset_info = iter->asset_info;
+      _cfg.desc = iter->desc;
+      results._chain_config.emplace_back(_cfg);
+      iter++;
+   }
+
+   return results;
 }
 
 uint64_t read_only::get_table_index_name(const read_only::get_table_rows_params& p, bool& primary) {

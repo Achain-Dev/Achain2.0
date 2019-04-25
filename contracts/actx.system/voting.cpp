@@ -1,6 +1,6 @@
 /**
  *  @file
- *  @copyright defined in eos/LICENSE.txt
+ *  @copyright defined in Achainplus/LICENSE
  */
 #include "actx.system.hpp"
 
@@ -120,10 +120,10 @@ namespace eosiosystem {
     */
    void system_contract::voteproducer( const account_name voter_name, const account_name producer, asset stake ) {
       require_auth( voter_name );
-      update_votes( voter_name, producer, stake, true );
+      update_votes( voter_name, producer, stake);
    }
 
-   void system_contract::update_votes( const account_name voter_name, const account_name producer, asset stake, bool voting ) {
+   void system_contract::update_votes( const account_name voter_name, const account_name producer, asset stake) {
 
       auto voter = _voters.find(voter_name);
       eosio_assert( voter != _voters.end(), "user must stake before they can vote" ); /// staking creates voter object

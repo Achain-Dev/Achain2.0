@@ -25,7 +25,7 @@
 
 #include <boost/asio/thread_pool.hpp>
 #include <boost/asio/post.hpp>
-
+#include <eosio/chain/set_config.hpp>
 
 namespace eosio { namespace chain {
 
@@ -39,7 +39,8 @@ using controller_index_set = index_set<
    block_summary_multi_index,
    transaction_multi_index,
    generated_transaction_multi_index,
-   table_id_multi_index
+   table_id_multi_index,
+   config_data_object_index
 >;
 
 using contract_database_index_set = index_set<
@@ -214,6 +215,9 @@ struct controller_impl {
 */
 
    SET_APP_HANDLER( actx, actx, canceldelay );
+   //add for achainplus
+   SET_APP_HANDLER( actx, actx, setconfig );
+
 
    fork_db.irreversible.connect( [&]( auto b ) {
                                  on_irreversible(b);
@@ -351,6 +355,10 @@ struct controller_impl {
 
       thread_pool.emplace( conf.thread_pool_size );
 
+      //init chain config
+      //add for achainplus
+      init_chain_config();
+
       bool report_integrity_hash = !!snapshot;
       if (snapshot) {
          EOS_ASSERT( !head, fork_database_exception, "" );
@@ -427,6 +435,25 @@ struct controller_impl {
       reversible_blocks.flush();
    }
 
+   //add for achainplus
+   void init_chain_config(){
+      setconfig cfg;
+      //set free_ram_per_account
+      cfg.name = setconf::res_type::free_ram_per_account;
+      cfg.value = setconf::res_value::free_ram;
+      cfg.valid_block = 1;  //from block 1
+      cfg.key = setconf::default_value::default_config_key;
+      cfg.desc = "every account has 8k ram for free from block 1";
+      set_config( db, cfg );
+
+      return;
+   }
+   /* 
+   bool is_func_valid(const account_name& func_type)
+   {
+      return is_func_open( self, func_type);
+   }
+   */
    void add_indices() {
       reversible_blocks.add_index<reversible_block_index>();
 
@@ -661,7 +688,7 @@ struct controller_impl {
       conf.genesis.initial_configuration.validate();
       db.create<global_property_object>([&](auto& gpo ){
         gpo.configuration = conf.genesis.initial_configuration;
-        gpo.proposed_schedule_size = config::initial_schedule_size;
+        gpo.proposed_schedule_size = conf._initial_bp_num;
       });
       db.create<dynamic_global_property_object>([](auto&){});
 
@@ -1013,6 +1040,8 @@ struct controller_impl {
    {
       EOS_ASSERT(deadline != fc::time_point(), transaction_exception, "deadline cannot be uninitialized");
 
+      const bool check_auth = !self.skip_auth_check() && !trx->implicit;
+      const flat_set<public_key_type>& recovered_keys = check_auth ? trx->recover_keys( chain_id ) : flat_set<public_key_type>();
       transaction_trace_ptr trace;
       try {
          transaction_context trx_context(self, trx->trx, trx->id);
@@ -1037,10 +1066,10 @@ struct controller_impl {
 
             trx_context.delay = fc::seconds(trx->trx.delay_sec);
 
-            if( !self.skip_auth_check() && !trx->implicit ) {
+            if( check_auth ) {
                authorization.check_authorization(
                        trx->trx.actions,
-                       trx->recover_keys( chain_id ),
+                       recovered_keys,
                        {},
                        trx_context.delay,
                        [](){}
@@ -2018,14 +2047,38 @@ int64_t controller::set_proposed_producers( vector<producer_key> producers ) {
    return version;
 }
 
-//return the proposed_schedule_size 
 //add for achainplus
+//set the count of schedule producers
+bool controller::set_proposed_schedule_size( schedule_size_type size )
+{
+   const auto& gpo = get_global_properties();
+
+   if(size < gpo.proposed_schedule_size)
+      return false;
+   
+   my->db.modify( gpo, [&]( auto& gp ) {
+      gp.proposed_schedule_size = size;
+   });
+
+   return true;
+}
+//return the proposed_schedule_size 
 uint32_t controller::get_proposed_schedule_size()
 {
    const auto& gpo = get_global_properties();
    
    if (gpo.proposed_schedule_size.valid()) return *gpo.proposed_schedule_size;
-   return ::eosio::chain::config::initial_schedule_size;
+   return my->conf._initial_bp_num;
+}
+
+bool controller::is_func_open(const account_name& func_type)
+{
+   return eosio::chain::is_func_open(*this, func_type);
+}
+
+int64_t controller::get_chain_config_value(const account_name  &func_type)
+{
+   return eosio::chain::get_config_value(this->db(), func_type);
 }
 
 const producer_schedule_type&    controller::active_producers()const {
