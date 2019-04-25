@@ -448,18 +448,26 @@ void print_action_tree( const fc::variant& action ) {
    for( const auto& t : inline_traces ) {
       print_action_tree( t );
    }
+	if( action.get_object().contains( "inline_traces" ) ) {
+	   const auto& inline_traces = action["inline_traces"].get_array();
+	  for( const auto& t : inline_traces ) {
+	      print_action_tree( t );
+	}
+	
 }
 
 void print_result( const fc::variant& result ) { try {
       if (result.is_object() && result.get_object().contains("processed")) {
          const auto& processed = result["processed"];
          const auto& transaction_id = processed["id"].as_string();
-         string status = processed["receipt"].is_object() ? processed["receipt"]["status"].as_string() : "failed";
-         int64_t net = -1;
+         //string status = processed["receipt"].is_object() ? processed["receipt"]["status"].as_string() : "failed";
+         string status = "failed";
+		 int64_t net = -1;
          int64_t cpu = -1;
          if( processed.get_object().contains( "receipt" )) {
             const auto& receipt = processed["receipt"];
             if( receipt.is_object()) {
+			   status = receipt["status"].as_string();
                net = receipt["net_usage_words"].as_int64() * 8;
                cpu = receipt["cpu_usage_us"].as_int64();
             }
