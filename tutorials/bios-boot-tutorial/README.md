@@ -2,12 +2,20 @@
 
 The `bios-boot-tutorial.py` script simulates the EOSIO bios boot sequence.
 
-The script can be run with no arguments directly from the `tutorials/bios-boot-tutorial` directory.
+``Prerequisites``:
+
+1. Python 3.x
+2. CMake
+3. git
+
+Launch the `bios-boot-tutorial.py` script
+Minimal command line to launch the script below
 
 ```bash
-$ cd tutorials/bios-boot-tutorial
-
-$ ./bios-boot-tutorial.py
+$ cd ~
+$ git clone https://github.com/EOSIO/eos.git
+$ cd ./eos/tutorials/bios-boot-tutorial/
+$ python3 bios-boot-tutorial.py 
 ```
 
 See [EOSIO Documentation Wiki: Tutorial - Bios Boot](https://github.com/EOSIO/eos/wiki/Tutorial-Bios-Boot-Sequence) for additional information.
