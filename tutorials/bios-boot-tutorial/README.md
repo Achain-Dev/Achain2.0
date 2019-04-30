@@ -13,7 +13,7 @@ Minimal command line to launch the script below
 
 ```bash
 $ cd ~
-$ git clone https://github.com/EOSIO/eos.git
+$ git clone https://github.com/Achain-Dev/Achain2.0.git --recursive
 $ cd ./eos/tutorials/bios-boot-tutorial/
 $ python3 bios-boot-tutorial.py 
 ```
