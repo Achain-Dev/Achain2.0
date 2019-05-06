@@ -49,12 +49,17 @@ if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
     if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.0)
         message(FATAL_ERROR "GCC version must be at least 6.0!")
     endif()
-elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
+    if ("${CMAKE_GENERATOR}" STREQUAL "Ninja")
+       add_compile_options(-fdiagnostics-color=always)
+    endif()
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
     if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.0)
         message(FATAL_ERROR "Clang version must be at least 4.0!")
     endif()
+    if ("${CMAKE_GENERATOR}" STREQUAL "Ninja")
+       add_compile_options(-fcolor-diagnostics)
 endif()
-
+endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS "ON")
 set(BUILD_DOXYGEN FALSE CACHE BOOL "Build doxygen documentation on every make")
@@ -114,6 +119,10 @@ FIND_PACKAGE(Boost 1.67 REQUIRED COMPONENTS
     context
     locale
     iostreams)
+# Some new stdlibc++s will #error on <experimental/string_view>; a problem for boost pre-1.69
+if( APPLE AND UNIX )
+   add_definitions(-DBOOST_ASIO_DISABLE_STD_EXPERIMENTAL_STRING_VIEW)
+endif()
 
 if( WIN32 )
 
