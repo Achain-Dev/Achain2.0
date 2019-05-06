@@ -448,11 +448,12 @@ void print_action_tree( const fc::variant& action ) {
    for( const auto& t : inline_traces ) {
       print_action_tree( t );
    }
-	if( action.get_object().contains( "inline_traces" ) ) {
-	   const auto& inline_traces = action["inline_traces"].get_array();
-	  for( const auto& t : inline_traces ) {
-	      print_action_tree( t );
-	}
+   if( action.get_object().contains( "inline_traces" ) ) {
+      const auto& inline_traces = action["inline_traces"].get_array();
+      for( const auto& t : inline_traces ) {
+         print_action_tree( t );
+      }
+   }
 	
 }
 
