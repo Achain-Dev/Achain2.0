@@ -72,6 +72,17 @@
         {"name":"active",  "type":"authority"}
       ]
     },{
+      "name": "setconfig",
+      "base": "",
+      "fields": [
+        {"name":"name",    "type":"account_name"},
+        {"name":"value",   "type":"uint64"},
+        {"name":"valid_block",  "type":"uint64"},
+        {"name":"key",  "type":"account_name"},
+        {"name":"asset_info",  "type":"asset"},
+        {"name":"desc",  "type":"bytes"}
+      ]
+    },{
       "name": "setcode",
       "base": "",
       "fields": [
@@ -410,6 +421,11 @@
      "type": "newaccount",
      "ricardian_contract": ""
    },{
+     "name": "setconfig",
+     "type": "setconfig",
+     "ricardian_contract": ""
+   },
+   {
      "name": "setcode",
      "type": "setcode",
      "ricardian_contract": ""

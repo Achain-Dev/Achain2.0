@@ -88,6 +88,7 @@ namespace eosiosystem {
                           const authority& owner,
          //                 const authority& active*/ );
          #endif
+         void setconfig(){}
 
          void updateauth( /*account_name     account,
                                  permission_name  permission,
