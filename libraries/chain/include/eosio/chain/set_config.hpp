@@ -29,6 +29,7 @@ namespace setconf{
    }
    namespace func_type{
       static const auto onfee_action = N(f.onfeeact);
+      static const auto no_bid = N(f.nobid);
    }
 
 
