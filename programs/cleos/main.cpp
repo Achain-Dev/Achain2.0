@@ -2301,10 +2301,10 @@ int main( int argc, char** argv ) {
    getTable->add_option( "--encode-type", encode_type,
                          localized("The encoding type of key_type (i64 , i128 , float64, float128) only support decimal encoding e.g. 'dec'"
                                     "i256 - supports both 'dec' and 'hex', ripemd160 and sha256 is 'hex' only"));
+   getTable->add_option("-t,--time", run_time, localized("cli run time max (ms), default 10 ms"));
    getTable->add_flag("-r,--reverse", reverse, localized("Iterate in reverse order"));
    getTable->add_flag("--show-payer", show_payer, localized("show RAM payer"));
    
-   getTable->add_flag("-t", run_time, localized("cli run time max (ms), default 10 ms"));
 
    getTable->set_callback([&] {
       auto result = call(get_table_func, fc::mutable_variant_object("json", !binary)

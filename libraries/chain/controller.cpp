@@ -446,6 +446,14 @@ struct controller_impl {
       cfg.desc = "every account has 8k ram for free from block 1";
       set_config( db, cfg );
 
+      //set no_bid
+      cfg.name = setconf::func_type::no_bid;
+      cfg.value = 0;
+      cfg.valid_block = 10000000;  //till 10000000
+      cfg.key = setconf::default_value::default_config_key;
+      cfg.desc = "account can new other account without bid";
+      set_config( db, cfg );
+
       return;
    }
    /* 
