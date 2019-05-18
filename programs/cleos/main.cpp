@@ -2160,6 +2160,17 @@ int main( int argc, char** argv ) {
          {
             std::cout << fc::json::to_pretty_string(result) << std::endl;
          }else{
+            int64_t precision = 1;
+            auto json = call(get_currency_stats_func, fc::mutable_variant_object("json", false)
+		            ("code", scope_stat)
+		            ("symbol", stat_symobl)
+                        );
+            auto obj = json.get_object();
+            auto obj_it = obj.find(stat_symobl);
+            if (obj_it != obj.end()) {
+               auto result = obj_it->value().as<eosio::chain_apis::read_only::get_currency_stats_result>();
+               precision = result.max_supply.precision();
+            }
             uint32_t first_send_time = uint32_t(row["first_send_time"].as_uint64());
             uint32_t first_receive_time = uint32_t(row["first_receive_time"].as_uint64());
             uint64_t total_send_amount = row["total_send_amount"].as_uint64();
@@ -2171,13 +2182,13 @@ int main( int argc, char** argv ) {
                cout << "your account has not transfer yet." << endl;
             else{
                cout << "you transfer the first " << stat_symobl << "  at " << time_point_sec(first_send_time).to_iso_string() << endl;
-               cout << "your total transfer is " << total_send_amount / 100000 << " " << stat_symobl << " in " << total_sent_times << " times"<< endl;
+               cout << "your total transfer is " << total_send_amount / precision << " " << stat_symobl << " in " << total_sent_times << " times"<< endl;
             }
             if (first_receive_time == 0)
                cout << "your account has not receive yet." << endl; 
             else{
                cout << "you receive the first " << stat_symobl << "  at " << time_point_sec(first_receive_time).to_iso_string() << endl;
-       cout << "your total receive is " << total_receive_amount / 100000 << " " << stat_symobl << " in " << total_receive_times << " times" << endl;
+       cout << "your total receive is " << total_receive_amount / precision << " " << stat_symobl << " in " << total_receive_times << " times" << endl;
             }
          }
       }
