@@ -92,6 +92,7 @@ If you don't need keosd afterwards, you can stop the keosd service using
 ```bash
 docker-compose stop keosd
 ```
+### build dev version
 
 ```bash
 cd dev
@@ -127,11 +128,7 @@ The data volume created by docker-compose can be deleted as follows:
 docker volume rm nodeos-data-volume
 docker volume rm keosd-data-volume
 ```
-
-### Docker Hub
-
-
-
+```bash
 *NOTE:* the default version is the latest, you can change it to what you want
 
 # create volume
