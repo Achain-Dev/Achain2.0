@@ -23,4 +23,3 @@ ENV LD_LIBRARY_PATH /usr/local/lib
 ENV PATH /opt/actx/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 WORKDIR .
 COPY   config.ini /
-COPY   genesis.json /
