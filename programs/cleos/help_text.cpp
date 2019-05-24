@@ -198,7 +198,7 @@ const char* error_advice_transaction_exception =  "Ensure that your transaction 
 const char* error_advice_expired_tx_exception =  "Please increase the expiration time of your transaction!";
 const char* error_advice_tx_exp_too_far_exception =  "Please decrease the expiration time of your transaction!";
 const char* error_advice_invalid_ref_block_exception =  "Ensure that the reference block exist in the blockchain!";
-const char* error_advice_tx_duplicate =  "You can try embedding eosio nonce action inside your transaction to ensure uniqueness.";
+const char* error_advice_tx_duplicate =  "You can try embedding nonce action inside your transaction to ensure uniqueness.";
 
 const char* error_advice_invalid_action_args_exception = R"=====(Ensure that your arguments follow the contract abi!
 You can check the contract's abi by using 'cleos get code' command.)=====";
