@@ -109,7 +109,7 @@ auto smatch_to_variant(const std::smatch& smatch) {
 };
 
 const char* error_advice_name_type_exception = R"=====(Name should be less than 13 characters and only contains the following symbol .12345abcdefghijklmnopqrstuvwxyz)=====";
-const char* error_advice_public_key_type_exception = R"=====(Public key should be encoded in base58 and starts with EOS prefix)=====";
+const char* error_advice_public_key_type_exception = R"=====(Public key should be encoded in base58 and starts with ACTX prefix)=====";
 const char* error_advice_private_key_type_exception = R"=====(Private key should be encoded in base58 WIF)=====";
 const char* error_advice_authority_type_exception = R"=====(Ensure that your authority JSON is valid follows the following format!
 {
@@ -117,7 +117,7 @@ const char* error_advice_authority_type_exception = R"=====(Ensure that your aut
   "keys": [         <keys must be alpha-numerically sorted by their string representations and unique>
     ...
     {
-      "key":        <STRING: EOS.IO compatible Public Key>,
+      "key":        <STRING: Achain2.0 compatible Public Key>,
       "weight":     <INTEGER [1-2^16): a signature from this key contributes this to satisfying the threshold>
     }
     ...
@@ -198,7 +198,7 @@ const char* error_advice_transaction_exception =  "Ensure that your transaction 
 const char* error_advice_expired_tx_exception =  "Please increase the expiration time of your transaction!";
 const char* error_advice_tx_exp_too_far_exception =  "Please decrease the expiration time of your transaction!";
 const char* error_advice_invalid_ref_block_exception =  "Ensure that the reference block exist in the blockchain!";
-const char* error_advice_tx_duplicate =  "You can try embedding eosio nonce action inside your transaction to ensure uniqueness.";
+const char* error_advice_tx_duplicate =  "You can try embedding nonce action inside your transaction to ensure uniqueness.";
 
 const char* error_advice_invalid_action_args_exception = R"=====(Ensure that your arguments follow the contract abi!
 You can check the contract's abi by using 'cleos get code' command.)=====";

@@ -4,7 +4,7 @@ services:
   nodeosd:
     build:
       context: .
-    image: achain/actx
+    image: achain/actx-dev
     command: /opt/actx/bin/nodeosd.sh --data-dir /opt/actx/bin/data-dir -e --http-alias=nodeosd:8888 --http-alias=127.0.0.1:8888 --http-alias=localhost:8888 --genesis-json /genesis.json
     hostname: nodeosd
     ports:
@@ -19,7 +19,7 @@ services:
     stop_grace_period: 10m
 
   keosd:
-    image: achain/actx
+    image: achain/actx-dev
     command: /opt/actx/bin/keosd --wallet-dir /opt/actx/bin/data-dir --http-server-address=127.0.0.1:8900 --http-alias=keosd:8900 --http-alias=localhost:8900
     hostname: keosd
     links:
