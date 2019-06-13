@@ -11,5 +11,4 @@ cd Achainplus
 The above process takes about 20-30 minutes, depending on the network
 
 # Install Achain2.0
-cd ./build  
-sudo make install
+sudo ./actx_install.sh
