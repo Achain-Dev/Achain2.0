@@ -357,7 +357,7 @@ struct controller_impl {
 
       //init chain config
       //add for achainplus
-      init_chain_config();
+      //init_chain_config();
 
       bool report_integrity_hash = !!snapshot;
       if (snapshot) {
@@ -379,7 +379,7 @@ struct controller_impl {
          if( !head ) {
             initialize_fork_db(); // set head to genesis state
          }
-
+         init_chain_config();
          auto end = blog.read_head();
          if( !end ) {
             blog.reset( conf.genesis, head->block );
