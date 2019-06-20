@@ -1870,7 +1870,7 @@ void get_account( const string& accountName, const string& coresym, bool json_fo
       if( res.refund_request.is_object() ) {
          auto obj = res.refund_request.get_object();
          auto request_time = fc::time_point_sec::from_iso_string( obj["request_time"].as_string() );
-         fc::time_point refund_time = request_time + fc::days(3);
+         fc::time_point refund_time = request_time + fc::seconds(6*3600);
          auto now = res.head_block_time;
          asset net = asset::from_string( obj["net_amount"].as_string() );
          asset cpu = asset::from_string( obj["cpu_amount"].as_string() );
