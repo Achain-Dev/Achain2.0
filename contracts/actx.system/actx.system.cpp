@@ -212,7 +212,7 @@ namespace eosiosystem {
 
       uint32_t schedule_size = get_proposed_schedule_size();
       
-      //eosio_assert( bp_number > schedule_size, "new size must be larger than current size" );
+      eosio_assert( bp_number > schedule_size, "new size must be larger than current size" );
 
       set_proposed_schedule_size(bp_number);
    }
