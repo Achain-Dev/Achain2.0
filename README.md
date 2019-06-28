@@ -12,3 +12,7 @@ The above process takes about 20-30 minutes, depending on the network
 
 # Install Achain2.0
 sudo ./actx_install.sh
+
+# Write dapp
+
+recommend [Contract Development Toolkit](https://github.com/Achain-Dev/actx.cdt) **_`Version：1.4.1`_** to build your contract
