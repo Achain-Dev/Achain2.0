@@ -365,6 +365,10 @@ namespace eosiosystem {
                   v.staked = total_update.amount;
                });
          } else {
+            if( total_update < asset(0)){
+               auto stake_available = from_voter->staked - from_voter->current_stake;
+               eosio_assert( stake_available + total_update.amount >= 0, "attempt to undelegate more stake, please check your vote info" );
+            }
             _voters.modify( from_voter, 0, [&]( auto& v ) {
                   v.staked += total_update.amount;
                });
@@ -373,12 +377,6 @@ namespace eosiosystem {
          if( from == N(b1) ) {
             validate_b1_vesting( from_voter->staked );
          }
-         #if 0
-         /*no need to update votes*/
-         if( from_voter->producers.size()) {
-            update_votes( from, from_voter->producers, false );
-         }
-         #endif
       }
    }
 
