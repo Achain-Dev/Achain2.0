@@ -134,7 +134,8 @@ def startNode(nodeIndex, account):
         '    --plugin eosio::http_plugin'
         '    --plugin eosio::chain_api_plugin'
         '    --plugin eosio::net_api_plugin'
-        '    --plugin eosio::producer_plugin' +
+        '    --plugin eosio::producer_plugin'
+        '    --plugin eosio::producer_api_plugin'+
         otherOpts)
     with open(dir + 'stderr', mode='w') as f:
         f.write(cmd + '\n\n')

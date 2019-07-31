@@ -39,6 +39,7 @@ else()
     set(VERSION_FULL "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 endif()
 
+
 set( CLI_CLIENT_EXECUTABLE_NAME cleos )
 set( NODE_EXECUTABLE_NAME nodeos )
 set( KEY_STORE_EXECUTABLE_NAME keosd )
@@ -110,6 +111,10 @@ FIND_PACKAGE(Boost 1.67 REQUIRED COMPONENTS
     chrono
     unit_test_framework
     iostreams)
+# Some new stdlibc++s will #error on <experimental/string_view>; a problem for boost pre-1.69
+if( APPLE AND UNIX )
+   add_definitions(-DBOOST_ASIO_DISABLE_STD_EXPERIMENTAL_STRING_VIEW)
+endif()
 
 # Some new stdlibc++s will #error on <experimental/string_view>; a problem for boost pre-1.69
 if( APPLE AND UNIX )

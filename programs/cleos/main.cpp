@@ -448,11 +448,12 @@ void print_action_tree( const fc::variant& action ) {
    for( const auto& t : inline_traces ) {
       print_action_tree( t );
    }
-	if( action.get_object().contains( "inline_traces" ) ) {
-	   const auto& inline_traces = action["inline_traces"].get_array();
-	  for( const auto& t : inline_traces ) {
-	      print_action_tree( t );
-	}
+   if( action.get_object().contains( "inline_traces" ) ) {
+      const auto& inline_traces = action["inline_traces"].get_array();
+      for( const auto& t : inline_traces ) {
+         print_action_tree( t );
+      }
+   }
 	
 }
 
@@ -1869,7 +1870,7 @@ void get_account( const string& accountName, const string& coresym, bool json_fo
       if( res.refund_request.is_object() ) {
          auto obj = res.refund_request.get_object();
          auto request_time = fc::time_point_sec::from_iso_string( obj["request_time"].as_string() );
-         fc::time_point refund_time = request_time + fc::days(3);
+         fc::time_point refund_time = request_time + fc::seconds(6*3600);
          auto now = res.head_block_time;
          asset net = asset::from_string( obj["net_amount"].as_string() );
          asset cpu = asset::from_string( obj["cpu_amount"].as_string() );
@@ -2159,6 +2160,17 @@ int main( int argc, char** argv ) {
          {
             std::cout << fc::json::to_pretty_string(result) << std::endl;
          }else{
+            int64_t precision = 1;
+            auto json = call(get_currency_stats_func, fc::mutable_variant_object("json", false)
+		            ("code", scope_stat)
+		            ("symbol", stat_symobl)
+                        );
+            auto obj = json.get_object();
+            auto obj_it = obj.find(stat_symobl);
+            if (obj_it != obj.end()) {
+               auto result = obj_it->value().as<eosio::chain_apis::read_only::get_currency_stats_result>();
+               precision = result.max_supply.precision();
+            }
             uint32_t first_send_time = uint32_t(row["first_send_time"].as_uint64());
             uint32_t first_receive_time = uint32_t(row["first_receive_time"].as_uint64());
             uint64_t total_send_amount = row["total_send_amount"].as_uint64();
@@ -2170,13 +2182,13 @@ int main( int argc, char** argv ) {
                cout << "your account has not transfer yet." << endl;
             else{
                cout << "you transfer the first " << stat_symobl << "  at " << time_point_sec(first_send_time).to_iso_string() << endl;
-               cout << "your total transfer is " << total_send_amount / 100000 << " " << stat_symobl << " in " << total_sent_times << " times"<< endl;
+               cout << "your total transfer is " << total_send_amount / precision << " " << stat_symobl << " in " << total_sent_times << " times"<< endl;
             }
             if (first_receive_time == 0)
                cout << "your account has not receive yet." << endl; 
             else{
                cout << "you receive the first " << stat_symobl << "  at " << time_point_sec(first_receive_time).to_iso_string() << endl;
-       cout << "your total receive is " << total_receive_amount / 100000 << " " << stat_symobl << " in " << total_receive_times << " times" << endl;
+       cout << "your total receive is " << total_receive_amount / precision << " " << stat_symobl << " in " << total_receive_times << " times" << endl;
             }
          }
       }
@@ -2300,10 +2312,10 @@ int main( int argc, char** argv ) {
    getTable->add_option( "--encode-type", encode_type,
                          localized("The encoding type of key_type (i64 , i128 , float64, float128) only support decimal encoding e.g. 'dec'"
                                     "i256 - supports both 'dec' and 'hex', ripemd160 and sha256 is 'hex' only"));
+   getTable->add_option("-t,--time", run_time, localized("cli run time max (ms), default 10 ms"));
    getTable->add_flag("-r,--reverse", reverse, localized("Iterate in reverse order"));
    getTable->add_flag("--show-payer", show_payer, localized("show RAM payer"));
    
-   getTable->add_flag("-t", run_time, localized("cli run time max (ms), default 10 ms"));
 
    getTable->set_callback([&] {
       auto result = call(get_table_func, fc::mutable_variant_object("json", !binary)

@@ -357,7 +357,7 @@ struct controller_impl {
 
       //init chain config
       //add for achainplus
-      init_chain_config();
+      //init_chain_config();
 
       bool report_integrity_hash = !!snapshot;
       if (snapshot) {
@@ -379,7 +379,7 @@ struct controller_impl {
          if( !head ) {
             initialize_fork_db(); // set head to genesis state
          }
-
+         init_chain_config();
          auto end = blog.read_head();
          if( !end ) {
             blog.reset( conf.genesis, head->block );
@@ -444,6 +444,14 @@ struct controller_impl {
       cfg.valid_block = 1;  //from block 1
       cfg.key = setconf::default_value::default_config_key;
       cfg.desc = "every account has 8k ram for free from block 1";
+      set_config( db, cfg );
+
+      //set no_bid
+      cfg.name = setconf::func_type::no_bid;
+      cfg.value = 0;
+      cfg.valid_block = 10000000;  //till 10000000
+      cfg.key = setconf::default_value::default_config_key;
+      cfg.desc = "account can new other account without bid";
       set_config( db, cfg );
 
       return;
@@ -1776,10 +1784,25 @@ void controller::add_indices() {
 
 void controller::startup( std::function<bool()> shutdown, const snapshot_reader_ptr& snapshot ) {
    my->head = my->fork_db.head();
-   if( !my->head ) {
+   if( snapshot ) {
+      ilog( "Starting initialization from snapshot, this may take a significant amount of time" );
+   }
+   else if( !my->head ) {
       elog( "No head block in fork db, perhaps we need to replay" );
    }
-   my->init(shutdown, snapshot);
+
+   try {
+      my->init(shutdown, snapshot);
+   } catch (boost::interprocess::bad_alloc& e) {
+      if ( snapshot )
+         elog( "db storage not configured to have enough storage for the provided snapshot, please increase and retry snapshot" );
+      throw e;
+   }
+   
+   if( snapshot ) {
+      ilog( "Finished initialization from snapshot" );
+   }
+
 }
 
 const chainbase::database& controller::db()const { return my->db; }
