@@ -19,6 +19,7 @@ git clone https://github.com/Achain-Dev/Achain2.0.git --recursive  --depth 1
 cd Achain2.0/Docker/builder
 docker build . -t achain/actx:base
 ```
+
 ### Build achain image
 
 ```bash
@@ -123,9 +124,18 @@ The data volume created by docker-compose can be deleted as follows:
 docker volume rm nodeos-data-volume
 docker volume rm keosd-data-volume
 ```
-```bash
-*NOTE:* the default version is the latest, you can change it to what you want
 
+### Docker Hub
+
+Docker Hub images are now deprecated. New build images were discontinued on January 1st, 2019. The existing old images will be removed on June 1st, 2019.
+
+### EOSIO Testnet
+
+We can easily set up a EOSIO local testnet using docker images. Just run the following commands:
+
+Note: if you want to use the mongo db plugin, you have to enable it in your `data-dir/config.ini` first.
+
+```
 # create volume
 docker volume create --name=nodeos-data-volume
 docker volume create --name=keosd-data-volume

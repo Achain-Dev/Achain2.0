@@ -2,6 +2,8 @@ FROM achain/actx:base as builder
 ARG branch=master
 ARG symbol=ACTX
 
+
+RUN apt-get update -y && apt-get install -y libcurl4-openssl-dev libusb-1.0-0-dev
 RUN git clone -b $branch https://github.com/Achain-Dev/Achain2.0.git --recursive \
     && cd Achain2.0 && echo "$branch:$(git rev-parse HEAD)" > /etc/actx-version \
     && cmake -H. -B"/tmp/build" -GNinja -DCMAKE_BUILD_TYPE=Release -DWASM_ROOT=/opt/wasm -DCMAKE_CXX_COMPILER=clang++ \
@@ -13,6 +15,7 @@ FROM ubuntu:18.04
 
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 COPY --from=builder /usr/local/lib/* /usr/local/lib/
+
 COPY --from=builder /tmp/build/bin /opt/actx/bin
 COPY --from=builder /tmp/build/contracts /contracts
 COPY --from=builder /etc/actx-version /etc
