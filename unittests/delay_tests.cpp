@@ -1,12 +1,15 @@
-#include <boost/test/unit_test.hpp>
-#include <eosio/testing/tester_network.hpp>
-#include <eosio/chain/producer_object.hpp>
-#include <eosio/chain/global_property_object.hpp>
+/**
+ *  @file
+ *  @copyright defined in Achain2.0/LICENSE.txt
+ */
 #include <eosio/chain/generated_transaction_object.hpp>
-#include <actx.system/actx.system.wast.hpp>
-#include <actx.system/actx.system.abi.hpp>
-#include <actx.token/actx.token.wast.hpp>
-#include <actx.token/actx.token.abi.hpp>
+#include <eosio/chain/global_property_object.hpp>
+#include <eosio/chain/producer_object.hpp>
+#include <eosio/testing/tester_network.hpp>
+
+#include <boost/test/unit_test.hpp>
+
+#include <contracts.hpp>
 
 #ifdef NON_VALIDATING_TEST
 #define TESTER tester
@@ -74,8 +77,9 @@ BOOST_FIXTURE_TEST_CASE( delay_error_create_account, validating_tester) { try {
 
    produce_blocks(6);
 
-   auto scheduled_trxs = control->get_scheduled_transactions();
-   BOOST_REQUIRE_EQUAL(scheduled_trxs.size(), 1);
+   auto scheduled_trxs = get_scheduled_transactions();
+   BOOST_REQUIRE_EQUAL(scheduled_trxs.size(), 1u);
+
    auto dtrace = control->push_scheduled_transaction(scheduled_trxs.front(), fc::time_point::maximum());
    BOOST_REQUIRE_EQUAL(dtrace->except.valid(), true);
    BOOST_REQUIRE_EQUAL(dtrace->except->code(), missing_auth_exception::code_value);
@@ -99,8 +103,8 @@ BOOST_AUTO_TEST_CASE( link_delay_direct_test ) { try {
    chain.create_account(N(actx.token));
    chain.produce_blocks(10);
 
-   chain.set_code(N(actx.token), actx_token_wast);
-   chain.set_abi(N(actx.token), actx_token_abi);
+   chain.set_code(N(actx.token), contracts::actx_token_wasm());
+   chain.set_abi(N(actx.token), contracts::actx_token_abi().data());
 
    chain.produce_blocks();
    chain.create_account(N(tester));
@@ -237,8 +241,8 @@ BOOST_AUTO_TEST_CASE(delete_auth_test) { try {
    chain.create_account(N(actx.token));
    chain.produce_blocks(10);
 
-   chain.set_code(N(actx.token), actx_token_wast);
-   chain.set_abi(N(actx.token), actx_token_abi);
+   chain.set_code(N(actx.token), contracts::actx_token_wasm());
+   chain.set_abi(N(actx.token), contracts::actx_token_abi().data());
 
    chain.produce_blocks();
    chain.create_account(N(tester));
@@ -257,7 +261,7 @@ BOOST_AUTO_TEST_CASE(delete_auth_test) { try {
       expect_assert_message(e, "permission_query_exception: Permission Query Exception\nFailed to retrieve permission");
       return true;
    });
-
+   
    // update auth
    chain.push_action(config::system_account_name, updateauth::get_name(), tester_account, fc::mutable_variant_object()
            ("account", "tester")
@@ -374,8 +378,8 @@ BOOST_AUTO_TEST_CASE( link_delay_direct_parent_permission_test ) { try {
    chain.create_account(N(actx.token));
    chain.produce_blocks(10);
 
-   chain.set_code(N(actx.token), actx_token_wast);
-   chain.set_abi(N(actx.token), actx_token_abi);
+   chain.set_code(N(actx.token), contracts::actx_token_wasm());
+   chain.set_abi(N(actx.token), contracts::actx_token_abi().data());
 
    chain.produce_blocks();
    chain.create_account(N(tester));
@@ -656,8 +660,8 @@ BOOST_AUTO_TEST_CASE( link_delay_permission_change_test ) { try {
    chain.create_account(N(actx.token));
    chain.produce_blocks(10);
 
-   chain.set_code(N(actx.token), actx_token_wast);
-   chain.set_abi(N(actx.token), actx_token_abi);
+   chain.set_code(N(actx.token), contracts::actx_token_wasm());
+   chain.set_abi(N(actx.token), contracts::actx_token_abi().data());
 
    chain.produce_blocks();
    chain.create_account(N(tester));
@@ -1044,8 +1048,8 @@ BOOST_AUTO_TEST_CASE( link_delay_link_change_test ) { try {
    chain.create_account(N(actx.token));
    chain.produce_blocks(10);
 
-   chain.set_code(N(actx.token), actx_token_wast);
-   chain.set_abi(N(actx.token), actx_token_abi);
+   chain.set_code(N(actx.token), contracts::actx_token_wasm());
+   chain.set_abi(N(actx.token), contracts::actx_token_abi().data());
 
    chain.produce_blocks();
    chain.create_account(N(tester));
@@ -1246,8 +1250,8 @@ BOOST_AUTO_TEST_CASE( link_delay_unlink_test ) { try {
    chain.create_account(N(actx.token));
    chain.produce_blocks(10);
 
-   chain.set_code(N(actx.token), actx_token_wast);
-   chain.set_abi(N(actx.token), actx_token_abi);
+   chain.set_code(N(actx.token), contracts::actx_token_wasm());
+   chain.set_abi(N(actx.token), contracts::actx_token_abi().data());
 
    chain.produce_blocks();
    chain.create_account(N(tester));
@@ -1435,8 +1439,8 @@ BOOST_AUTO_TEST_CASE( link_delay_link_change_heirarchy_test ) { try {
    chain.create_account(N(actx.token));
    chain.produce_blocks(10);
 
-   chain.set_code(N(actx.token), actx_token_wast);
-   chain.set_abi(N(actx.token), actx_token_abi);
+   chain.set_code(N(actx.token), contracts::actx_token_wasm());
+   chain.set_abi(N(actx.token), contracts::actx_token_abi().data());
 
    chain.produce_blocks();
    chain.create_account(N(tester));
@@ -1626,8 +1630,8 @@ BOOST_AUTO_TEST_CASE( mindelay_test ) { try {
    chain.create_account(N(actx.token));
    chain.produce_blocks(10);
 
-   chain.set_code(N(actx.token), actx_token_wast);
-   chain.set_abi(N(actx.token), actx_token_abi);
+   chain.set_code(N(actx.token), contracts::actx_token_wasm());
+   chain.set_abi(N(actx.token), contracts::actx_token_abi().data());
 
    chain.produce_blocks();
    chain.create_account(N(tester));
@@ -1758,8 +1762,8 @@ BOOST_AUTO_TEST_CASE( canceldelay_test ) { try {
    chain.create_account(N(actx.token));
    chain.produce_blocks(10);
 
-   chain.set_code(N(actx.token), actx_token_wast);
-   chain.set_abi(N(actx.token), actx_token_abi);
+   chain.set_code(N(actx.token), contracts::actx_token_wasm());
+   chain.set_abi(N(actx.token), contracts::actx_token_abi().data());
 
    chain.produce_blocks();
    chain.create_account(N(tester));
@@ -1995,8 +1999,8 @@ BOOST_AUTO_TEST_CASE( canceldelay_test2 ) { try {
    chain.create_account(N(actx.token));
    chain.produce_blocks();
 
-   chain.set_code(N(actx.token), actx_token_wast);
-   chain.set_abi(N(actx.token), actx_token_abi);
+   chain.set_code(N(actx.token), contracts::actx_token_wasm());
+   chain.set_abi(N(actx.token), contracts::actx_token_abi().data());
 
    chain.produce_blocks();
    chain.create_account(N(tester));
@@ -2281,8 +2285,8 @@ BOOST_AUTO_TEST_CASE( max_transaction_delay_execute ) { try {
    const auto& tester_account = N(tester);
 
    chain.create_account(N(actx.token));
-   chain.set_code(N(actx.token), actx_token_wast);
-   chain.set_abi(N(actx.token), actx_token_abi);
+   chain.set_code(N(actx.token), contracts::actx_token_wasm());
+   chain.set_abi(N(actx.token), contracts::actx_token_abi().data());
 
    chain.produce_blocks();
    chain.create_account(N(tester));

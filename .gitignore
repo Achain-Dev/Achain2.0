@@ -5,7 +5,6 @@
 *.bc
 *.wast
 *.wast.hpp
-*.wasm
 *.s
 *.dot
 *.abi.hpp
@@ -22,6 +21,8 @@ Makefile
 compile_commands.json
 moc_*
 *.moc
+
+genesis.json
 hardfork.hpp
 
 libraries/utilities/git_revision.cpp
@@ -32,6 +33,7 @@ libraries/types/type_generator
 libraries/types/types_test
 libraries/fc/test/crypto/test_cypher_suites
 libraries/testing/chain_tester
+
 
 libraries/wallet/Doxyfile
 libraries/wallet/api_documentation.cpp
