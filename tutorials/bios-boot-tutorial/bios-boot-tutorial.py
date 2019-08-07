@@ -309,6 +309,9 @@ def stepSetSystemContract():
     retry(args.cleos + 'set contract actx ' + args.contracts_dir + 'actx.system/')
     sleep(1)
     run(args.cleos + 'push action actx setpriv' + jsonArg(['actx.msig', 1]) + '-p actx@active')
+def stepInitSystemContract():
+    run(args.cleos + 'push action actx init' + jsonArg(['0', '4,ACTX']) + '-p actx@active')
+    sleep(1)
 def stepCreateStakedAccounts():
     createStakedAccounts(0, len(accounts))
 def stepRegProducers():
@@ -347,6 +350,7 @@ commands = [
     ('c', 'contracts',      stepInstallSystemContracts, True,    "Install system contracts (token, msig)"),
     ('t', 'tokens',         stepCreateTokens,           True,    "Create tokens"),
     ('S', 'sys-contract',   stepSetSystemContract,      True,    "Set system contract"),
+    ('I', 'init-sys-contract',  stepInitSystemContract,     True,    "Initialiaze system contract"),
     ('T', 'stake',          stepCreateStakedAccounts,   True,    "Create staked accounts"),
     ('p', 'reg-prod',       stepRegProducers,           True,    "Register producers"),
     ('P', 'start-prod',     stepStartProducers,         True,    "Start producers"),
