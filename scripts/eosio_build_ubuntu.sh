@@ -5,31 +5,20 @@ echo "Physical Memory: ${MEM_GIG}G"
 echo "Disk space total: ${DISK_TOTAL}G"
 echo "Disk space available: ${DISK_AVAIL}G"
 
-( [[ $NAME == "CentOS Linux" ]] && [[ "$(echo ${VERSION} | sed 's/ .*//g')" < 7 ]] ) && echo " - You must be running Centos 7 or higher to install EOSIO." && exit 1
+( [[ $NAME == "Ubuntu" ]] && ( [[ "$(echo ${VERSION_ID})" == "16.04" ]] || [[ "$(echo ${VERSION_ID})" == "18.04" ]] )  ) || ( echo " - You must be running 16.04.x or 18.04.x to install EOSIO." && exit 1 )
 
 [[ $MEM_GIG -lt 7 ]] && echo "Your system must have 7 or more Gigabytes of physical memory installed." && exit 1
 [[ "${DISK_AVAIL}" -lt "${DISK_MIN}" ]] && echo " - You must have at least ${DISK_MIN}GB of available storage to install EOSIO." && exit 1
 
-echo ""
-
-# Repo necessary for rh-python3 and devtoolset-8
-ensure-scl
-# GCC8 for Centos / Needed for CMAKE install even if we're pinning
-ensure-devtoolset
-if [[ -d /opt/rh/devtoolset-8 ]]; then
-	echo "${COLOR_CYAN}[Enabling Centos devtoolset-8 (so we can use GCC 8)]${COLOR_NC}"
-	execute-always source /opt/rh/devtoolset-8/enable
-	echo " - ${COLOR_GREEN}Centos devtoolset-8 successfully enabled!${COLOR_NC}"
-fi
+# system clang and build essential for Ubuntu 18 (16 too old)
+( [[ $PIN_COMPILER == false ]] && [[ $VERSION_ID == "18.04" ]] ) && EXTRA_DEPS=(clang,dpkg\ -s)
+# We install clang8 for Ubuntu 16, but we still need something to compile cmake, boost, etc + pinned 18 still needs something to build source
+( [[ $VERSION_ID == "16.04" ]] || ( $PIN_COMPILER && [[ $VERSION_ID == "18.04" ]] ) ) && ensure-build-essential
 # Ensure packages exist
-ensure-yum-packages "${REPO_ROOT}/scripts/eosio_build_centos7_deps"
-export PYTHON3PATH="/opt/rh/rh-python36"
-if $DRYRUN || [ -d $PYTHON3PATH ]; then
-	echo "${COLOR_CYAN}[Enabling python36]${COLOR_NC}"
-	execute source $PYTHON3PATH/enable
-	echo " ${COLOR_GREEN}- Python36 successfully enabled!${COLOR_NC}"
-	echo ""
-fi
+([[ $PIN_COMPILER == false ]] && [[ $BUILD_CLANG == false ]]) && EXTRA_DEPS+=(llvm-4.0,dpkg\ -s)
+$ENABLE_COVERAGE_TESTING && EXTRA_DEPS+=(lcov,dpkg\ -s)
+ensure-apt-packages "${REPO_ROOT}/scripts/eosio_build_ubuntu_deps" $(echo ${EXTRA_DEPS[@]})
+echo ""
 # Handle clang/compiler
 ensure-compiler
 # CMAKE Installation
@@ -40,26 +29,32 @@ build-clang
 ensure-llvm
 # BOOST Installation
 ensure-boost
-
+VERSION_MAJ=$(echo "${VERSION_ID}" | cut -d'.' -f1)
+VERSION_MIN=$(echo "${VERSION_ID}" | cut -d'.' -f2)
 if $INSTALL_MONGO; then
-
+	if [[ $VERSION_MAJ == 18 ]]; then
+		# UBUNTU 18 doesn't have MONGODB 3.6.3
+		MONGODB_VERSION=4.1.1
+		# We have to re-set this with the new version
+		MONGODB_ROOT=${OPT_DIR}/mongodb-${MONGODB_VERSION}
+	fi
 	echo "${COLOR_CYAN}[Ensuring MongoDB installation]${COLOR_NC}"
 	if [[ ! -d $MONGODB_ROOT ]]; then
 		execute bash -c "cd $SRC_DIR && \
-		curl -OL https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-amazon-$MONGODB_VERSION.tgz \
-		&& tar -xzf mongodb-linux-x86_64-amazon-$MONGODB_VERSION.tgz \
-		&& mv $SRC_DIR/mongodb-linux-x86_64-amazon-$MONGODB_VERSION $MONGODB_ROOT \
+		curl -OL http://downloads.mongodb.org/linux/mongodb-linux-x86_64-ubuntu${VERSION_MAJ}${VERSION_MIN}-$MONGODB_VERSION.tgz \
+		&& tar -xzf mongodb-linux-x86_64-ubuntu${VERSION_MAJ}${VERSION_MIN}-${MONGODB_VERSION}.tgz \
+		&& mv $SRC_DIR/mongodb-linux-x86_64-ubuntu${VERSION_MAJ}${VERSION_MIN}-${MONGODB_VERSION} $MONGODB_ROOT \
 		&& touch $MONGODB_LOG_DIR/mongod.log \
-		&& rm -f mongodb-linux-x86_64-amazon-$MONGODB_VERSION.tgz \
+		&& rm -f mongodb-linux-x86_64-ubuntu${VERSION_MAJ}${VERSION_MIN}-$MONGODB_VERSION.tgz \
 		&& cp -f $REPO_ROOT/scripts/mongod.conf $MONGODB_CONF \
 		&& mkdir -p $MONGODB_DATA_DIR \
 		&& rm -rf $MONGODB_LINK_DIR \
 		&& rm -rf $BIN_DIR/mongod \
 		&& ln -s $MONGODB_ROOT $MONGODB_LINK_DIR \
 		&& ln -s $MONGODB_LINK_DIR/bin/mongod $BIN_DIR/mongod"
-		echo " - MongoDB successfully installed @ ${MONGODB_ROOT}."
+		echo " - MongoDB successfully installed @ ${MONGODB_ROOT} (Symlinked to ${MONGODB_LINK_DIR})."
 	else
-		echo " - MongoDB found with correct version @ ${MONGODB_ROOT}."
+		echo " - MongoDB found with correct version @ ${MONGODB_ROOT} (Symlinked to ${MONGODB_LINK_DIR})."
 	fi
 	echo "${COLOR_CYAN}[Ensuring MongoDB C driver installation]${COLOR_NC}"
 	if [[ ! -d $MONGO_C_DRIVER_ROOT ]]; then
@@ -78,7 +73,7 @@ if $INSTALL_MONGO; then
 	else
 		echo " - MongoDB C driver found with correct version @ ${MONGO_C_DRIVER_ROOT}."
 	fi
-	echo "${COLOR_CYAN}[Ensuring MongoDB CXX driver installation]${COLOR_NC}"
+	echo "${COLOR_CYAN}[Ensuring MongoDB C++ driver installation]${COLOR_NC}"
 	if [[ ! -d $MONGO_CXX_DRIVER_ROOT ]]; then
 		execute bash -c "cd $SRC_DIR && \
 		curl -L https://github.com/mongodb/mongo-cxx-driver/archive/r$MONGO_CXX_DRIVER_VERSION.tar.gz -o mongo-cxx-driver-r$MONGO_CXX_DRIVER_VERSION.tar.gz \

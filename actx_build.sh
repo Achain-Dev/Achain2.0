@@ -1,7 +1,9 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -eo pipefail
+SCRIPT_VERSION=3.1 # Build script version (change this to re-build the CICD image)
 ##########################################################################
 # This is the ACTX automated install script for Linux and Mac OS.
-# This file was downloaded from https://github.com/Achain-Dev/Achainplus
+# This file was downloaded from https://github.com/Achain-Dev/Achain2.0
 #
 # Copyright (c) 2017, Respective Authors all rights reserved.
 #
@@ -27,7 +29,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 #
-# https://github.com/Achain-Dev/Achainplus/blob/master/LICENSE
+# https://github.com/Achain-Dev/Achain2.0/blob/master/LICENSE
 ##########################################################################
 
    SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
