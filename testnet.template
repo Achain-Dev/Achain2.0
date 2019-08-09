@@ -12,6 +12,11 @@ if [ -z "$biosport" ]; then
     biosport=9776
 fi
 
+bioscontractpath=$BIOS_CONTRACT_PATH
+if [ -z "$bioscontractpath" ]; then
+    bioscontractpath="unittests/contracts/actx.bios"
+fi
+
 wddir=eosio-ignition-wd
 wdaddr=localhost:8899
 wdurl=http://$wdaddr
@@ -34,6 +39,8 @@ mkdir $wddir
 
 step=1
 echo Initializing ignition sequence  at $(date) | tee $logfile
+
+echo "FEATURE_DIGESTS: $FEATURE_DIGESTS" >> $logfile
 
 echo "http-server-address = $wdaddr" > $wddir/config.ini
 
@@ -77,6 +84,12 @@ wcmd create --to-console -n ignition
 
 ecmd set contract actx contracts/actx.bios actx.bios.wasm actx.bios.abi
 
+# Preactivate all digests
+for digest in $FEATURE_DIGESTS;
+do
+ecmd push action actx activate "{\"feature_digest\":\"$digest\"}" -p actx
+done
+
 # Create required system accounts
 ecmd create key --to-console
 pubsyskey=`grep "^Public key:" $logfile | tail -1 | sed "s/^Public key://"`
@@ -96,7 +109,7 @@ ecmd create account actx actx.sudo $pubsyskey $pubsyskey
 
 ecmd set contract actx.token contracts/actx.token actx.token.wasm actx.token.abi
 ecmd set contract actx.msig contracts/actx.msig actx.msig.wasm actx.msig.abi
-ecmd set contract actx.sudo contracts/eosio.sudo eosio.sudo.wasm eosio.sudo.abi
+ecmd set contract actx.wrap contracts/actx.wrap actx.wrap.wasm actx.wrap.abi
 
 
 echo ===== Start: $step ============ >> $logfile
@@ -109,6 +122,7 @@ echo ==== End: $step ============== >> $logfile
 step=$(($step + 1))
 
 ecmd set contract actx contracts/actx.system actx.system.wasm actx.system.abi
+programs/cleos/cleos --wallet-url $wdurl --url http://$bioshost:$biosport push action actx init '[0, "4,ACTX"]' -p actx >> $logfile 2>&1
 
 # Manual deployers, add a series of lines below this block that looks like:
 #    cacmd $PRODNAME[0] $OWNERKEY[0] $ACTIVEKEY[0]
