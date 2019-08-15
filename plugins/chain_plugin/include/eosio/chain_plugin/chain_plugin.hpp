@@ -56,7 +56,7 @@ struct permission {
 template<typename>
 struct resolver_factory;
 
-// see specialization for uint64_t in source file
+// see specializations for uint64_t and double in source file
 template<typename Type>
 Type convert_to_type(const string& str, const string& desc) {
    try {
@@ -105,8 +105,24 @@ public:
       //string                  recent_slots;
       //double                  participation_rate = 0;
       optional<string>        server_version_string;
+      optional<uint32_t>              fork_db_head_block_num;
+      optional<chain::block_id_type>  fork_db_head_block_id;
    };
    get_info_results get_info(const get_info_params&) const;
+	struct get_activated_protocol_features_params {
+	      optional<uint32_t>  lower_bound;
+	      optional<uint32_t>  upper_bound;
+	      uint32_t            limit = 10;
+	      bool                search_by_block_num = false;
+	      bool                reverse = false;
+	   };
+
+	   struct get_activated_protocol_features_results {
+	      fc::variants        activated_protocol_features;
+	      optional<uint32_t>  more;
+	   };
+
+	   get_activated_protocol_features_results get_activated_protocol_features( const get_activated_protocol_features_params& params )const;
 
    //add for achainplus
    using get_chain_config_params = empty;
@@ -460,19 +476,19 @@ public:
 
          auto walk_table_row_range = [&]( auto itr, auto end_itr ) {
             auto cur_time = fc::time_point::now();
-            auto end_time = cur_time + fc::microseconds(1000 * p.run_time);
-         vector<char> data;
+            auto end_time = cur_time + fc::microseconds(1000 * 10); /// 10ms max time
+            vector<char> data;
             for( unsigned int count = 0; cur_time <= end_time && count < p.limit && itr != end_itr; ++itr, cur_time = fc::time_point::now() ) {
-            const auto* itr2 = d.find<chain::key_value_object, chain::by_scope_primary>(boost::make_tuple(t_id->id, itr->primary_key));
-            if (itr2 == nullptr) continue;
-            copy_inline_row(*itr2, data);
+               const auto* itr2 = d.find<chain::key_value_object, chain::by_scope_primary>( boost::make_tuple(t_id->id, itr->primary_key) );
+               if( itr2 == nullptr ) continue;
+               copy_inline_row(*itr2, data);
 
                fc::variant data_var;
-            if (p.json) {
+               if( p.json ) {
                   data_var = abis.binary_to_variant( abis.get_table_type(p.table), data, abi_serializer_max_time, shorten_abi_errors );
-            } else {
+               } else {
                   data_var = fc::variant( data );
-            }
+               }
 
                if( p.show_payer && *p.show_payer ) {
                   result.rows.emplace_back( fc::mutable_variant_object("data", std::move(data_var))("payer", itr->payer) );
@@ -484,7 +500,7 @@ public:
             }
             if( itr != end_itr ) {
                result.more = true;
-         }
+            }
          };
 
          auto lower = secidx.lower_bound( lower_bound_lookup_tuple );
@@ -508,13 +524,13 @@ public:
       abi_serializer abis;
       abis.set_abi(abi, abi_serializer_max_time);
       const auto* t_id = d.find<chain::table_id_object, chain::by_code_scope_table>(boost::make_tuple(p.code, scope, p.table));
-      if (t_id != nullptr) {
+      if( t_id != nullptr ) {
          const auto& idx = d.get_index<IndexType, chain::by_scope_primary>();
          auto lower_bound_lookup_tuple = std::make_tuple( t_id->id, std::numeric_limits<uint64_t>::lowest() );
          auto upper_bound_lookup_tuple = std::make_tuple( t_id->id, std::numeric_limits<uint64_t>::max() );
 
-         if (p.lower_bound.size()) {
-            if (p.key_type == "name") {
+         if( p.lower_bound.size() ) {
+            if( p.key_type == "name" ) {
                name s(p.lower_bound);
                std::get<1>(lower_bound_lookup_tuple) = s.value;
             } else {
@@ -522,8 +538,9 @@ public:
                std::get<1>(lower_bound_lookup_tuple) = lv;
             }
          }
-         if (p.upper_bound.size()) {
-            if (p.key_type == "name") {
+
+         if( p.upper_bound.size() ) {
+            if( p.key_type == "name" ) {
                name s(p.upper_bound);
                std::get<1>(upper_bound_lookup_tuple) = s.value;
             } else {
@@ -537,27 +554,27 @@ public:
 
          auto walk_table_row_range = [&]( auto itr, auto end_itr ) {
             auto cur_time = fc::time_point::now();
-            auto end_time = cur_time + fc::microseconds(1000 * p.run_time);
-         vector<char> data;
+            auto end_time = cur_time + fc::microseconds(1000 * 10); /// 10ms max time
+            vector<char> data;
             for( unsigned int count = 0; cur_time <= end_time && count < p.limit && itr != end_itr; ++count, ++itr, cur_time = fc::time_point::now() ) {
-            copy_inline_row(*itr, data);
+               copy_inline_row(*itr, data);
 
                fc::variant data_var;
-            if (p.json) {
+               if( p.json ) {
                   data_var = abis.binary_to_variant( abis.get_table_type(p.table), data, abi_serializer_max_time, shorten_abi_errors );
-            } else {
+               } else {
                   data_var = fc::variant( data );
-            }
+               }
 
                if( p.show_payer && *p.show_payer ) {
                   result.rows.emplace_back( fc::mutable_variant_object("data", std::move(data_var))("payer", itr->payer) );
                } else {
                   result.rows.emplace_back( std::move(data_var) );
+               }
             }
-         }
             if( itr != end_itr ) {
-            result.more = true;
-         }
+               result.more = true;
+            }
          };
 
          auto lower = idx.lower_bound( lower_bound_lookup_tuple );
@@ -585,7 +602,7 @@ public:
 
    using push_block_params = chain::signed_block;
    using push_block_results = empty;
-   void push_block(const push_block_params& params, chain::plugin_interface::next_function<push_block_results> next);
+   void push_block(push_block_params&& params, chain::plugin_interface::next_function<push_block_results> next);
 
    using push_transaction_params = fc::variant_object;
    struct push_transaction_results {
@@ -598,6 +615,10 @@ public:
    using push_transactions_params  = vector<push_transaction_params>;
    using push_transactions_results = vector<push_transaction_results>;
    void push_transactions(const push_transactions_params& params, chain::plugin_interface::next_function<push_transactions_results> next);
+
+   using send_transaction_params = push_transaction_params;
+   using send_transaction_results = push_transaction_results;
+   void send_transaction(const send_transaction_params& params, chain::plugin_interface::next_function<send_transaction_results> next);
 
    friend resolver_factory<read_write>;
 };
@@ -624,8 +645,11 @@ public:
      static auto function() {
         return [](const input_type& v) {
             chain::key256_t k;
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
             k[0] = ((uint128_t *)&v._hash)[0]; //0-127
             k[1] = ((uint128_t *)&v._hash)[1]; //127-256
+#pragma GCC diagnostic pop
             return k;
         };
      }
@@ -680,6 +704,7 @@ public:
 
    void accept_block( const chain::signed_block_ptr& block );
    void accept_transaction(const chain::packed_transaction& trx, chain::plugin_interface::next_function<chain::transaction_trace_ptr> next);
+   void accept_transaction(const chain::transaction_metadata_ptr& trx, chain::plugin_interface::next_function<chain::transaction_trace_ptr> next);
 
    bool block_is_on_preferred_chain(const chain::block_id_type& block_id);
 
@@ -720,13 +745,15 @@ private:
 FC_REFLECT( eosio::chain_apis::permission, (perm_name)(parent)(required_auth) )
 FC_REFLECT(eosio::chain_apis::empty, )
 FC_REFLECT(eosio::chain_apis::read_only::get_info_results,
-(server_version)(chain_id)(head_block_num)(last_irreversible_block_num)(last_irreversible_block_id)(head_block_id)(head_block_time)(head_block_producer)(virtual_block_cpu_limit)(virtual_block_net_limit)(block_cpu_limit)(block_net_limit)(server_version_string) )
+(server_version)(chain_id)(head_block_num)(last_irreversible_block_num)(last_irreversible_block_id)(head_block_id)(head_block_time)(head_block_producer)(virtual_block_cpu_limit)(virtual_block_net_limit)(block_cpu_limit)(block_net_limit)(server_version_string)(fork_db_head_block_num)(fork_db_head_block_id) )
+FC_REFLECT(eosio::chain_apis::read_only::get_activated_protocol_features_params, (lower_bound)(upper_bound)(limit)(search_by_block_num)(reverse) )
+FC_REFLECT(eosio::chain_apis::read_only::get_activated_protocol_features_results, (activated_protocol_features)(more) )
 FC_REFLECT(eosio::chain_apis::read_only::get_block_params, (block_num_or_id))
 FC_REFLECT(eosio::chain_apis::read_only::get_block_header_state_params, (block_num_or_id))
 
 FC_REFLECT( eosio::chain_apis::read_write::push_transaction_results, (transaction_id)(processed) )
 
-FC_REFLECT( eosio::chain_apis::read_only::get_table_rows_params, (json)(code)(scope)(table)(table_key)(lower_bound)(upper_bound)(limit)(key_type)(index_position)(encode_type)(reverse)(show_payer)(run_time) )
+FC_REFLECT( eosio::chain_apis::read_only::get_table_rows_params, (json)(code)(scope)(table)(table_key)(lower_bound)(upper_bound)(limit)(key_type)(index_position)(encode_type)(reverse)(show_payer) )
 FC_REFLECT( eosio::chain_apis::read_only::get_table_rows_result, (rows)(more) );
 
 FC_REFLECT( eosio::chain_apis::read_only::get_table_by_scope_params, (code)(table)(lower_bound)(upper_bound)(limit)(reverse) )
@@ -750,6 +777,7 @@ FC_REFLECT( eosio::chain_apis::read_only::get_account_results,
             (account_name)(head_block_num)(head_block_time)(privileged)(last_code_update)(created)
             (core_liquid_balance)(ram_quota)(net_weight)(cpu_weight)(net_limit)(cpu_limit)(ram_usage)(permissions)
             (total_resources)(self_delegated_bandwidth)(refund_request)(voter_info) )
+// @swap code_hash
 FC_REFLECT( eosio::chain_apis::read_only::get_code_results, (account_name)(code_hash)(wast)(wasm)(abi) )
 FC_REFLECT( eosio::chain_apis::read_only::get_code_hash_results, (account_name)(code_hash) )
 FC_REFLECT( eosio::chain_apis::read_only::get_abi_results, (account_name)(abi) )
