@@ -10,17 +10,17 @@
 #include <eosio/chain/types.hpp>
 
 #include <fc/io/json.hpp>
+#include <fc/log/logger_config.hpp>
 #include <fc/utf8.hpp>
 #include <fc/variant.hpp>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/chrono.hpp>
 #include <boost/signals2/connection.hpp>
-#include <boost/thread/thread.hpp>
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition_variable.hpp>
 
 #include <queue>
+#include <thread>
+#include <mutex>
 
 #include <bsoncxx/builder/basic/kvp.hpp>
 #include <bsoncxx/builder/basic/document.hpp>
@@ -118,6 +118,7 @@ public:
 
    void init();
    void wipe_database();
+   void create_expiration_index(mongocxx::collection& collection, uint32_t expire_after_seconds);
 
    template<typename Queue, typename Entry> void queue(Queue& queue, const Entry& e);
 
@@ -136,12 +137,13 @@ public:
    bool store_transactions = true;
    bool store_transaction_traces = true;
    bool store_action_traces = true;
+   uint32_t expire_after_seconds = 0;
 
    std::string db_name;
    mongocxx::instance mongo_inst;
    fc::optional<mongocxx::pool> mongo_pool;
 
-   // consum thread comsume data from queue
+   // consum thread
    mongocxx::collection _accounts;
    mongocxx::collection _trans;
    mongocxx::collection _trans_traces;
@@ -162,9 +164,9 @@ public:
    std::deque<chain::block_state_ptr> block_state_process_queue;
    std::deque<chain::block_state_ptr> irreversible_block_state_queue;
    std::deque<chain::block_state_ptr> irreversible_block_state_process_queue;
-   boost::mutex mtx;
-   boost::condition_variable condition;
-   boost::thread consume_thread;
+   std::mutex mtx;
+   std::condition_variable condition;
+   std::thread consume_thread;
    std::atomic_bool done{false};
    std::atomic_bool startup{true};
    fc::optional<chain::chain_id_type> chain_id;
@@ -290,7 +292,7 @@ bool mongo_db_plugin_impl::filter_include( const transaction& trx ) const
 
 template<typename Queue, typename Entry>
 void mongo_db_plugin_impl::queue( Queue& queue, const Entry& e ) {
-   boost::mutex::scoped_lock lock( mtx );
+   std::unique_lock<std::mutex> lock( mtx );
    auto queue_size = queue.size();
    if( queue_size > max_queue_size ) {
       lock.unlock();
@@ -298,7 +300,7 @@ void mongo_db_plugin_impl::queue( Queue& queue, const Entry& e ) {
       queue_sleep_time += 10;
       if( queue_sleep_time > 1000 )
          wlog("queue size: ${q}", ("q", queue_size));
-      boost::this_thread::sleep_for( boost::chrono::milliseconds( queue_sleep_time ));
+      std::this_thread::sleep_for( std::chrono::milliseconds( queue_sleep_time ));
       lock.lock();
    } else {
       queue_sleep_time -= 10;
@@ -406,7 +408,7 @@ void mongo_db_plugin_impl::consume_blocks() {
       _account_controls = mongo_conn[db_name][account_controls_col];
 
       while (true) {
-         boost::mutex::scoped_lock lock(mtx);
+         std::unique_lock<std::mutex> lock(mtx);
          while ( transaction_metadata_queue.empty() &&
                  transaction_trace_queue.empty() &&
                  block_state_queue.empty() &&
@@ -570,6 +572,15 @@ void handle_mongo_exception( const std::string& desc, int line_num ) {
    }
 }
 
+// custom oid to avoid monotonic throttling
+// https://docs.mongodb.com/master/core/bulk-write-operations/#avoid-monotonic-throttling
+bsoncxx::oid make_custom_oid() {
+   bsoncxx::oid x = bsoncxx::oid();
+   const char* p = x.bytes();
+   std::swap((short&)p[0], (short&)p[10]);
+   return x;
+}
+
 } // anonymous namespace
 
 void mongo_db_plugin_impl::purge_abi_cache() {
@@ -640,6 +651,18 @@ optional<abi_serializer> mongo_db_plugin_impl::get_abi_serializer( account_name 
                                        }
                                  ) );
                         }
+                     }
+                  }
+               }
+               // mongo does not like empty json keys
+               // make abi_serializer use empty_name instead of "" for the action data
+               for( auto& s : abi.structs ) {
+                  if( s.name.empty() ) {
+                     s.name = "empty_struct_name";
+                  }
+                  for( auto& f : s.fields ) {
+                     if( f.name.empty() ) {
+                        f.name = "empty_field_name";
                      }
                   }
                }
@@ -725,10 +748,10 @@ void mongo_db_plugin_impl::_process_accepted_transaction( const chain::transacti
    using bsoncxx::builder::basic::make_array;
    namespace bbb = bsoncxx::builder::basic;
 
-   const auto& trx = t->trx;
+   const signed_transaction& trx = t->packed_trx->get_signed_transaction();
 
    if( !filter_include( trx ) ) return;
-   
+
    auto trans_doc = bsoncxx::builder::basic::document{};
 
    auto now = std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -758,12 +781,13 @@ void mongo_db_plugin_impl::_process_accepted_transaction( const chain::transacti
    }
 
    string signing_keys_json;
-   if( t->signing_keys.valid() ) {
-      signing_keys_json = fc::json::to_string( t->signing_keys->second );
+   if( t->signing_keys_future.valid() ) {
+      signing_keys_json = fc::json::to_string( std::get<2>( t->signing_keys_future.get() ) );
    } else {
-      auto signing_keys = trx.get_signature_keys( *chain_id, false, false );
-      if( !signing_keys.empty() ) {
-         signing_keys_json = fc::json::to_string( signing_keys );
+      flat_set<public_key_type> keys;
+      trx.get_signature_keys( *chain_id, fc::time_point::maximum(), keys, false );
+      if( !keys.empty() ) {
+         signing_keys_json = fc::json::to_string( keys );
       }
    }
 
@@ -806,19 +830,20 @@ mongo_db_plugin_impl::add_action_trace( mongocxx::bulk_write& bulk_action_traces
    using namespace bsoncxx::types;
    using bsoncxx::builder::basic::kvp;
 
-   if( executed && atrace.receipt.receiver == chain::config::system_account_name ) {
+   if( executed && atrace.receiver == chain::config::system_account_name ) {
       update_account( atrace.act );
    }
 
    bool added = false;
    const bool in_filter = (store_action_traces || store_transaction_traces) && start_block_reached &&
-                    filter_include( atrace.receipt.receiver, atrace.act.name, atrace.act.authorization );
+                    filter_include( atrace.receiver, atrace.act.name, atrace.act.authorization );
    write_ttrace |= in_filter;
    if( start_block_reached && store_action_traces && in_filter ) {
       auto action_traces_doc = bsoncxx::builder::basic::document{};
-      const chain::base_action_trace& base = atrace; // without inline action traces
+      // improve data distributivity when using mongodb sharding
+      action_traces_doc.append( kvp( "_id", make_custom_oid() ) );
 
-      auto v = to_variant_with_abi( base );
+      auto v = to_variant_with_abi( atrace );
       string json = fc::json::to_string( v );
       try {
          const auto& value = bsoncxx::from_json( json );
@@ -842,10 +867,6 @@ mongo_db_plugin_impl::add_action_trace( mongocxx::bulk_write& bulk_action_traces
       mongocxx::model::insert_one insert_op{action_traces_doc.view()};
       bulk_action_traces.append( insert_op );
       added = true;
-   }
-
-   for( const auto& iline_atrace : atrace.inline_traces ) {
-      added |= add_action_trace( bulk_action_traces, iline_atrace, t, executed, now, write_ttrace );
    }
 
    return added;
@@ -1082,11 +1103,8 @@ void mongo_db_plugin_impl::_process_irreversible_block(const chain::block_state_
          string trx_id_str;
          if( receipt.trx.contains<packed_transaction>() ) {
             const auto& pt = receipt.trx.get<packed_transaction>();
-            // get id via get_raw_transaction() as packed_transaction.id() mutates internal transaction state
-            const auto& raw = pt.get_raw_transaction();
-            const auto& trx = fc::raw::unpack<transaction>( raw );
-            if( !filter_include( trx ) ) continue;
-            const auto& id = trx.id();
+            if( !filter_include( pt.get_signed_transaction() ) ) continue;
+            const auto& id = pt.id();
             trx_id_str = id.str();
          } else {
             const auto& id = receipt.trx.get<transaction_id_type>();
@@ -1375,6 +1393,39 @@ void mongo_db_plugin_impl::wipe_database() {
    ilog("done wipe_database");
 }
 
+void mongo_db_plugin_impl::create_expiration_index(mongocxx::collection& collection, uint32_t expire_after_seconds) {
+   using bsoncxx::builder::basic::make_document;
+   using bsoncxx::builder::basic::kvp;
+
+   auto indexes = collection.indexes();
+   for( auto& index : indexes.list()) {
+      auto key = index["key"];
+      if( !key ) {
+         continue;
+      }
+      auto field = key["createdAt"];
+      if( !field ) {
+         continue;
+      }
+
+      auto ttl = index["expireAfterSeconds"];
+      if( ttl && ttl.get_int32() == expire_after_seconds ) {
+         return;
+      } else {
+         auto name = index["name"].get_utf8();
+         ilog( "mongo db drop ttl index for collection ${collection}", ( "collection", collection.name().to_string()));
+         indexes.drop_one( name.value );
+         break;
+      }
+   }
+
+   mongocxx::options::index index_options{};
+   index_options.expire_after( std::chrono::seconds( expire_after_seconds ));
+   index_options.background( true );
+   ilog( "mongo db create ttl index for collection ${collection}", ( "collection", collection.name().to_string()));
+   collection.create_index( make_document( kvp( "createdAt", 1 )), index_options );
+}
+
 void mongo_db_plugin_impl::init() {
    using namespace bsoncxx::types;
    using bsoncxx::builder::basic::make_document;
@@ -1405,42 +1456,64 @@ void mongo_db_plugin_impl::init() {
          }
 
          try {
+            // MongoDB administrators (to enable sharding) :
+            //   1. enableSharding database (default to EOS)
+            //   2. shardCollection: blocks, action_traces, transaction_traces, especially action_traces
+            //   3. Compound index with shard key (default to _id below), to improve query performance.
+
             // blocks indexes
             auto blocks = mongo_conn[db_name][blocks_col];
-            blocks.create_index( bsoncxx::from_json( R"xxx({ "block_num" : 1 })xxx" ));
-            blocks.create_index( bsoncxx::from_json( R"xxx({ "block_id" : 1 })xxx" ));
+            blocks.create_index( bsoncxx::from_json( R"xxx({ "block_num" : 1, "_id" : 1 })xxx" ));
+            blocks.create_index( bsoncxx::from_json( R"xxx({ "block_id" : 1, "_id" : 1 })xxx" ));
 
             auto block_states = mongo_conn[db_name][block_states_col];
-            block_states.create_index( bsoncxx::from_json( R"xxx({ "block_num" : 1 })xxx" ));
-            block_states.create_index( bsoncxx::from_json( R"xxx({ "block_id" : 1 })xxx" ));
+            block_states.create_index( bsoncxx::from_json( R"xxx({ "block_num" : 1, "_id" : 1 })xxx" ));
+            block_states.create_index( bsoncxx::from_json( R"xxx({ "block_id" : 1, "_id" : 1 })xxx" ));
 
             // accounts indexes
-            accounts.create_index( bsoncxx::from_json( R"xxx({ "name" : 1 })xxx" ));
+            accounts.create_index( bsoncxx::from_json( R"xxx({ "name" : 1, "_id" : 1 })xxx" ));
 
             // transactions indexes
             auto trans = mongo_conn[db_name][trans_col];
-            trans.create_index( bsoncxx::from_json( R"xxx({ "trx_id" : 1 })xxx" ));
+            trans.create_index( bsoncxx::from_json( R"xxx({ "trx_id" : 1, "_id" : 1 })xxx" ));
 
             auto trans_trace = mongo_conn[db_name][trans_traces_col];
-            trans_trace.create_index( bsoncxx::from_json( R"xxx({ "id" : 1 })xxx" ));
+            trans_trace.create_index( bsoncxx::from_json( R"xxx({ "id" : 1, "_id" : 1 })xxx" ));
 
             // action traces indexes
             auto action_traces = mongo_conn[db_name][action_traces_col];
-            action_traces.create_index( bsoncxx::from_json( R"xxx({ "trx_id" : 1 })xxx" ));
+            action_traces.create_index( bsoncxx::from_json( R"xxx({ "block_num" : 1, "_id" : 1 })xxx" ));
 
             // pub_keys indexes
             auto pub_keys = mongo_conn[db_name][pub_keys_col];
-            pub_keys.create_index( bsoncxx::from_json( R"xxx({ "account" : 1, "permission" : 1 })xxx" ));
-            pub_keys.create_index( bsoncxx::from_json( R"xxx({ "public_key" : 1 })xxx" ));
+            pub_keys.create_index( bsoncxx::from_json( R"xxx({ "account" : 1, "permission" : 1, "_id" : 1 })xxx" ));
+            pub_keys.create_index( bsoncxx::from_json( R"xxx({ "public_key" : 1, "_id" : 1 })xxx" ));
 
             // account_controls indexes
             auto account_controls = mongo_conn[db_name][account_controls_col];
             account_controls.create_index(
-                  bsoncxx::from_json( R"xxx({ "controlled_account" : 1, "controlled_permission" : 1 })xxx" ));
-            account_controls.create_index( bsoncxx::from_json( R"xxx({ "controlling_account" : 1 })xxx" ));
+                  bsoncxx::from_json( R"xxx({ "controlled_account" : 1, "controlled_permission" : 1, "_id" : 1 })xxx" ));
+            account_controls.create_index( bsoncxx::from_json( R"xxx({ "controlling_account" : 1, "_id" : 1 })xxx" ));
 
          } catch (...) {
             handle_mongo_exception( "create indexes", __LINE__ );
+         }
+      }
+
+      if( expire_after_seconds > 0 ) {
+         try {
+            mongocxx::collection block_states = mongo_conn[db_name][block_states_col];
+            create_expiration_index( block_states, expire_after_seconds );
+            mongocxx::collection blocks = mongo_conn[db_name][blocks_col];
+            create_expiration_index( blocks, expire_after_seconds );
+            mongocxx::collection trans = mongo_conn[db_name][trans_col];
+            create_expiration_index( trans, expire_after_seconds );
+            mongocxx::collection trans_traces = mongo_conn[db_name][trans_traces_col];
+            create_expiration_index( trans_traces, expire_after_seconds );
+            mongocxx::collection action_traces = mongo_conn[db_name][action_traces_col];
+            create_expiration_index( action_traces, expire_after_seconds );
+         } catch(...) {
+            handle_mongo_exception( "create expiration indexes", __LINE__ );
          }
       }
    } catch (...) {
@@ -1449,7 +1522,10 @@ void mongo_db_plugin_impl::init() {
 
    ilog("starting db plugin thread");
 
-   consume_thread = boost::thread([this] { consume_blocks(); });
+   consume_thread = std::thread( [this] {
+      fc::set_os_thread_name( "mongodb" );
+      consume_blocks();
+   } );
 
    startup = false;
 }
@@ -1495,6 +1571,8 @@ void mongo_db_plugin::set_program_options(options_description& cli, options_desc
           "Enables storing transaction traces in mongodb.")
          ("mongodb-store-action-traces", bpo::value<bool>()->default_value(true),
           "Enables storing action traces in mongodb.")
+         ("mongodb-expire-after-seconds", bpo::value<uint32_t>()->default_value(0),
+          "Enables expiring data in mongodb after a specified number of seconds.")
          ("mongodb-filter-on", bpo::value<vector<string>>()->composing(),
           "Track actions which match receiver:action:actor. Receiver, Action, & Actor may be blank to include all. i.e. actx:: or :transfer:  Use * or leave unspecified to include all.")
          ("mongodb-filter-out", bpo::value<vector<string>>()->composing(),
@@ -1551,6 +1629,9 @@ void mongo_db_plugin::plugin_initialize(const variables_map& options)
          }
          if( options.count( "mongodb-store-action-traces" )) {
             my->store_action_traces = options.at( "mongodb-store-action-traces" ).as<bool>();
+         }
+         if( options.count( "mongodb-expire-after-seconds" )) {
+            my->expire_after_seconds = options.at( "mongodb-expire-after-seconds" ).as<uint32_t>();
          }
          if( options.count( "mongodb-filter-on" )) {
             auto fo = options.at( "mongodb-filter-on" ).as<vector<string>>();
@@ -1614,8 +1695,8 @@ void mongo_db_plugin::plugin_initialize(const variables_map& options)
                   my->accepted_transaction( t );
                } ));
          my->applied_transaction_connection.emplace(
-               chain.applied_transaction.connect( [&]( const chain::transaction_trace_ptr& t ) {
-                  my->applied_transaction( t );
+               chain.applied_transaction.connect( [&]( std::tuple<const chain::transaction_trace_ptr&, const chain::signed_transaction&> t ) {
+                  my->applied_transaction( std::get<0>(t) );
                } ));
 
          if( my->wipe_database_on_startup ) {

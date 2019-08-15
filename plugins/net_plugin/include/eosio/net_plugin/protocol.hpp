@@ -52,7 +52,7 @@ namespace eosio {
     validation, ///< the peer sent a block that failed validation
     benign_other, ///< reasons such as a timeout. not fatal but warrant resetting
     fatal_other, ///< a catch-all for errors we don't have discriminated
-    authentication ///< peer failed authenication
+    authentication ///< peer failed authenicatio
   };
 
   constexpr auto reason_str( go_away_reason rsn ) {
@@ -139,8 +139,8 @@ namespace eosio {
                                       notice_message,
                                       request_message,
                                       sync_request_message,
-                                      signed_block,
-                                      packed_transaction>;
+                                      signed_block,         // which = 7
+                                      packed_transaction>;  // which = 8
 
 } // namespace eosio
 
