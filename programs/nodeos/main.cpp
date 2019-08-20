@@ -96,8 +96,8 @@ int main(int argc, char** argv)
       app().register_plugin<history_plugin>();
 
       auto root = fc::app_path();
-      app().set_default_data_dir(root / "actx/nodeos/data" );
-      app().set_default_config_dir(root / "actx/nodeos/config" );
+      app().set_default_data_dir(root / "achain/nodeos/data" );
+      app().set_default_config_dir(root / "achain/nodeos/config" );
       http_plugin::set_defaults({
          .address_config_prefix = "",
          .default_unix_socket_path = "",
@@ -107,7 +107,7 @@ int main(int argc, char** argv)
          return INITIALIZE_FAIL;
       initialize_logging();
       ilog("nodeos version ${ver}", ("ver", app().version_string()));
-      ilog("actx root is ${root}", ("root", root.string()));
+      ilog("achain root is ${root}", ("root", root.string()));
       ilog("nodeos using configuration file ${c}", ("c", app().full_config_file_path().string()));
       ilog("nodeos data directory is ${d}", ("d", app().data_dir().string()));
       app().startup();

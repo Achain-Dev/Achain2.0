@@ -1574,7 +1574,7 @@ void mongo_db_plugin::set_program_options(options_description& cli, options_desc
          ("mongodb-expire-after-seconds", bpo::value<uint32_t>()->default_value(0),
           "Enables expiring data in mongodb after a specified number of seconds.")
          ("mongodb-filter-on", bpo::value<vector<string>>()->composing(),
-          "Track actions which match receiver:action:actor. Receiver, Action, & Actor may be blank to include all. i.e. actx:: or :transfer:  Use * or leave unspecified to include all.")
+          "Track actions which match receiver:action:actor. Receiver, Action, & Actor may be blank to include all. i.e. act:: or :transfer:  Use * or leave unspecified to include all.")
          ("mongodb-filter-out", bpo::value<vector<string>>()->composing(),
           "Do not track actions which match receiver:action:actor. Receiver, Action, & Actor may be blank to exclude all.")
          ;
