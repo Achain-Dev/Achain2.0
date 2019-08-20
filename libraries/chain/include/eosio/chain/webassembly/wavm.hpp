@@ -24,13 +24,7 @@ class wavm_runtime : public eosio::chain::wasm_runtime_interface {
 
       void immediately_exit_currently_running_module() override;
 
-      struct runtime_guard {
-         runtime_guard();
-         ~runtime_guard();
-      };
 
-   private:
-      std::shared_ptr<runtime_guard> _runtime_guard;
 };
 
 //This is a temporary hack for the single threaded implementation
@@ -312,7 +306,12 @@ struct intrinsic_invoker_impl<Ret, std::tuple<>, std::tuple<Translated...>> {
 
    template<next_method_type Method>
    static native_to_wasm_t<Ret> invoke(Translated... translated) {
+      try {
       return convert_native_to_wasm(the_running_instance_context, Method(the_running_instance_context, translated...));
+      }
+      catch(...) {
+         Platform::immediately_exit(std::current_exception());
+      }
    }
 
    template<next_method_type Method>
@@ -331,7 +330,12 @@ struct intrinsic_invoker_impl<void_type, std::tuple<>, std::tuple<Translated...>
 
    template<next_method_type Method>
    static void invoke(Translated... translated) {
+      try {
       Method(the_running_instance_context, translated...);
+      }
+      catch(...) {
+         Platform::immediately_exit(std::current_exception());
+      }
    }
 
    template<next_method_type Method>
