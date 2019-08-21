@@ -166,7 +166,7 @@ bfs::path determine_home_directory()
 }
 
 string url = "http://127.0.0.1:8888/";
-string default_wallet_url = "unix://" + (determine_home_directory() / "actx-wallet" / (string(key_store_executable_name) + ".sock")).string();
+string default_wallet_url = "unix://" + (determine_home_directory() / "achain-wallet" / (string(key_store_executable_name) + ".sock")).string();
 string wallet_url; //to be set to default_wallet_url in main
 bool no_verify = false;
 vector<string> headers;
@@ -702,7 +702,7 @@ asset to_asset( account_name code, const string& s ) {
 }
 
 inline asset to_asset( const string& s ) {
-   return to_asset( N(actx.token), s );
+   return to_asset( N(act.token), s );
 }
 
 struct set_account_permission_subcommand {
@@ -1091,7 +1091,7 @@ struct set_config_subcommand {
 	  
       setConfig->set_callback([this] {
          if (config_asset.empty())
-            config_asset = "0.0000 ACTX";
+            config_asset = "0.0000 ACT";
          const asset asset_info = to_asset(config_asset);
          fc::variant schedulesize_var = fc::mutable_variant_object()
                   ("name", config_name)
@@ -1151,7 +1151,7 @@ struct vote_producer_subcommand {
       auto vote_producer = actionRoot->add_subcommand("prods", localized("Vote for one producer"));
       vote_producer->add_option("voter", voter_str, localized("The voting account"))->required();
       vote_producer->add_option("producer", producer_name, localized("The account to vote for."))->required();
-	  vote_producer->add_option("votes", votes_str, localized("The votes to vote, i.e.\"100.0000 ACTX\"."))->required();
+	  vote_producer->add_option("votes", votes_str, localized("The votes to vote, i.e.\"100.0000 ACT\"."))->required();
       
       add_standard_transaction_options(vote_producer, "voter@active");
 
@@ -1394,7 +1394,7 @@ struct bidname_info_subcommand {
       list_producers->add_option("newname", newname, localized("The bidding name"))->required();
       list_producers->set_callback([this] {
          auto rawResult = call(get_table_func, fc::mutable_variant_object("json", true)
-                               ("code", "actx")("scope", "actx")("table", "namebids")
+                               ("code", "act")("scope", "act")("table", "namebids")
                                ("lower_bound", newname.value)
                                ("upper_bound", newname.value + 1)
                                // Less than ideal upper_bound usage preserved so cleos can still work with old buggy nodeos versions
@@ -2968,7 +2968,7 @@ int main( int argc, char** argv ) {
    auto setActionPermission = set_action_permission_subcommand(setAction);
 
    // Transfer subcommand
-   string con = "actx.token";
+   string con = "act.token";
    string sender;
    string recipient;
    string amount;
@@ -3391,7 +3391,7 @@ int main( int argc, char** argv ) {
          ("requested", requested_perm_var)
          ("trx", trx_var);
 
-      send_actions({chain::action{accountPermissions, "actx.msig", "propose", variant_to_bin( N(actx.msig), N(propose), args ) }});
+      send_actions({chain::action{accountPermissions, "act.msig", "propose", variant_to_bin( N(act.msig), N(propose), args ) }});
    });
 
    //multisig propose transaction
@@ -3431,7 +3431,7 @@ int main( int argc, char** argv ) {
          ("requested", requested_perm_var)
          ("trx", trx_var);
 
-      send_actions({chain::action{accountPermissions, "actx.msig", "propose", variant_to_bin( N(actx.msig), N(propose), args ) }});
+      send_actions({chain::action{accountPermissions, "act.msig", "propose", variant_to_bin( N(act.msig), N(propose), args ) }});
    });
 
 
@@ -3444,7 +3444,7 @@ int main( int argc, char** argv ) {
 
    review->set_callback([&] {
       const auto result1 = call(get_table_func, fc::mutable_variant_object("json", true)
-                         ("code", "actx.msig")
+                         ("code", "act.msig")
                          ("scope", proposer)
                          ("table", "proposal")
                          ("table_key", "")
@@ -3480,7 +3480,7 @@ int main( int argc, char** argv ) {
 
          try {
             const auto& result2 = call(get_table_func, fc::mutable_variant_object("json", true)
-                                       ("code", "actx.msig")
+                                       ("code", "act.msig")
                                        ("scope", proposer)
                                        ("table", "approvals2")
                                        ("table_key", "")
@@ -3512,7 +3512,7 @@ int main( int argc, char** argv ) {
             }
          } else {
             const auto result3 = call(get_table_func, fc::mutable_variant_object("json", true)
-                                       ("code", "actx.msig")
+                                       ("code", "act.msig")
                                        ("scope", proposer)
                                        ("table", "approvals")
                                        ("table_key", "")
@@ -3545,8 +3545,8 @@ int main( int argc, char** argv ) {
          if( new_multisig ) {
             for( auto& a : provided_approvers ) {
                const auto result4 = call(get_table_func, fc::mutable_variant_object("json", true)
-                                          ("code", "actx.msig")
-                                          ("scope", "actx.msig")
+                                          ("code", "act.msig")
+                                          ("scope", "act.msig")
                                           ("table", "invals")
                                           ("table_key", "")
                                           ("lower_bound", a.first.value)
@@ -3651,7 +3651,7 @@ int main( int argc, char** argv ) {
       }
 
       auto accountPermissions = get_account_permissions(tx_permission, {proposer,config::active_name});
-      send_actions({chain::action{accountPermissions, "actx.msig", action, variant_to_bin( N(actx.msig), action, args ) }});
+      send_actions({chain::action{accountPermissions, "act.msig", action, variant_to_bin( N(act.msig), action, args ) }});
    };
 
    // multisig approve
@@ -3681,7 +3681,7 @@ int main( int argc, char** argv ) {
          ("account", invalidator);
 
       auto accountPermissions = get_account_permissions(tx_permission, {invalidator,config::active_name});
-      send_actions({chain::action{accountPermissions, "actxmsig", "invalidate", variant_to_bin( N(actxmsig), "invalidate", args ) }});
+      send_actions({chain::action{accountPermissions, "act.msig", "invalidate", variant_to_bin( N(act.msig), "invalidate", args ) }});
    });
 
    // multisig cancel
@@ -3708,7 +3708,7 @@ int main( int argc, char** argv ) {
          ("proposal_name", proposal_name)
          ("canceler", canceler);
 
-      send_actions({chain::action{accountPermissions, "actx.msig", "cancel", variant_to_bin( N(actx.msig), N(cancel), args ) }});
+      send_actions({chain::action{accountPermissions, "act.msig", "cancel", variant_to_bin( N(act.msig), N(cancel), args ) }});
       }
    );
 
@@ -3737,7 +3737,7 @@ int main( int argc, char** argv ) {
          ("proposal_name", proposal_name)
          ("executer", executer);
 
-      send_actions({chain::action{accountPermissions, "actx.msig", "exec", variant_to_bin( N(actx.msig), N(exec), args ) }});
+      send_actions({chain::action{accountPermissions, "act.msig", "exec", variant_to_bin( N(act.msig), N(exec), args ) }});
       }
    );
 
@@ -3746,7 +3746,7 @@ int main( int argc, char** argv ) {
    wrap->require_subcommand();
 
    // wrap exec
-   string wrap_con = "actx.wrap";
+   string wrap_con = "act.wrap";
    executer = "";
    string trx_to_exec;
    auto wrap_exec = wrap->add_subcommand("exec", localized("Execute a transaction while bypassing authorization checks"));
@@ -3774,7 +3774,7 @@ int main( int argc, char** argv ) {
    });
 
    // system subcommand
-   auto system = app.add_subcommand("system", localized("Send actx.system contract action to the blockchain."), false);
+   auto system = app.add_subcommand("system", localized("Send act.system contract action to the blockchain."), false);
    system->require_subcommand();
 
    auto createAccountSystem = create_account_subcommand( system, false /*simple*/ );
@@ -3785,7 +3785,7 @@ int main( int argc, char** argv ) {
 
    auto voteProducer = system->add_subcommand("voteproducer", localized("Vote for a producer"));
    voteProducer->require_subcommand();
-   auto voteProducers = vote_producers_subcommand(voteProducer);
+   auto voteProducers = vote_producer_subcommand(voteProducer);
 
    auto listProducers = list_producers_subcommand(system);
 

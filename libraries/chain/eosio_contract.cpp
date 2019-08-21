@@ -68,7 +68,7 @@ void validate_authority_precondition( const apply_context& context, const author
 /**
  *  This method is called assuming precondition_system_newaccount succeeds a
  */
-void apply_actx_newaccount(apply_context& context) {
+void apply_act_newaccount(apply_context& context) {
    auto create = context.act.data_as<newaccount>();
    try {
    context.require_authorization(create.creator);
@@ -88,8 +88,8 @@ void apply_actx_newaccount(apply_context& context) {
    // Check if the creator is privileged
    const auto &creator = db.get<account_metadata_object, by_name>(create.creator);
    if( !creator.is_privileged() ) {
-      EOS_ASSERT( name_str.find( "actx." ) != 0, action_validate_exception,
-                  "only privileged accounts can have names that start with 'actx.'" );
+      EOS_ASSERT( name_str.find( "act." ) != 0, action_validate_exception,
+                  "only privileged accounts can have names that start with 'act.'" );
    }
 
    auto existing_account = db.find<account_object, by_name>(create.name);
@@ -126,7 +126,7 @@ void apply_actx_newaccount(apply_context& context) {
 
 } FC_CAPTURE_AND_RETHROW( (create) ) }
 
-void apply_actx_setcode(apply_context& context) {
+void apply_act_setcode(apply_context& context) {
    const auto& cfg = context.control.get_global_properties().configuration;
 
    auto& db = context.db;
@@ -200,7 +200,7 @@ void apply_actx_setcode(apply_context& context) {
    }
 }
 
-void apply_actx_setabi(apply_context& context) {
+void apply_act_setabi(apply_context& context) {
    auto& db  = context.db;
    auto  act = context.get_action().data_as<setabi>();
 
@@ -231,7 +231,7 @@ void apply_actx_setabi(apply_context& context) {
    }
 }
 
-void apply_actx_updateauth(apply_context& context) {
+void apply_act_updateauth(apply_context& context) {
 
    auto update = context.get_action().data_as<updateauth>();
    context.require_authorization(update.account); // only here to mark the single authority on this action as used
@@ -240,8 +240,8 @@ void apply_actx_updateauth(apply_context& context) {
    auto& db = context.db;
 
    EOS_ASSERT(!update.permission.empty(), action_validate_exception, "Cannot create authority with empty name");
-   EOS_ASSERT( update.permission.to_string().find( "actx." ) != 0, action_validate_exception,
-               "Permission names that start with 'actx.' are reserved" );
+   EOS_ASSERT( update.permission.to_string().find( "act." ) != 0, action_validate_exception,
+               "Permission names that start with 'act.' are reserved" );
    EOS_ASSERT(update.permission != update.parent, action_validate_exception, "Cannot set an authority as its own parent");
    db.get<account_object, by_name>(update.account);
    EOS_ASSERT(validate(update.auth), action_validate_exception,
@@ -295,7 +295,7 @@ void apply_actx_updateauth(apply_context& context) {
    }
 }
 
-void apply_actx_deleteauth(apply_context& context) {
+void apply_act_deleteauth(apply_context& context) {
 //   context.require_write_lock( config::eosio_auth_scope );
 
    auto remove = context.get_action().data_as<deleteauth>();
@@ -326,7 +326,7 @@ void apply_actx_deleteauth(apply_context& context) {
 
 }
 
-void apply_actx_linkauth(apply_context& context) {
+void apply_act_linkauth(apply_context& context) {
 //   context.require_write_lock( config::eosio_auth_scope );
 
    auto requirement = context.get_action().data_as<linkauth>();
@@ -381,7 +381,7 @@ void apply_actx_linkauth(apply_context& context) {
   } FC_CAPTURE_AND_RETHROW((requirement))
 }
 
-void apply_actx_unlinkauth(apply_context& context) {
+void apply_act_unlinkauth(apply_context& context) {
 //   context.require_write_lock( config::eosio_auth_scope );
 
    auto& db = context.db;
@@ -400,7 +400,7 @@ void apply_actx_unlinkauth(apply_context& context) {
    db.remove(*link);
 }
 
-void apply_actx_canceldelay(apply_context& context) {
+void apply_act_canceldelay(apply_context& context) {
    auto cancel = context.get_action().data_as<canceldelay>();
    context.require_authorization(cancel.canceling_auth.actor); // only here to mark the single authority on this action as used
 
@@ -410,10 +410,10 @@ void apply_actx_canceldelay(apply_context& context) {
 }
 
 //add for achainplus
-void apply_actx_setconfig(apply_context& context) {
+void apply_act_setconfig(apply_context& context) {
    auto cfg_data = context.act.data_as<setconfig>();
    if( !context.has_authorization(config::system_account_name)) {
-	  EOS_THROW(missing_auth_exception, "setconfig need auth by actx");
+	  EOS_THROW(missing_auth_exception, "setconfig need auth by act");
 	  return;
    }
    set_config(context.db, cfg_data);
