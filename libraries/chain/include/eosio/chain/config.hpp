@@ -23,21 +23,21 @@ const static auto default_state_size            = 1*1024*1024*1024ll;
 const static auto default_state_guard_size      =    128*1024*1024ll;
 
 
-const static uint64_t system_account_name    = N(actx);
-const static uint64_t null_account_name      = N(actx.null);
-const static uint64_t producers_account_name = N(actx.prods);
+const static uint64_t system_account_name    = N(act);
+const static uint64_t null_account_name      = N(act.null);
+const static uint64_t producers_account_name = N(act.prods);
 
 // Active permission of producers account requires greater than 2/3 of the producers to authorize
 const static uint64_t majority_producers_permission_name = N(prod.major); // greater than 1/2 of producers needed to authorize
 const static uint64_t minority_producers_permission_name = N(prod.minor); // greater than 1/3 of producers needed to authorize0
 
-const static uint64_t eosio_auth_scope       = N(actx.auth);
-const static uint64_t eosio_all_scope        = N(actx.all);
+const static uint64_t eosio_auth_scope       = N(act.auth);
+const static uint64_t eosio_all_scope        = N(act.all);
 
 const static uint64_t active_name = N(active);
 const static uint64_t owner_name  = N(owner);
-const static uint64_t eosio_any_name = N(actx.any);
-const static uint64_t eosio_code_name = N(actx.code);
+const static uint64_t eosio_any_name = N(act.any);
+const static uint64_t eosio_code_name = N(act.code);
 
 const static int      block_interval_ms = 3000;
 const static int      block_interval_us = block_interval_ms*1000;
@@ -79,6 +79,7 @@ const static uint32_t   default_max_trx_delay                  = 45*24*3600; // 
 const static uint32_t   default_max_inline_action_size         = 4 * 1024;   // 4 KB
 const static uint16_t   default_max_inline_action_depth        = 4;
 const static uint16_t   default_max_auth_depth                 = 6;
+const static uint32_t   default_sig_cpu_bill_pct               = 50 * percent_1; // billable percentage of signature recovery
 const static uint16_t   default_controller_thread_pool_size    = 2;
 
 const static uint32_t   min_net_usage_delta_between_base_and_max_for_trx  = 10*1024;
