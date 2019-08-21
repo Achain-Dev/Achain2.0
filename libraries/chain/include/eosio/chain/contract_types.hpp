@@ -4,6 +4,7 @@
 #include <eosio/chain/chain_config.hpp>
 #include <eosio/chain/config.hpp>
 #include <eosio/chain/types.hpp>
+#include <eosio/chain/asset.hpp>
 
 namespace eosio { namespace chain {
 
