@@ -69,7 +69,7 @@ void validate_authority_precondition( const apply_context& context, const author
  *  This method is called assuming precondition_system_newaccount succeeds a
  */
 void apply_act_newaccount(apply_context& context) {
-   auto create = context.act.data_as<newaccount>();
+   auto create = context.get_action().data_as<newaccount>();
    try {
    context.require_authorization(create.creator);
 //   context.require_write_lock( config::eosio_auth_scope );
@@ -411,7 +411,7 @@ void apply_act_canceldelay(apply_context& context) {
 
 //add for achainplus
 void apply_act_setconfig(apply_context& context) {
-   auto cfg_data = context.act.data_as<setconfig>();
+   auto cfg_data = context.get_action().data_as<setconfig>();
    if( !context.has_authorization(config::system_account_name)) {
 	  EOS_THROW(missing_auth_exception, "setconfig need auth by act");
 	  return;

@@ -1,20 +1,20 @@
 #!/bin/sh
-cd /opt/actx/bin
+cd /opt/achain/bin
 
-if [ ! -d "/opt/actx/bin/data-dir" ]; then
-    mkdir /opt/actx/bin/data-dir
+if [ ! -d "/opt/achain/bin/data-dir" ]; then
+    mkdir /opt/achain/bin/data-dir
 fi
 
-if [ -f '/opt/actx/bin/data-dir/config.ini' ]; then
+if [ -f '/opt/achain/bin/data-dir/config.ini' ]; then
     echo
   else
-    cp /config.ini /opt/actx/bin/data-dir
+    cp /config.ini /opt/achain/bin/data-dir
 fi
 
-if [ -d '/opt/actx/bin/data-dir/contracts' ]; then
+if [ -d '/opt/achain/bin/data-dir/contracts' ]; then
     echo
   else
-    cp -r /contracts /opt/actx/bin/data-dir
+    cp -r /contracts /opt/achain/bin/data-dir
 fi
 
 while :; do
@@ -29,9 +29,9 @@ while :; do
 done
 
 if [ ! "$CONFIG_DIR" ]; then
-    CONFIG_DIR="--config-dir=/opt/actx/bin/data-dir"
+    CONFIG_DIR="--config-dir=/opt/achain/bin/data-dir"
 else
     CONFIG_DIR=""
 fi
 
-exec /opt/actx/bin/nodeos $CONFIG_DIR "$@"
+exec /opt/achain/bin/nodeos $CONFIG_DIR "$@"
