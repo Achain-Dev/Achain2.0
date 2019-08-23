@@ -192,6 +192,7 @@ namespace eosio { namespace chain {
       protocol_state_object_type,
       account_ram_correction_object_type,
       code_object_type,
+      config_data_object_type, // add for achain2.0
       OBJECT_TYPE_COUNT ///< Sentry value which contains the number of different object types
    };
 
