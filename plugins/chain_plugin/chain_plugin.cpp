@@ -1980,6 +1980,7 @@ void read_write::push_transaction(const read_write::push_transaction_params& par
                   output = *trx_trace_ptr;
                }
 
+               const chain::transaction_id_type& id = trx_trace_ptr->id;
                next(read_write::push_transaction_results{id, output});
             } CATCH_AND_CALL(next);
          }
