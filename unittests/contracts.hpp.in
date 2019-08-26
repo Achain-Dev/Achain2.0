@@ -30,18 +30,23 @@ namespace eosio {
    namespace testing {
       struct contracts {
          // Contracts in `Achain2.0/unittests/contracts' directory
-         MAKE_READ_WASM_ABI(actx_bios,   actx.bios, contracts)
-         MAKE_READ_WASM_ABI(actx_msig,   actx.msig, contracts)
-         MAKE_READ_WASM_ABI(actx_system, actx.system, contracts)
-         MAKE_READ_WASM_ABI(actx_token,  actx.token,  contracts)
-         MAKE_READ_WASM_ABI(actx_wrap,   actx.wrap,   contracts)
+         MAKE_READ_WASM_ABI(act_bios,   act.bios, contracts)
+         MAKE_READ_WASM_ABI(act_msig,   act.msig, contracts)
+         MAKE_READ_WASM_ABI(act_system, act.system, contracts)
+         MAKE_READ_WASM_ABI(act_token,  act.token,  contracts)
+         MAKE_READ_WASM_ABI(act_wrap,   act.wrap,   contracts)
 
+         MAKE_READ_WASM_ABI(before_preactivate_eosio_bios,   act.bios, contracts/old_versions/v1.6.0-rc3)
          // Contracts in `Achain2.0/unittests/unittests/test-contracts' directory
          MAKE_READ_WASM_ABI(asserter,             asserter,             test-contracts)
          MAKE_READ_WASM_ABI(deferred_test,        deferred_test,        test-contracts)
+         MAKE_READ_WASM_ABI(get_sender_test,       get_sender_test,       test-contracts)
          MAKE_READ_WASM_ABI(noop,                 noop,                 test-contracts)
          MAKE_READ_WASM_ABI(payloadless,          payloadless,          test-contracts)
          MAKE_READ_WASM_ABI(proxy,                proxy,                test-contracts)
+         MAKE_READ_WASM_ABI(ram_restrictions_test, ram_restrictions_test, test-contracts)
+         MAKE_READ_WASM_ABI(reject_all,            reject_all,            test-contracts)
+         MAKE_READ_WASM_ABI(restrict_action_test,  restrict_action_test,  test-contracts)
          MAKE_READ_WASM_ABI(snapshot_test,        snapshot_test,        test-contracts)
          MAKE_READ_WASM_ABI(test_api,             test_api,             test-contracts)
          MAKE_READ_WASM_ABI(test_api_db,          test_api_db,          test-contracts)
