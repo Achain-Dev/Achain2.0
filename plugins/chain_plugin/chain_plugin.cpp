@@ -888,7 +888,8 @@ void chain_plugin::plugin_initialize(const variables_map& options) {
       if ( options.count("validation-mode") ) {
          my->chain_config->block_validation_mode = options.at("validation-mode").as<validation_mode>();
       }
-
+      my->chain_config->_initial_bp_num = options.at("initial-bp-num").as<uint32_t>();
+      
       my->chain_config->db_map_mode = options.at("database-map-mode").as<pinnable_mapped_file::map_mode>();
 #ifdef __linux__
       if( options.count("database-hugepage-path") )
