@@ -4,6 +4,7 @@ from testUtils import Utils
 from Cluster import Cluster
 from WalletMgr import WalletMgr
 from Node import Node
+from Node import ReturnType
 from TestHelper import TestHelper
 
 import decimal
@@ -22,7 +23,7 @@ from core_symbol import CORE_SYMBOL
 
 args = TestHelper.parse_args({"--host","--port","--prod-count","--defproducera_prvt_key","--defproducerb_prvt_key","--mongodb"
                               ,"--dump-error-details","--dont-launch","--keep-logs","-v","--leave-running","--only-bios","--clean-run"
-                              ,"--sanity-test","--p2p-plugin","--wallet-port"})
+                              ,"--sanity-test","--wallet-port"})
 server=args.host
 port=args.port
 debug=args.v
@@ -37,12 +38,11 @@ prodCount=args.prod_count
 onlyBios=args.only_bios
 killAll=args.clean_run
 sanityTest=args.sanity_test
-p2pPlugin=args.p2p_plugin
 walletPort=args.wallet_port
 
 Utils.Debug=debug
 localTest=True if server == TestHelper.LOCAL_HOST else False
-cluster=Cluster(walletd=True, enableMongo=enableMongo, defproduceraPrvtKey=defproduceraPrvtKey, defproducerbPrvtKey=defproducerbPrvtKey)
+cluster=Cluster(host=server, port=port, walletd=True, enableMongo=enableMongo, defproduceraPrvtKey=defproduceraPrvtKey, defproducerbPrvtKey=defproducerbPrvtKey)
 walletMgr=WalletMgr(True, port=walletPort)
 testSuccessful=False
 killEosInstances=not dontKill
@@ -67,7 +67,7 @@ try:
         cluster.killall(allInstances=killAll)
         cluster.cleanup()
         Print("Stand up cluster")
-        if cluster.launch(prodCount=prodCount, onlyBios=onlyBios, dontBootstrap=dontBootstrap, p2pPlugin=p2pPlugin) is False:
+        if cluster.launch(prodCount=prodCount, onlyBios=onlyBios, dontBootstrap=dontBootstrap) is False:
             cmdError("launcher")
             errorExit("Failed to stand up eos cluster.")
     else:
@@ -320,9 +320,9 @@ try:
     if hashNum != 0:
         errorExit("FAILURE - get code currency1111 failed", raw=True)
 
-    contractDir="contracts/actx.token"
-    wasmFile="actx.token.wasm"
-    abiFile="actx.token.abi"
+    contractDir="unittests/contracts/act.token"
+    wasmFile="act.token.wasm"
+    abiFile="act.token.abi"
     Print("Publish contract")
     trans=node.publishContract(currencyAccount.name, contractDir, wasmFile, abiFile, waitForTransBlock=True)
     if trans is None:
@@ -344,7 +344,7 @@ try:
         abiName=account["abi"]["structs"][0]["name"]
         abiActionName=account["abi"]["actions"][0]["name"]
         abiType=account["abi"]["actions"][0]["type"]
-        if abiName != "transfer" or abiActionName != "transfer" or abiType != "transfer":
+        if abiName != "account" or abiActionName != "close" or abiType != "close":
             errorExit("FAILURE - get EOS account failed", raw=True)
 
     Print("push create action to currency1111 contract")
@@ -644,6 +644,12 @@ try:
         cmdError("%s wallet unlock test" % (ClientName))
         errorExit("Failed to unlock wallet %s" % (testWallet.name))
 
+    if not enableMongo:
+        Print("Verify non-JSON call works")
+        rawAccount=node.getEosAccount(defproduceraAccount.name, exitOnError=True, returnType=ReturnType.raw)
+        coreLiquidBalance=account['core_liquid_balance']
+        match=re.search(r'\bliquid:\s*%s\s' % (coreLiquidBalance), rawAccount, re.MULTILINE | re.DOTALL)
+        assert match is not None, "did not find the core liquid balance (\"liquid:\") of %d in \"%s\"" % (coreLiquidBalance, rawAccount)
 
     Print("Get head block num.")
     currentBlockNum=node.getHeadBlockNum()
