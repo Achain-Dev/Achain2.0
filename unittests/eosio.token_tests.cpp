@@ -1,9 +1,10 @@
-#include <boost/test/unit_test.hpp>
-#include <eosio/testing/tester.hpp>
+/**
+ *  @file
+ *  @copyright defined in eos/LICENSE.txt
+ */
 #include <eosio/chain/abi_serializer.hpp>
 
-#include <act.token/act.token.wast.hpp>
-#include <act.token/act.token.abi.hpp>
+#include <eosio/testing/tester.hpp>
 
 #include <Runtime/Runtime.h>
 
@@ -27,8 +28,8 @@ public:
       create_accounts( { N(alice), N(bob), N(carol), N(act.token) } );
       produce_blocks( 2 );
 
-      set_code( N(act.token), act_token_wast );
-      set_abi( N(act.token), act_token_abi );
+      set_code( N(act.token), contracts::act_token_wasm() );
+      set_abi( N(act.token), contracts::act_token_abi().data() );
 
       produce_blocks();
 
