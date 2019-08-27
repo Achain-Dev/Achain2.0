@@ -8,7 +8,6 @@
 #include <eosio/chain/resource_limits_private.hpp>
 
 #include <eosio/testing/tester_network.hpp>
-#include <eosio/chain/producer_object.hpp>
 
 #ifdef NON_VALIDATING_TEST
 #define TESTER tester
@@ -371,7 +370,8 @@ BOOST_AUTO_TEST_CASE( any_auth ) { try {
 
 BOOST_AUTO_TEST_CASE(no_double_billing) {
 try {
-   TESTER chain;
+   validating_tester chain( validating_tester::default_config() );
+   chain.execute_setup_policy( setup_policy::preactivate_feature_and_new_bios );
 
    chain.produce_block();
 

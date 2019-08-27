@@ -4,19 +4,14 @@
  */
 #pragma once
 
-#include <eosio/testing/tester.hpp>
 #include <eosio/chain/abi_serializer.hpp>
 
-#include <act.system/act.system.wast.hpp>
-#include <act.system/act.system.abi.hpp>
 
-#include <act.token/act.token.wast.hpp>
-#include <acttoken/act.token.abi.hpp>
+#include <eosio/testing/tester.hpp>
 
-#include <act.msig/act.msig.wast.hpp>
-#include <act.msig/act.msig.abi.hpp>
 
 #include <fc/variant_object.hpp>
+#include <contracts.hpp>
 
 using namespace eosio::chain;
 using namespace eosio::testing;
@@ -52,8 +47,8 @@ public:
 
       produce_blocks( 100 );
 
-      set_code( N(act.token), act_token_wast );
-      set_abi( N(act.token), act_token_abi );
+      set_code( N(act.token), contracts::act_token_wasm() );
+      set_abi( N(act.token), contracts::act_token_abi().data() );
 
       {
          const auto& accnt = control->db().get<account_object,by_name>( N(act.token) );
@@ -66,8 +61,12 @@ public:
       issue(config::system_account_name,      core_from_string("1000000000.0000"));
       BOOST_REQUIRE_EQUAL( core_from_string("1000000000.0000"), get_balance( "act" ) );
 
-      set_code( config::system_account_name, act_system_wast );
-      set_abi( config::system_account_name, act_system_abi );
+      set_code( config::system_account_name, contracts::act_system_wasm() );
+      set_abi( config::system_account_name, contracts::act_system_abi().data() );
+      base_tester::push_action(config::system_account_name, N(init),
+                            config::system_account_name,  mutable_variant_object()
+                            ("version", 0)
+                            ("core", CORE_SYM_STR));
 
       {
          const auto& accnt = control->db().get<account_object,by_name>( config::system_account_name );
@@ -85,6 +84,15 @@ public:
       BOOST_REQUIRE_EQUAL( core_from_string("1000000000.0000"), get_balance("act")  + get_balance("act.ramfee") + get_balance("act.stake") + get_balance("act.ram") );
    }
 
+   action_result open( account_name  owner,
+                       const string& symbolname,
+                       account_name  ram_payer    ) {
+      return push_action( ram_payer, N(open), mvo()
+                          ( "owner", owner )
+                          ( "symbol", symbolname )
+                          ( "ram_payer", ram_payer )
+         );
+   }
 
    void create_accounts_with_resources( vector<account_name> accounts, account_name creator = config::system_account_name ) {
       for( auto a : accounts ) {
@@ -416,8 +424,8 @@ public:
                                                ("is_priv", 1)
          );
 
-         set_code( N(act.msig), act_msig_wast );
-         set_abi( N(act.msig), act_msig_abi );
+         set_code( N(eosio.msig), contracts::act_msig_wasm() );
+         set_abi( N(eosio.msig), contracts::act_msig_abi().data() );
 
          produce_blocks();
          const auto& accnt = control->db().get<account_object,by_name>( N(act.msig) );
@@ -448,7 +456,7 @@ public:
          }
       }
       produce_blocks( 250);
-#if 0
+
       auto trace_auth = TESTER::push_action(config::system_account_name, updateauth::get_name(), config::system_account_name, mvo()
                                             ("account", name(config::system_account_name).to_string())
                                             ("permission", name(config::active_name).to_string())
@@ -477,12 +485,11 @@ public:
       auto producer_keys = control->head_block_state()->active_schedule.producers;
       BOOST_REQUIRE_EQUAL( 21, producer_keys.size() );
       BOOST_REQUIRE_EQUAL( name("defproducera"), producer_keys[0].producer_name );
-#endif
+
       return producer_names;
    }
 
    void cross_15_percent_threshold() {
-   #if 0
       setup_producer_accounts({N(producer1111)});
       regproducer(N(producer1111));
       {
@@ -521,7 +528,6 @@ public:
          trx.sign( get_private_key( N(producer1111), "active" ), control->get_chain_id()  );
          push_transaction( trx );
       }
-   #endif
 
    }
 

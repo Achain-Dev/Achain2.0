@@ -208,10 +208,10 @@ BOOST_FIXTURE_TEST_CASE( bootseq_test, bootseq_tester ) {
         set_privileged(N(act.token));
 
         // Verify actx.msig and actx.token is privileged
-        const auto& eosio_msig_acc = get<account_object, by_name>(N(act.msig));
-        BOOST_TEST(eosio_msig_acc.privileged == true);
-        const auto& eosio_token_acc = get<account_object, by_name>(N(act.token));
-        BOOST_TEST(eosio_token_acc.privileged == true);
+        const auto& eosio_msig_acc = get<account_metadata_object, by_name>(N(act.msig));
+        BOOST_TEST(eosio_msig_acc.is_privileged() == true);
+        const auto& eosio_token_acc = get<account_metadata_object, by_name>(N(act.token));
+        BOOST_TEST(eosio_token_acc.is_privileged() == true);
 
 
         // Create SYS tokens in act.token, set its manager as eosio
