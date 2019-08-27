@@ -71,8 +71,8 @@ class whitelist_blacklist_tester {
          if( !bootstrap ) return;
 
          chain->create_accounts({N(act.token), N(alice), N(bob), N(charlie)});
-         chain->set_code(N(act.token), act_token_wast);
-         chain->set_abi(N(act.token), act_token_abi);
+         chain->set_code(N(act.token), contracts::act_token_wasm() );
+         chain->set_abi(N(act.token), contracts::act_token_abi().data() );
          chain->push_action( N(act.token), N(create), N(act.token), mvo()
               ( "issuer", "act.token" )
               ( "maximum_supply", "1000000.00 TOK" )

@@ -141,7 +141,7 @@ struct txn_test_gen_plugin_impl {
       try {
          name creator(init_name);
 
-         abi_def currency_abi_def = fc::json::from_string(contracts::eosio_token_abi().data()).as<abi_def>();
+         abi_def currency_abi_def = fc::json::from_string(contracts::act_token_abi().data()).as<abi_def>();
 
          controller& cc = app().get_plugin<chain_plugin>().chain();
          auto chainid = app().get_plugin<chain_plugin>().get_chain_id();
