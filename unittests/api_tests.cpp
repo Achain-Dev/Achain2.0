@@ -399,11 +399,11 @@ BOOST_FIXTURE_TEST_CASE(action_receipt_tests, TESTER) { try {
 
    call_doit_and_check( N(test), N(test), [&]( const transaction_trace_ptr& res ) {
       BOOST_CHECK_EQUAL( res->receipt->status, transaction_receipt::executed);
-      BOOST_CHECK_EQUAL( res->action_traces[0].receipt.global_sequence, base_global_sequence_num + 11 );
-      BOOST_CHECK_EQUAL( res->action_traces[0].receipt.recv_sequence, base_test_recv_seq_num + 3 );
-      BOOST_CHECK_EQUAL( res->action_traces[0].receipt.code_sequence.value, 4 );
-      BOOST_CHECK_EQUAL( res->action_traces[0].receipt.abi_sequence.value, 1 );
-      const auto& m = res->action_traces[0].receipt.auth_sequence;
+      BOOST_CHECK_EQUAL( res->action_traces[0].receipt->global_sequence, base_global_sequence_num + 11 );
+      BOOST_CHECK_EQUAL( res->action_traces[0].receipt->recv_sequence, base_test_recv_seq_num + 3 );
+      BOOST_CHECK_EQUAL( res->action_traces[0].receipt->code_sequence.value, 4 );
+      BOOST_CHECK_EQUAL( res->action_traces[0].receipt->abi_sequence.value, 1 );
+      const auto& m = res->action_traces[0].receipt->auth_sequence;
       BOOST_CHECK_EQUAL( m.size(), 1 );
       BOOST_CHECK_EQUAL( m.begin()->first.to_string(), "test" );
       BOOST_CHECK_EQUAL( m.begin()->second, base_test_auth_seq_num + 8 );
