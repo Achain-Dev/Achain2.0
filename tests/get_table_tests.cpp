@@ -71,8 +71,8 @@ BOOST_FIXTURE_TEST_CASE( get_scope_test, TESTER ) try {
    create_accounts(accs);
    produce_block();
 
-   set_code( N(act.token), act_token_wast );
-   set_abi( N(act.token), act_token_abi );
+   set_code( N(eosio.token), contracts::act_token_wasm() );
+   set_abi( N(eosio.token), contracts::act_token_abi().data() );
    produce_blocks(1);
 
    // create currency 

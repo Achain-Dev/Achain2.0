@@ -17,8 +17,6 @@
 #include <contracts.hpp>
 #include "eosio_system_tester.hpp"
 
-#include <test_ram_limit/test_ram_limit.abi.hpp>
-#include <test_ram_limit/test_ram_limit.wast.hpp>
 
 /*
  * register test suite `ram_tests`
