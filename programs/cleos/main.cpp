@@ -2189,10 +2189,12 @@ void get_account( const string& accountName, const string& coresym, bool json_fo
 
       if ( res.voter_info.is_object() ) {
          auto& obj = res.voter_info.get_object();
-         auto prods = fc::variant(obj["producers"]).as<std::map<name, int64_t>>();
+         string proxy = obj["proxy"].as_string();
+         if ( proxy.empty() ) {
+            auto& prods = obj["producers"].get_array();
          std::cout << "producers:";
          if ( !prods.empty() ) {
-            for ( int i = 0; i < prods.size(); ++i ) {
+               for ( size_t i = 0; i < prods.size(); ++i ) {
                if ( i%3 == 0 ) {
                   std::cout << std::endl << indent;
                }
@@ -2201,6 +2203,9 @@ void get_account( const string& accountName, const string& coresym, bool json_fo
             std::cout << std::endl;
          } else {
             std::cout << indent << "<not voted>" << std::endl;
+            }
+         } else {
+            std::cout << "proxy:" << indent << proxy << std::endl;
          }
       }
       std::cout << std::endl;
@@ -2447,7 +2452,7 @@ int main( int argc, char** argv ) {
          code_hash = old_result["code_hash"].as_string();
          if(code_as_wasm) {
             wasm = old_result["wasm"].as_string();
-            std::cout << localized("Warning: communicating to older nodeos which returns malformed binary wasm") << std::endl;
+            std::cout << localized("Warning: communicating to older ${n} which returns malformed binary wasm", ("n", node_executable_name)) << std::endl;
          }
          else
             wast = old_result["wast"].as_string();
@@ -2882,7 +2887,7 @@ int main( int argc, char** argv ) {
          actions.emplace_back( create_setcode(account, code_bytes ) );
          if ( shouldSend ) {
             std::cerr << localized("Setting Code...") << std::endl;
-            send_actions(std::move(actions), 10000, packed_transaction::zlib);
+            send_actions(std::move(actions), packed_transaction::zlib);
          }
       } else {
          std::cerr << localized("Skipping set code because the new code is the same as the existing code") << std::endl;
@@ -2930,7 +2935,7 @@ int main( int argc, char** argv ) {
          } EOS_RETHROW_EXCEPTIONS(abi_type_exception,  "Fail to parse ABI JSON")
          if ( shouldSend ) {
             std::cerr << localized("Setting ABI...") << std::endl;
-            send_actions(std::move(actions), 10000, packed_transaction::zlib);
+            send_actions(std::move(actions), packed_transaction::zlib);
          }
       } else {
          std::cerr << localized("Skipping set abi because the new abi is the same as the existing abi") << std::endl;
@@ -2947,7 +2952,7 @@ int main( int argc, char** argv ) {
       set_abi_callback();
       if (actions.size()) {
          std::cerr << localized("Publishing contract...") << std::endl;
-         send_actions(std::move(actions), 10000, packed_transaction::zlib);
+         send_actions(std::move(actions), packed_transaction::zlib);
       } else {
          std::cout << "no transaction is sent" << std::endl;
       }
