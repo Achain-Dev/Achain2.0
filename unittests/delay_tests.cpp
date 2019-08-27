@@ -90,7 +90,7 @@ asset get_currency_balance(const TESTER& chain, account_name account) {
    return chain.get_currency_balance(N(act.token), symbol(SY(4,CUR)), account);
 }
 
-const std::string actx_token = name(N(act.token)).to_string();
+const std::string act_token = name(N(act.token)).to_string();
 
 // test link to permission with delay directly on it
 BOOST_AUTO_TEST_CASE( link_delay_direct_test ) { try {
@@ -393,24 +393,24 @@ BOOST_AUTO_TEST_CASE( link_delay_direct_parent_permission_test ) { try {
    );
    chain.push_action(config::system_account_name, linkauth::get_name(), tester_account, fc::mutable_variant_object()
            ("account", "tester")
-           ("code", "act_token")
+           ("code", act_token)
            ("type", "transfer")
            ("requirement", "first"));
 
    chain.produce_blocks();
    chain.push_action(N(act.token), N(create), N(act.token), mutable_variant_object()
-           ("issuer", "act_token")
+           ("issuer", act_token)
            ("maximum_supply", "9000000.0000 CUR")
    );
 
    chain.push_action(N(act.token), name("issue"), N(act.token), fc::mutable_variant_object()
-           ("to",       "act_token")
+           ("to",       act_token)
            ("quantity", "1000000.0000 CUR")
            ("memo", "for stuff")
    );
 
    auto trace = chain.push_action(N(act.token), name("transfer"), N(act.token), fc::mutable_variant_object()
-       ("from", "act_token")
+       ("from", act_token)
        ("to", "tester")
        ("quantity", "100.0000 CUR")
        ("memo", "hi" )
@@ -537,24 +537,24 @@ BOOST_AUTO_TEST_CASE( link_delay_direct_walk_parent_permissions_test ) { try {
    );
    chain.push_action(config::system_account_name, linkauth::get_name(), tester_account, fc::mutable_variant_object()
            ("account", "tester")
-           ("code", "act_token")
+           ("code", act_token)
            ("type", "transfer")
            ("requirement", "second"));
 
    chain.produce_blocks();
    chain.push_action(N(act.token), N(create), N(act.token), mutable_variant_object()
-           ("issuer", "act_token")
+           ("issuer", act_token)
            ("maximum_supply", "9000000.0000 CUR")
    );
 
    chain.push_action(N(act.token), name("issue"), N(act.token), fc::mutable_variant_object()
-           ("to",       "act_token")
+           ("to",       act_token)
            ("quantity", "1000000.0000 CUR")
            ("memo", "for stuff")
    );
 
    auto trace = chain.push_action(N(act.token), name("transfer"), N(act.token), fc::mutable_variant_object()
-       ("from", "act_token")
+       ("from", act_token)
        ("to", "tester")
        ("quantity", "100.0000 CUR")
        ("memo", "hi" )
@@ -675,24 +675,24 @@ BOOST_AUTO_TEST_CASE( link_delay_permission_change_test ) { try {
    );
    chain.push_action(config::system_account_name, linkauth::get_name(), tester_account, fc::mutable_variant_object()
            ("account", "tester")
-           ("code", "act_token")
+           ("code", act_token)
            ("type", "transfer")
            ("requirement", "first"));
 
    chain.produce_blocks();
    chain.push_action(N(act.token), N(create), N(act.token), mutable_variant_object()
-           ("issuer", "act_token" )
+           ("issuer", act_token )
            ("maximum_supply", "9000000.0000 CUR" )
    );
 
    chain.push_action(N(act.token), name("issue"), N(act.token), fc::mutable_variant_object()
-           ("to",       "act_token")
+           ("to",       act_token)
            ("quantity", "1000000.0000 CUR")
            ("memo", "for stuff")
    );
 
    auto trace = chain.push_action(N(act.token), name("transfer"), N(act.token), fc::mutable_variant_object()
-       ("from", "act_token")
+       ("from", act_token)
        ("to", "tester")
        ("quantity", "100.0000 CUR")
        ("memo", "hi" )
@@ -872,24 +872,24 @@ BOOST_AUTO_TEST_CASE( link_delay_permission_change_with_delay_heirarchy_test ) {
    );
    chain.push_action(config::system_account_name, linkauth::get_name(), tester_account, fc::mutable_variant_object()
            ("account", "tester")
-           ("code", "act_token")
+           ("code", act_token)
            ("type", "transfer")
            ("requirement", "second"));
 
    chain.produce_blocks();
    chain.push_action(N(act.token), N(create), N(act.token), mutable_variant_object()
-           ("issuer", "act_token")
+           ("issuer", act_token)
            ("maximum_supply", "9000000.0000 CUR" )
    );
 
    chain.push_action(N(act.token), name("issue"), N(act.token), fc::mutable_variant_object()
-           ("to",       "act_token")
+           ("to",       act_token)
            ("quantity", "1000000.0000 CUR")
            ("memo", "for stuff")
    );
 
    auto trace = chain.push_action(N(act.token), name("transfer"), N(act.token), fc::mutable_variant_object()
-       ("from", "act_token")
+       ("from", act_token)
        ("to", "tester")
        ("quantity", "100.0000 CUR")
        ("memo", "hi" )
@@ -1063,7 +1063,7 @@ BOOST_AUTO_TEST_CASE( link_delay_link_change_test ) { try {
    );
    chain.push_action(config::system_account_name, linkauth::get_name(), tester_account, fc::mutable_variant_object()
            ("account", "tester")
-           ("code", "act_token")
+           ("code", act_token)
            ("type", "transfer")
            ("requirement", "first"));
    chain.push_action(config::system_account_name, updateauth::get_name(), tester_account, fc::mutable_variant_object()
@@ -1075,18 +1075,18 @@ BOOST_AUTO_TEST_CASE( link_delay_link_change_test ) { try {
 
    chain.produce_blocks();
    chain.push_action(N(act.token), N(create), N(act.token), mutable_variant_object()
-           ("issuer", "act_token")
+           ("issuer", act_token)
            ("maximum_supply", "9000000.0000 CUR" )
    );
 
    chain.push_action(N(act.token), name("issue"), N(act.token), fc::mutable_variant_object()
-           ("to",       "act_token")
+           ("to",       act_token)
            ("quantity", "1000000.0000 CUR")
            ("memo", "for stuff")
    );
 
    auto trace = chain.push_action(N(act.token), name("transfer"), N(act.token), fc::mutable_variant_object()
-       ("from", "act_token")
+       ("from", act_token)
        ("to", "tester")
        ("quantity", "100.0000 CUR")
        ("memo", "hi" )
@@ -1129,7 +1129,7 @@ BOOST_AUTO_TEST_CASE( link_delay_link_change_test ) { try {
                          vector<permission_level>{permission_level{tester_account, N(first)}},
                          fc::mutable_variant_object()
       ("account", "tester")
-      ("code", "act_token")
+      ("code", act_token)
       ("type", "transfer")
       ("requirement", "second"),
       30, 3),
@@ -1142,7 +1142,7 @@ BOOST_AUTO_TEST_CASE( link_delay_link_change_test ) { try {
                       vector<permission_level>{{tester_account, N(first)}},
                       fc::mutable_variant_object()
            ("account", "tester")
-           ("code", "act_token")
+           ("code", act_token)
            ("type", "transfer")
            ("requirement", "second"),
            30, 10
@@ -1265,24 +1265,24 @@ BOOST_AUTO_TEST_CASE( link_delay_unlink_test ) { try {
    );
    chain.push_action(config::system_account_name, linkauth::get_name(), tester_account, fc::mutable_variant_object()
            ("account", "tester")
-           ("code", "act_token")
+           ("code", act_token)
            ("type", "transfer")
            ("requirement", "first"));
 
    chain.produce_blocks();
    chain.push_action(N(act.token), N(create), N(act.token), mutable_variant_object()
-           ("issuer", "act_token" )
+           ("issuer", act_token )
            ("maximum_supply", "9000000.0000 CUR" )
    );
 
    chain.push_action(N(act.token), name("issue"), N(act.token), fc::mutable_variant_object()
-           ("to",       "act_token")
+           ("to",       act_token)
            ("quantity", "1000000.0000 CUR")
            ("memo", "for stuff")
    );
 
    auto trace = chain.push_action(N(act.token), name("transfer"), N(act.token), fc::mutable_variant_object()
-       ("from", "act_token")
+       ("from", act_token)
        ("to", "tester")
        ("quantity", "100.0000 CUR")
        ("memo", "hi" )
@@ -1323,7 +1323,7 @@ BOOST_AUTO_TEST_CASE( link_delay_unlink_test ) { try {
                          vector<permission_level>{{tester_account, N(first)}},
                          fc::mutable_variant_object()
          ("account", "tester")
-         ("code", "act_token")
+         ("code", act_token)
          ("type", "transfer"),
          30, 7
       ),
@@ -1334,7 +1334,7 @@ BOOST_AUTO_TEST_CASE( link_delay_unlink_test ) { try {
    // this transaction will be delayed 20 blocks
    chain.push_action(config::system_account_name, unlinkauth::get_name(), tester_account, fc::mutable_variant_object()
            ("account", "tester")
-           ("code", "act_token")
+           ("code", act_token)
            ("type", "transfer"),
            30, 10
    );
@@ -1460,7 +1460,7 @@ BOOST_AUTO_TEST_CASE( link_delay_link_change_heirarchy_test ) { try {
    );
    chain.push_action(config::system_account_name, linkauth::get_name(), tester_account, fc::mutable_variant_object()
            ("account", "tester")
-           ("code", "act_token")
+           ("code", act_token)
            ("type", "transfer")
            ("requirement", "second"));
    chain.push_action(config::system_account_name, updateauth::get_name(), tester_account, fc::mutable_variant_object()
@@ -1472,7 +1472,7 @@ BOOST_AUTO_TEST_CASE( link_delay_link_change_heirarchy_test ) { try {
 
    chain.produce_blocks();
    chain.push_action(N(act.token), N(create), N(act.token), mutable_variant_object()
-           ("issuer", "act_token")
+           ("issuer", act_token)
            ("maximum_supply", "9000000.0000 CUR" )
    );
 
