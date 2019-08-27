@@ -10,6 +10,8 @@
 
 #include <fc/variant_object.hpp>
 
+#include <boost/test/unit_test.hpp>
+#include <contracts.hpp>
 using namespace eosio::testing;
 using namespace eosio;
 using namespace eosio::chain;
