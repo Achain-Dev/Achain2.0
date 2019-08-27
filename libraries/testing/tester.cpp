@@ -925,8 +925,8 @@ namespace eosio { namespace testing {
    }
 
    void base_tester::set_bios_contract() {
-      set_code(config::system_account_name, contracts::eosio_bios_wasm());
-      set_abi(config::system_account_name, contracts::eosio_bios_abi().data());
+      set_code(config::system_account_name, contracts::act_bios_wasm());
+      set_abi(config::system_account_name, contracts::act_bios_abi().data());
       //produce_block();
    }
 

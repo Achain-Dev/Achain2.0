@@ -1205,7 +1205,6 @@ BOOST_FIXTURE_TEST_CASE(deferred_transaction_tests, TESTER) { try {
       BOOST_CHECK_EQUAL( 1, trace->action_traces.size() );
       c.disconnect();
    }
-   #endif
 
    produce_blocks(10);
 
