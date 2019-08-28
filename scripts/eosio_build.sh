@@ -228,17 +228,18 @@ execute cd $REPO_ROOT 1>/dev/null
 
 TIME_END=$(( $(date -u +%s) - $TIME_BEGIN ))
 
-echo " _______  _______  _______ _________ _______"
-echo "(  ____ \(  ___  )(  ____   __   __ (  ___  )"
-echo "| (    \/| (   ) || (    \/   ) (   | (   ) |"
-echo "| (__    | |   | || (_____    | |   | |   | |"
-echo "|  __)   | |   | |(_____  )   | |   | |   | |"
-echo "| (      | |   | |      ) |   | |   | |   | |"
-echo "| (____/\| (___) |/\____) |___) (___| (___) |"
-echo "(_______/(_______)\_______)\_______/(_______)"
+echo "        /\           __________    __________  " 
+echo "       //\\         //(______))   |\\\\\\\\\\| "
+echo "      ///\\\       || |(          |//////////| "
+echo "     ///  \\\      || |(              |||      "
+echo "    ///    \\\     || |(              |||      "
+echo "   //|_____|\\\    || |(              |||      "
+echo "  ///|\\\\\\|\\\   || |(              |||      "
+echo " ///          \\\  || |(_____         |||      "
+echo "///____________\\\  \\_______))       |_|      "
 echo "=============================================${COLOR_NC}"
 
-echo "${COLOR_GREEN}EOSIO has been successfully built. $(($TIME_END/3600)):$(($TIME_END%3600/60)):$(($TIME_END%60))"
+echo "${COLOR_GREEN}ACHAIN has been successfully built. $(($TIME_END/3600)):$(($TIME_END%3600/60)):$(($TIME_END%60))"
 echo "${COLOR_GREEN}You can now install using: ${SCRIPT_DIR}/eosio_install.sh${COLOR_NC}"
 echo "${COLOR_YELLOW}Uninstall with: ${SCRIPT_DIR}/eosio_uninstall.sh${COLOR_NC}"
 
