@@ -27,6 +27,7 @@ systemAccounts = [
     'act.stake',
     'act.token',
     'act.vpay',
+    'act.rex',
 ]
 
 def get_host_ip():
