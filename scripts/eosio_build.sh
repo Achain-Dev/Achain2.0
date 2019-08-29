@@ -227,7 +227,6 @@ execute make -j$JOBS
 execute cd $REPO_ROOT 1>/dev/null
 
 TIME_END=$(( $(date -u +%s) - $TIME_BEGIN ))
-
 echo "        /\            __________     __________   " 
 echo "       //\\\          //(______))    |//////////| "
 echo "      ///\\\\\        || |(           |//////////|"
