@@ -302,10 +302,10 @@ BOOST_AUTO_TEST_CASE( prune_remove_branch ) try {
    push_blocks(c, c2);
 
    // fork happen after block 61
-   BOOST_REQUIRE_EQUAL(61, c.control->head_block_num());
-   BOOST_REQUIRE_EQUAL(61, c2.control->head_block_num());
+   BOOST_REQUIRE_EQUAL(61u, c.control->head_block_num());
+   BOOST_REQUIRE_EQUAL(61u, c2.control->head_block_num());
 
-   int fork_num = c.control->head_block_num();
+   uint32_t fork_num = c.control->head_block_num();
 
    auto nextproducer = [](tester &c, int skip_interval) ->account_name {
       auto head_time = c.control->head_block_time();
