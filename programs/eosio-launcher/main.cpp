@@ -1512,7 +1512,7 @@ launcher_def::launch (eosd_def &instance, string &gts) {
   bfs::path reerr_sl = dd / "stderr.txt";
   bfs::path reerr_base = bfs::path("stderr." + launch_time + ".txt");
   bfs::path reerr = dd / reerr_base;
-  bfs::path pidf  = dd / "nodeos.pid";
+  bfs::path pidf  = dd / bfs::path(string(node_executable_name) + ".pid");
   host_def* host;
   try {
      host = deploy_config_files (*instance.node);

@@ -81,7 +81,7 @@ if [[ ! -d "${EOSIO_INSTALL_DIR}" ]]; then
    echo "[EOSIO installation ${COLOR_YELLOW}NOT${COLOR_NC} found in ${EOSIO_INSTALL_DIR}]"
 else
    # As of 1.8.0, we're using a versioned directories under home: https://github.com/EOSIO/eos/issues/6940
-   echo "[EOSIO installation found: ${EOSIO_INSTALL_DIR}]" && INSTALL_PATHS+=("${EOSIO_INSTALL_DIR}") # EOSIO_INSTALL_DIR set in .environment
+   echo "[ACHAIN installation found: ${EOSIO_INSTALL_DIR}]" && INSTALL_PATHS+=("${EOSIO_INSTALL_DIR}") # EOSIO_INSTALL_DIR set in .environment
    while true; do
       [[ $NONINTERACTIVE == false ]] && read -p "Do you wish to remove the installation in ${EOSIO_INSTALL_DIR}? (y/n) " PROCEED
       case $PROCEED in
@@ -98,7 +98,7 @@ else
             for INSTALL_PATH in ${INSTALL_PATHS[@]}; do
                execute rm -rf $INSTALL_PATH
             done
-            echo " - EOSIO Removal Complete"
+            echo " - ACHAIN Removal Complete"
             break;;
          1 | false | [Nn]* ) echo " - Cancelled EOSIO Removal!"; exit 1;;
          * ) echo "Please type 'y' for yes or 'n' for no.";;
@@ -106,7 +106,7 @@ else
    done
 fi
 
-echo "[Removing EOSIO Dependencies]"
+echo "[Removing ACHAIN Dependencies]"
 if [[ $ARCH == "Darwin" ]]; then
    for package in $(cat scripts/eosio_build_darwin_deps | cut -d, -f1 2>/dev/null); do
       while true; do

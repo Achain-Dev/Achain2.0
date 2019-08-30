@@ -1142,24 +1142,24 @@ struct setbpnum_subcommand {
    }
 };
 
-struct vote_producer_subcommand {
+struct vote_producers_subcommand {
    string voter_str;
-   eosio::name producer_name;
-   string votes_str;
+   vector<eosio::name> producer_names;
 
-   vote_producer_subcommand(CLI::App* actionRoot) {
-      auto vote_producer = actionRoot->add_subcommand("prods", localized("Vote for one producer"));
-      vote_producer->add_option("voter", voter_str, localized("The voting account"))->required();
-      vote_producer->add_option("producer", producer_name, localized("The account to vote for."))->required();
-	  vote_producer->add_option("votes", votes_str, localized("The votes to vote, i.e.\"100.0000 ACT\"."))->required();
+   vote_producers_subcommand(CLI::App* actionRoot) {
+      auto vote_producers = actionRoot->add_subcommand("prods", localized("Vote for one or more producers"));
+      vote_producers->add_option("voter", voter_str, localized("The voting account"))->required();
+      vote_producers->add_option("producers", producer_names, localized("The account(s) to vote for. All options from this position and following will be treated as the producer list."))->required();
+	  vote_producers->add_option("votes", votes_str, localized("The votes to vote, i.e.\"100.0000 ACT\"."))->required();
       
-      add_standard_transaction_options(vote_producer, "voter@active");
+      add_standard_transaction_options(vote_producers, "voter@active");
 
-      vote_producer->set_callback([this] {
-         const asset votes = to_asset(votes_str);
+      vote_producers->set_callback([this] {
+
+         std::sort( producer_names.begin(), producer_names.end() );
          fc::variant act_payload = fc::mutable_variant_object()
                   ("voter", voter_str)
-                  ("producer", producer_name)
+                  ("producers", producer_names)
                   ("votes", votes.to_string());
          auto accountPermissions = get_account_permissions(tx_permission, {voter_str,config::active_name});
          send_actions({create_action(accountPermissions, config::system_account_name, N(voteproducer), act_payload)});
@@ -1288,9 +1288,49 @@ struct get_transaction_id_subcommand {
 
       get_transaction_id->set_callback([&] {
          try {
-            auto trx_var = json_from_file_or_string(trx_to_check);
+            fc::variant trx_var = json_from_file_or_string(trx_to_check);
+            if( trx_var.is_object() ) {
+               fc::variant_object& vo = trx_var.get_object();
+               if( vo.contains("actions") ) {
+                  if( vo["actions"].is_array() ) {
+                     fc::mutable_variant_object mvo = vo;
+                     fc::variants& action_variants = mvo["actions"].get_array();
+                     for( auto& action_v : action_variants ) {
+                        if( !action_v.is_object() ) {
+                           std::cerr << "Empty 'action' in transaction" << endl;
+                           return;
+                        }
+                        fc::variant_object& action_vo = action_v.get_object();
+                        if( action_vo.contains( "data" ) && action_vo.contains( "hex_data" ) ) {
+                           fc::mutable_variant_object maction_vo = action_vo;
+                           maction_vo["data"] = maction_vo["hex_data"];
+                           action_vo = maction_vo;
+                           vo = mvo;
+                        } else if( action_vo.contains( "data" ) ) {
+                           if( !action_vo["data"].is_string() ) {
+                              std::cerr << "get transaction_id only supports un-exploded 'data' (hex form)" << std::endl;
+                              return;
+                           }
+                        }
+                     }
+                  } else {
+                     std::cerr << "transaction json 'actions' is not an array" << std::endl;
+                     return;
+                  }
+               } else {
+                  std::cerr << "transaction json does not include 'actions'" << std::endl;
+                  return;
+               }
             auto trx = trx_var.as<transaction>();
-            std::cout << string(trx.id()) << std::endl;
+               transaction_id_type id = trx.id();
+               if( id == transaction().id() ) {
+                  std::cerr << "file/string does not represent a transaction" << std::endl;
+               } else {
+                  std::cout << string( id ) << std::endl;
+               }
+            } else {
+               std::cerr << "file/string does not represent a transaction" << std::endl;
+            }
          } EOS_RETHROW_EXCEPTIONS(transaction_type_exception, "Fail to parse transaction JSON '${data}'", ("data",trx_to_check))
       });
    }
