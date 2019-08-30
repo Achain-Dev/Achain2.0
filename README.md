@@ -2,7 +2,7 @@
 the next generation of blockchain  technique Achain 
 
 # Get Achain2.0 code
-git clone https://github.com/Achain-Dev/Achain2.0.git  --recursive
+git clone `https://github.com/Achain-Dev/Achain2.0.git`  --recursive
 
 # Compile Achain2.0
 cd Achain2.0/scripts  
