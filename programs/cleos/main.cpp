@@ -1145,7 +1145,8 @@ struct setbpnum_subcommand {
 struct vote_producers_subcommand {
    string voter_str;
    vector<eosio::name> producer_names;
-
+   string votes_str;
+   
    vote_producers_subcommand(CLI::App* actionRoot) {
       auto vote_producers = actionRoot->add_subcommand("prods", localized("Vote for one or more producers"));
       vote_producers->add_option("voter", voter_str, localized("The voting account"))->required();
@@ -1157,6 +1158,7 @@ struct vote_producers_subcommand {
       vote_producers->set_callback([this] {
 
          std::sort( producer_names.begin(), producer_names.end() );
+         const asset votes = to_asset(votes_str);
          fc::variant act_payload = fc::mutable_variant_object()
                   ("voter", voter_str)
                   ("producers", producer_names)
@@ -3830,7 +3832,7 @@ int main( int argc, char** argv ) {
 
    auto voteProducer = system->add_subcommand("voteproducer", localized("Vote for a producer"));
    voteProducer->require_subcommand();
-   auto voteProducers = vote_producer_subcommand(voteProducer);
+   auto voteProducers = vote_producers_subcommand(voteProducer);
 
    auto listProducers = list_producers_subcommand(system);
 

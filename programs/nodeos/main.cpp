@@ -139,5 +139,6 @@ int main(int argc, char** argv)
       return OTHER_FAIL;
    }
 
+   ilog("${name} successfully exiting", ("name", nodeos::config::node_executable_name));
    return SUCCESS;
 }
