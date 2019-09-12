@@ -29,6 +29,7 @@
 #include <fc/log/logger_config.hpp>
 #include <fc/scoped_exit.hpp>
 #include <fc/variant_object.hpp>
+#include <eosio/chain/set_config.hpp>
 
 namespace eosio { namespace chain {
 
@@ -904,6 +905,7 @@ struct controller_impl {
       conf.genesis.initial_configuration.validate();
       db.create<global_property_object>([&](auto& gpo ){
          gpo.configuration = conf.genesis.initial_configuration;
+         gpo.proposed_schedule_size = conf._initial_bp_num;
       });
 
       db.create<protocol_state_object>([&](auto& pso ){
@@ -2774,6 +2776,41 @@ int64_t controller::set_proposed_producers( vector<producer_key> producers ) {
    });
    return version;
 }
+
+//add for achainplus
+//set the count of schedule producers
+bool controller::set_proposed_schedule_size( schedule_size_type size )
+{
+   const auto& gpo = get_global_properties();
+
+   if(size < gpo.proposed_schedule_size)
+      return false;
+   
+   my->db.modify( gpo, [&]( auto& gp ) {
+      gp.proposed_schedule_size = size;
+   });
+
+   return true;
+}
+//return the proposed_schedule_size 
+uint32_t controller::get_proposed_schedule_size()
+{
+   const auto& gpo = get_global_properties();
+   
+   if (gpo.proposed_schedule_size.valid()) return *gpo.proposed_schedule_size;
+   return my->conf._initial_bp_num;
+}
+
+bool controller::is_func_open(const account_name& func_type)
+{
+   return eosio::chain::is_func_open(*this, func_type);
+}
+
+int64_t controller::get_chain_config_value(const account_name  &func_type)
+{
+   return eosio::chain::get_config_value(this->db(), func_type);
+}
+
 
 const producer_schedule_type&    controller::active_producers()const {
    if( !(my->pending) )

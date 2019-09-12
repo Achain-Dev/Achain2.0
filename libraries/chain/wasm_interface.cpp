@@ -222,6 +222,25 @@ class privileged_api : public context_aware_api {
                  gprops.configuration = cfg;
          });
       }
+      //add for achainplus
+      bool set_proposed_schedule_size( uint32_t size )
+      {
+         return context.control.set_proposed_schedule_size( size );
+      }
+
+      uint32_t get_proposed_schedule_size()
+      {
+         return context.control.get_proposed_schedule_size();
+      }
+
+      bool is_chain_func_open(account_name  func_type)
+      {
+         return context.control.is_func_open( func_type );
+      }
+      int64_t get_chain_config_value(account_name  func_type)
+      {
+         return context.control.get_chain_config_value( func_type );
+      }
 
       bool is_privileged( account_name n )const {
          return context.db.get<account_metadata_object, by_name>( n ).is_privileged();
@@ -1755,6 +1774,10 @@ REGISTER_INTRINSICS(privileged_api,
    (set_proposed_producers,           int64_t(int,int)                      )
    (get_blockchain_parameters_packed, int(int, int)                         )
    (set_blockchain_parameters_packed, void(int,int)                         )
+   (set_proposed_schedule_size,       int(int)                              )
+   (get_proposed_schedule_size,       int()                                 )   
+   (is_chain_func_open,               int(int64_t)                          )
+   (get_chain_config_value,           int64_t(int64_t)                      )
    (is_privileged,                    int(int64_t)                          )
    (set_privileged,                   void(int64_t, int)                    )
    (preactivate_feature,              void(int)                             )
