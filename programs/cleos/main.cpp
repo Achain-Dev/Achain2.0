@@ -1049,24 +1049,39 @@ struct create_account_subcommand {
                   active = public_key_type(active_key_str);
                } EOS_RETHROW_EXCEPTIONS( public_key_type_exception, "Invalid active public key: ${public_key}", ("public_key", active_key_str) );
             }
-
+            
             auto create = create_newaccount(creator, account_name, owner, active);
             if (!simple) {
-               EOSC_ASSERT( buy_ram_eos.size() || buy_ram_bytes_in_kbytes || buy_ram_bytes, "ERROR: One of --buy-ram, --buy-ram-kbytes or --buy-ram-bytes should have non-zero value" );
-               EOSC_ASSERT( !buy_ram_bytes_in_kbytes || !buy_ram_bytes, "ERROR: --buy-ram-kbytes and --buy-ram-bytes cannot be set at the same time" );
-               action buyram = !buy_ram_eos.empty() ? create_buyram(creator, account_name, to_asset(buy_ram_eos))
-                  : create_buyrambytes(creator, account_name, (buy_ram_bytes_in_kbytes) ? (buy_ram_bytes_in_kbytes * 1024) : buy_ram_bytes);
+               EOSC_ASSERT( !buy_ram_bytes_in_kbytes || !buy_ram_bytes, "ERROR: --buy-ram-kbytes and --buy-ram-bytes cannot be set at the same time" );			   
+               if (buy_ram_eos.empty() && buy_ram_bytes_in_kbytes == 0 && buy_ram_bytes == 0)
+                  no_ram = true;
                auto net = to_asset(stake_net);
                auto cpu = to_asset(stake_cpu);
-               if ( net.get_amount() != 0 || cpu.get_amount() != 0 ) {
-                  action delegate = create_delegate( creator, account_name, net, cpu, transfer);
-                  send_actions( { create, buyram, delegate } );
-               } else {
-                  send_actions( { create, buyram } );
+               if (!no_ram)
+               {
+                  action buyram = !buy_ram_eos.empty() ? create_buyram(creator, account_name, to_asset(buy_ram_eos))
+                        : create_buyrambytes(creator, account_name, (buy_ram_bytes_in_kbytes) ? (buy_ram_bytes_in_kbytes * 1024) : buy_ram_bytes);
+                  if ( net.get_amount() != 0 || cpu.get_amount() != 0 ) {
+                     action delegate = create_delegate( creator, account_name, net, cpu, transfer);
+                     send_actions( { create, buyram, delegate } );
+                  } else {
+                     send_actions( { create, buyram } );
+                  }
                }
-            } else {
-               send_actions( { create } );
+               else
+               {
+                  if ( net.get_amount() != 0 || cpu.get_amount() != 0 ) {
+                     action delegate = create_delegate( creator, account_name, net, cpu, transfer);
+                     send_actions( { create, delegate } );
+                  } else {
+                     send_actions( { create } );
+                  }
+               }
             }
+            else {
+               send_actions( { create } );
+            }      
+
       });
    }
 };
@@ -2231,23 +2246,20 @@ void get_account( const string& accountName, const string& coresym, bool json_fo
 
       if ( res.voter_info.is_object() ) {
          auto& obj = res.voter_info.get_object();
-         string proxy = obj["proxy"].as_string();
-         if ( proxy.empty() ) {
-            auto& prods = obj["producers"].get_array();
+         auto prods = fc::variant(obj["producers"]).as<std::map<name, int64_t>>();
          std::cout << "producers:";
          if ( !prods.empty() ) {
-               for ( size_t i = 0; i < prods.size(); ++i ) {
+            uint32_t i = 0;
+            for ( auto& x : prods ) {
                if ( i%3 == 0 ) {
                   std::cout << std::endl << indent;
                }
-               std::cout << std::setw(16) << std::left << prods[i].as_string();
+               std::cout << std::setw(16) << std::left << x.first.to_string();
+               i++;
             }
             std::cout << std::endl;
          } else {
             std::cout << indent << "<not voted>" << std::endl;
-            }
-         } else {
-            std::cout << "proxy:" << indent << proxy << std::endl;
          }
       }
       std::cout << std::endl;
