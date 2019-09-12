@@ -46,6 +46,7 @@ using controller_index_set = index_set<
    transaction_multi_index,
    generated_transaction_multi_index,
    table_id_multi_index,
+   config_data_object_index,
    code_index
 >;
 
