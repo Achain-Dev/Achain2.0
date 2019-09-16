@@ -337,6 +337,7 @@ struct controller_impl {
 */
 
    SET_APP_HANDLER( act, act, canceldelay );
+   SET_APP_HANDLER( act, act, setconfig );
    }
 
    /**
