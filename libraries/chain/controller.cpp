@@ -578,6 +578,7 @@ struct controller_impl {
             }
             head = fork_db.head();
          }
+         init_chain_config();
       }
       // At this point head != nullptr && fork_db.head() != nullptr && fork_db.root() != nullptr.
       // Furthermore, fork_db.root()->block_num <= lib_num.
@@ -692,7 +693,28 @@ struct controller_impl {
       thread_pool.stop();
       pending.reset();
    }
+   
+   //add for achain2.0
+   void init_chain_config(){
+      setconfig cfg;
+      //set free_ram_per_account
+      cfg.cfg_name = setconf::res_type::free_ram_per_account;
+      cfg.value = setconf::res_value::free_ram;
+      cfg.valid_block = 1;  //from block 1
+      cfg.key = setconf::default_value::default_config_key;
+      cfg.desc = "every account has 8k ram for free from block 1";
+      set_config( db, cfg );
 
+      //set no_bid
+      cfg.cfg_name = setconf::func_type::no_bid;
+      cfg.value = 0;
+      cfg.valid_block = 10000000;  //till 10000000
+      cfg.key = setconf::default_value::default_config_key;
+      cfg.desc = "account can new other account without bid";
+      set_config( db, cfg );
+
+      return;
+   }
    void add_indices() {
       reversible_blocks.add_index<reversible_block_index>();
 
