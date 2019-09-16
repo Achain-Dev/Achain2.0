@@ -1379,8 +1379,8 @@ read_only::get_chain_config_results read_only::get_chain_config(const read_only:
    
    while (iter != cfg.end())
    {
-      chain_config _cfg;
-      _cfg.name = iter->name;
+      chain_config_ex  _cfg;
+      _cfg.cfg_name = iter->cfg_name;
       _cfg.value = iter->value;
       _cfg.valid_block = iter->valid_block;
       _cfg.key = iter->key;

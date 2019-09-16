@@ -1109,7 +1109,7 @@ struct set_config_subcommand {
             config_asset = "0.0000 ACT";
          const asset asset_info = to_asset(config_asset);
          fc::variant schedulesize_var = fc::mutable_variant_object()
-                  ("name", config_name)
+                  ("cfg_name", config_name)
                   ("value", config_value)
                   ("valid_block", block_num)
                   ("key", config_key)

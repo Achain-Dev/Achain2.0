@@ -56,7 +56,7 @@ struct setabi {
 //for achainplus: dynamic configuration  
 //This table stores less data
 struct setconfig {
-   account_name           name;				//the name of configuration
+   account_name           cfg_name;				//the name of configuration
 
    int64_t                value = 0;     //the value of this type
    int64_t                valid_block;
@@ -187,5 +187,5 @@ FC_REFLECT( eosio::chain::linkauth                         , (account)(code)(typ
 FC_REFLECT( eosio::chain::unlinkauth                       , (account)(code)(type) )
 FC_REFLECT( eosio::chain::canceldelay                      , (canceling_auth)(trx_id) )
 FC_REFLECT( eosio::chain::onerror                          , (sender_id)(sent_trx) )
-FC_REFLECT( eosio::chain::setconfig                        , (name)(value)(valid_block)(key)(asset_info)(desc) )
+FC_REFLECT( eosio::chain::setconfig                        , (cfg_name)(value)(valid_block)(key)(asset_info)(desc) )
 

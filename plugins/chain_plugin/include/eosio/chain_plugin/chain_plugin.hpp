@@ -126,8 +126,8 @@ public:
 
    //add for achainplus
    using get_chain_config_params = empty;
-   struct chain_config{
-      account_name name;
+   struct chain_config_ex{
+      account_name cfg_name;
       int64_t value;
       int64_t valid_block;
       account_name key;
@@ -135,7 +135,7 @@ public:
       string desc = "";
    };
    struct get_chain_config_results{
-      vector<chain_config> _chain_config;
+      vector<chain_config_ex> _chain_config;
    };
    get_chain_config_results get_chain_config(const get_chain_config_params&) const;
 
@@ -797,7 +797,7 @@ FC_REFLECT( eosio::chain_apis::read_only::abi_bin_to_json_result, (args) )
 FC_REFLECT( eosio::chain_apis::read_only::get_required_keys_params, (transaction)(available_keys) )
 FC_REFLECT( eosio::chain_apis::read_only::get_required_keys_result, (required_keys) )
 //add for achainplus
-FC_REFLECT( eosio::chain_apis::read_only::chain_config, (name)(value)(valid_block)(key)(asset_info)(desc) )
+FC_REFLECT( eosio::chain_apis::read_only::chain_config_ex, (cfg_name)(value)(valid_block)(key)(asset_info)(desc) )
 FC_REFLECT( eosio::chain_apis::read_only::get_chain_config_results, (_chain_config) )
 
 
