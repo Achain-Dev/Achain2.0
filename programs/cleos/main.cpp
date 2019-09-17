@@ -1049,24 +1049,39 @@ struct create_account_subcommand {
                   active = public_key_type(active_key_str);
                } EOS_RETHROW_EXCEPTIONS( public_key_type_exception, "Invalid active public key: ${public_key}", ("public_key", active_key_str) );
             }
-
+            
             auto create = create_newaccount(creator, account_name, owner, active);
             if (!simple) {
-               EOSC_ASSERT( buy_ram_eos.size() || buy_ram_bytes_in_kbytes || buy_ram_bytes, "ERROR: One of --buy-ram, --buy-ram-kbytes or --buy-ram-bytes should have non-zero value" );
-               EOSC_ASSERT( !buy_ram_bytes_in_kbytes || !buy_ram_bytes, "ERROR: --buy-ram-kbytes and --buy-ram-bytes cannot be set at the same time" );
-               action buyram = !buy_ram_eos.empty() ? create_buyram(creator, account_name, to_asset(buy_ram_eos))
-                  : create_buyrambytes(creator, account_name, (buy_ram_bytes_in_kbytes) ? (buy_ram_bytes_in_kbytes * 1024) : buy_ram_bytes);
+               EOSC_ASSERT( !buy_ram_bytes_in_kbytes || !buy_ram_bytes, "ERROR: --buy-ram-kbytes and --buy-ram-bytes cannot be set at the same time" );			   
+               if (buy_ram_eos.empty() && buy_ram_bytes_in_kbytes == 0 && buy_ram_bytes == 0)
+                  no_ram = true;
                auto net = to_asset(stake_net);
                auto cpu = to_asset(stake_cpu);
-               if ( net.get_amount() != 0 || cpu.get_amount() != 0 ) {
-                  action delegate = create_delegate( creator, account_name, net, cpu, transfer);
-                  send_actions( { create, buyram, delegate } );
-               } else {
-                  send_actions( { create, buyram } );
+               if (!no_ram)
+               {
+                  action buyram = !buy_ram_eos.empty() ? create_buyram(creator, account_name, to_asset(buy_ram_eos))
+                        : create_buyrambytes(creator, account_name, (buy_ram_bytes_in_kbytes) ? (buy_ram_bytes_in_kbytes * 1024) : buy_ram_bytes);
+                  if ( net.get_amount() != 0 || cpu.get_amount() != 0 ) {
+                     action delegate = create_delegate( creator, account_name, net, cpu, transfer);
+                     send_actions( { create, buyram, delegate } );
+                  } else {
+                     send_actions( { create, buyram } );
+                  }
                }
-            } else {
-               send_actions( { create } );
+               else
+               {
+                  if ( net.get_amount() != 0 || cpu.get_amount() != 0 ) {
+                     action delegate = create_delegate( creator, account_name, net, cpu, transfer);
+                     send_actions( { create, delegate } );
+                  } else {
+                     send_actions( { create } );
+                  }
+               }
             }
+            else {
+               send_actions( { create } );
+            }      
+
       });
    }
 };
@@ -1094,7 +1109,7 @@ struct set_config_subcommand {
             config_asset = "0.0000 ACT";
          const asset asset_info = to_asset(config_asset);
          fc::variant schedulesize_var = fc::mutable_variant_object()
-                  ("name", config_name)
+                  ("cfg_name", config_name)
                   ("value", config_value)
                   ("valid_block", block_num)
                   ("key", config_key)
@@ -1142,26 +1157,24 @@ struct setbpnum_subcommand {
    }
 };
 
-struct vote_producers_subcommand {
+struct vote_producer_subcommand {
    string voter_str;
-   vector<eosio::name> producer_names;
+   eosio::name producer_name;
    string votes_str;
    
-   vote_producers_subcommand(CLI::App* actionRoot) {
-      auto vote_producers = actionRoot->add_subcommand("prods", localized("Vote for one or more producers"));
-      vote_producers->add_option("voter", voter_str, localized("The voting account"))->required();
-      vote_producers->add_option("producers", producer_names, localized("The account(s) to vote for. All options from this position and following will be treated as the producer list."))->required();
-	  vote_producers->add_option("votes", votes_str, localized("The votes to vote, i.e.\"100.0000 ACT\"."))->required();
+   vote_producer_subcommand(CLI::App* actionRoot) {
+      auto vote_producer = actionRoot->add_subcommand("prods", localized("Vote for one or more producers"));
+      vote_producer->add_option("voter", voter_str, localized("The voting account"))->required();
+      vote_producer->add_option("producer", producer_name, localized("The account to vote for."))->required();
+	  vote_producer->add_option("votes", votes_str, localized("The votes to vote, i.e.\"100.0000 ACT\"."))->required();
       
-      add_standard_transaction_options(vote_producers, "voter@active");
+      add_standard_transaction_options(vote_producer, "voter@active");
 
-      vote_producers->set_callback([this] {
-
-         std::sort( producer_names.begin(), producer_names.end() );
+      vote_producer->set_callback([this] {
          const asset votes = to_asset(votes_str);
          fc::variant act_payload = fc::mutable_variant_object()
                   ("voter", voter_str)
-                  ("producers", producer_names)
+                  ("producer", producer_name)
                   ("votes", votes.to_string());
          auto accountPermissions = get_account_permissions(tx_permission, {voter_str,config::active_name});
          send_actions({create_action(accountPermissions, config::system_account_name, N(voteproducer), act_payload)});
@@ -2231,23 +2244,20 @@ void get_account( const string& accountName, const string& coresym, bool json_fo
 
       if ( res.voter_info.is_object() ) {
          auto& obj = res.voter_info.get_object();
-         string proxy = obj["proxy"].as_string();
-         if ( proxy.empty() ) {
-            auto& prods = obj["producers"].get_array();
+         auto prods = fc::variant(obj["producers"]).as<std::map<name, int64_t>>();
          std::cout << "producers:";
          if ( !prods.empty() ) {
-               for ( size_t i = 0; i < prods.size(); ++i ) {
+            uint32_t i = 0;
+            for ( auto& x : prods ) {
                if ( i%3 == 0 ) {
                   std::cout << std::endl << indent;
                }
-               std::cout << std::setw(16) << std::left << prods[i].as_string();
+               std::cout << std::setw(16) << std::left << x.first.to_string();
+               i++;
             }
             std::cout << std::endl;
          } else {
             std::cout << indent << "<not voted>" << std::endl;
-            }
-         } else {
-            std::cout << "proxy:" << indent << proxy << std::endl;
          }
       }
       std::cout << std::endl;
@@ -3832,7 +3842,7 @@ int main( int argc, char** argv ) {
 
    auto voteProducer = system->add_subcommand("voteproducer", localized("Vote for a producer"));
    voteProducer->require_subcommand();
-   auto voteProducers = vote_producers_subcommand(voteProducer);
+   auto voteproducer = vote_producer_subcommand(voteProducer);
 
    auto listProducers = list_producers_subcommand(system);
 

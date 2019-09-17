@@ -56,11 +56,12 @@ asset get_config_asset(const chainbase::database& db, const name& name)
 }
 
 void set_config( chainbase::database& db, const setconfig &cfg ) {
-   auto itr = db.find<config_data_object, by_name>(cfg.name);
+
+   auto itr = db.find<config_data_object, by_name>(cfg.cfg_name);
    if( itr == nullptr ) {
-      ilog("set num config ${n} to ${v}", ( "n", cfg.name )("v", cfg));
+      ilog("set num config ${n} to ${v}", ( "n", cfg.cfg_name )("v", cfg));
       db.create<config_data_object>([&]( auto& c ) {
-         c.name = cfg.name;
+         c.cfg_name = cfg.cfg_name;
          c.value = cfg.value;
          c.valid_block = cfg.valid_block;
          c.key = cfg.key;

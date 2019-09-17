@@ -196,7 +196,7 @@ endif()
 include(utils)
 
 if ("${CORE_SYMBOL_NAME}" STREQUAL "")
-  set( CORE_SYMBOL_NAME "ACTX" )
+  set( CORE_SYMBOL_NAME "ACT" )
 endif()
 string(TOUPPER ${CORE_SYMBOL_NAME} CORE_SYMBOL_NAME)
 
@@ -211,7 +211,7 @@ if ("${EOSIO_ROOT_KEY}" STREQUAL "")
    set(EOSIO_ROOT_KEY "ACTX7cvL5oqAPJRe6vGz73sthbdnKHryf1RbmaYCax1E3k2KDh7bem")
 endif()
 
-message( STATUS "Using '${EOSIO_ROOT_KEY}' as public key for 'actx' account" )
+message( STATUS "Using '${EOSIO_ROOT_KEY}' as public key for 'act' account" )
 
 add_subdirectory( libraries )
 add_subdirectory( plugins )
