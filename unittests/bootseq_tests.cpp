@@ -192,7 +192,7 @@ BOOST_AUTO_TEST_SUITE(bootseq_tests)
 BOOST_FIXTURE_TEST_CASE( bootseq_test, bootseq_tester ) {
     try {
 
-        // Create act.msig and actx.token
+        // Create act.msig and act.token
         create_accounts({N(act.msig), N(act.token), N(act.ram), N(act.ramfee), N(act.stake), N(act.vpay), N(act.bpay), N(act.saving) });
 
         // Set code for the following accounts:
@@ -203,11 +203,11 @@ BOOST_FIXTURE_TEST_CASE( bootseq_test, bootseq_tester ) {
                      contracts::act_token_wasm(),
                      contracts::act_token_abi().data()); //, &eosio_active_pk);
 
-        // Set privileged for actx.msig and actx.token
+        // Set privileged for act.msig and act.token
         set_privileged(N(act.msig));
         set_privileged(N(act.token));
 
-        // Verify actx.msig and actx.token is privileged
+        // Verify act.msig and act.token is privileged
         const auto& eosio_msig_acc = get<account_metadata_object, by_name>(N(act.msig));
         BOOST_TEST(eosio_msig_acc.is_privileged() == true);
         const auto& eosio_token_acc = get<account_metadata_object, by_name>(N(act.token));
