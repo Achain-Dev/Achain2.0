@@ -1157,26 +1157,24 @@ struct setbpnum_subcommand {
    }
 };
 
-struct vote_producers_subcommand {
+struct vote_producer_subcommand {
    string voter_str;
-   vector<eosio::name> producer_names;
+   eosio::name producer_name;
    string votes_str;
    
-   vote_producers_subcommand(CLI::App* actionRoot) {
-      auto vote_producers = actionRoot->add_subcommand("prods", localized("Vote for one or more producers"));
-      vote_producers->add_option("voter", voter_str, localized("The voting account"))->required();
-      vote_producers->add_option("producers", producer_names, localized("The account(s) to vote for. All options from this position and following will be treated as the producer list."))->required();
-	  vote_producers->add_option("votes", votes_str, localized("The votes to vote, i.e.\"100.0000 ACT\"."))->required();
+   vote_producer_subcommand(CLI::App* actionRoot) {
+      auto vote_producer = actionRoot->add_subcommand("prods", localized("Vote for one or more producers"));
+      vote_producer->add_option("voter", voter_str, localized("The voting account"))->required();
+      vote_producer->add_option("producer", producer_name, localized("The account to vote for."))->required();
+	  vote_producer->add_option("votes", votes_str, localized("The votes to vote, i.e.\"100.0000 ACT\"."))->required();
       
-      add_standard_transaction_options(vote_producers, "voter@active");
+      add_standard_transaction_options(vote_producer, "voter@active");
 
-      vote_producers->set_callback([this] {
-
-         std::sort( producer_names.begin(), producer_names.end() );
+      vote_producer->set_callback([this] {
          const asset votes = to_asset(votes_str);
          fc::variant act_payload = fc::mutable_variant_object()
                   ("voter", voter_str)
-                  ("producers", producer_names)
+                  ("producer", producer_name)
                   ("votes", votes.to_string());
          auto accountPermissions = get_account_permissions(tx_permission, {voter_str,config::active_name});
          send_actions({create_action(accountPermissions, config::system_account_name, N(voteproducer), act_payload)});
@@ -3844,7 +3842,7 @@ int main( int argc, char** argv ) {
 
    auto voteProducer = system->add_subcommand("voteproducer", localized("Vote for a producer"));
    voteProducer->require_subcommand();
-   auto voteProducers = vote_producers_subcommand(voteProducer);
+   auto voteproducer = vote_producer_subcommand(voteProducer);
 
    auto listProducers = list_producers_subcommand(system);
 
