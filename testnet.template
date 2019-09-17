@@ -14,7 +14,7 @@ fi
 
 bioscontractpath=$BIOS_CONTRACT_PATH
 if [ -z "$bioscontractpath" ]; then
-    bioscontractpath="unittests/contracts/actx.bios"
+    bioscontractpath="unittests/contracts/act.bios"
 fi
 
 wddir=eosio-ignition-wd
@@ -63,7 +63,7 @@ wcmd () {
 }
 
 cacmd () {
-    programs/cleos/cleos  --wallet-url $wdurl --url http://$bioshost:$biosport system newaccount --transfer --stake-net "10000000.0000 ACTX" --stake-cpu "10000000.0000 ACTX"  --buy-ram "10000000.0000 ACTX" actx $* >> $logfile 2>&1
+    programs/cleos/cleos  --wallet-url $wdurl --url http://$bioshost:$biosport system newaccount --transfer --stake-net "10000000.0000 act" --stake-cpu "10000000.0000 act"  --buy-ram "10000000.0000 act" act $* >> $logfile 2>&1
     ecmd system regproducer $1 $2
     ecmd system voteproducer prods $1 $1
 }
@@ -82,47 +82,47 @@ wcmd create --to-console -n ignition
 # ------ DO NOT ALTER THE NEXT LINE -------
 ###INSERT prodkeys
 
-ecmd set contract actx contracts/actx.bios actx.bios.wasm actx.bios.abi
+ecmd set contract act contracts/act.bios act.bios.wasm act.bios.abi
 
 # Preactivate all digests
 for digest in $FEATURE_DIGESTS;
 do
-ecmd push action actx activate "{\"feature_digest\":\"$digest\"}" -p actx
+ecmd push action act activate "{\"feature_digest\":\"$digest\"}" -p act
 done
 
 # Create required system accounts
 ecmd create key --to-console
 pubsyskey=`grep "^Public key:" $logfile | tail -1 | sed "s/^Public key://"`
 prisyskey=`grep "^Private key:" $logfile | tail -1 | sed "s/^Private key://"`
-echo actx.* keys: $prisyskey $pubsyskey >> $logfile
+echo act.* keys: $prisyskey $pubsyskey >> $logfile
 wcmd import -n ignition --private-key $prisyskey
-ecmd create account actx actx.bpay $pubsyskey $pubsyskey
-ecmd create account actx actx.msig $pubsyskey $pubsyskey
-ecmd create account actx actx.names $pubsyskey $pubsyskey
-ecmd create account actx actx.ram $pubsyskey $pubsyskey
-ecmd create account actx actx.ramfee $pubsyskey $pubsyskey
-ecmd create account actx actx.saving $pubsyskey $pubsyskey
-ecmd create account actx actx.stake $pubsyskey $pubsyskey
-ecmd create account actx actx.token $pubsyskey $pubsyskey
-ecmd create account actx actx.vpay $pubsyskey $pubsyskey
-ecmd create account actx actx.sudo $pubsyskey $pubsyskey
+ecmd create account act act.bpay $pubsyskey $pubsyskey
+ecmd create account act act.msig $pubsyskey $pubsyskey
+ecmd create account act act.names $pubsyskey $pubsyskey
+ecmd create account act act.ram $pubsyskey $pubsyskey
+ecmd create account act act.ramfee $pubsyskey $pubsyskey
+ecmd create account act act.saving $pubsyskey $pubsyskey
+ecmd create account act act.stake $pubsyskey $pubsyskey
+ecmd create account act act.token $pubsyskey $pubsyskey
+ecmd create account act act.vpay $pubsyskey $pubsyskey
+ecmd create account act act.sudo $pubsyskey $pubsyskey
 
-ecmd set contract actx.token contracts/actx.token actx.token.wasm actx.token.abi
-ecmd set contract actx.msig contracts/actx.msig actx.msig.wasm actx.msig.abi
-ecmd set contract actx.wrap contracts/actx.wrap actx.wrap.wasm actx.wrap.abi
+ecmd set contract act.token contracts/act.token act.token.wasm act.token.abi
+ecmd set contract act.msig contracts/act.msig act.msig.wasm act.msig.abi
+ecmd set contract act.wrap contracts/act.wrap act.wrap.wasm act.wrap.abi
 
 
 echo ===== Start: $step ============ >> $logfile
-echo executing: cleos --wallet-url $wdurl --url http://$bioshost:$biosport push action actx.token create '[ "actx", "10000000000.0000 ACTX" ]' -p actx.token | tee -a $logfile
-echo executing: cleos --wallet-url $wdurl --url http://$bioshost:$biosport push action actx.token issue '[ "actx", "1000000000.0000 ACTX", "memo" ]' -p actx | tee -a $logfile
+echo executing: cleos --wallet-url $wdurl --url http://$bioshost:$biosport push action act.token create '[ "act", "10000000000.0000 act" ]' -p act.token | tee -a $logfile
+echo executing: cleos --wallet-url $wdurl --url http://$bioshost:$biosport push action act.token issue '[ "act", "1000000000.0000 act", "memo" ]' -p act | tee -a $logfile
 echo ----------------------- >> $logfile
-programs/cleos/cleos --wallet-url $wdurl --url http://$bioshost:$biosport push action actx.token create '[ "actx", "10000000000.0000 ACTX" ]' -p actx.token >> $logfile 2>&1
-programs/cleos/cleos --wallet-url $wdurl --url http://$bioshost:$biosport push action actx.token issue '[ "actx", "1000000000.0000 ACTX", "memo" ]' -p actx >> $logfile 2>&1
+programs/cleos/cleos --wallet-url $wdurl --url http://$bioshost:$biosport push action act.token create '[ "act", "10000000000.0000 act" ]' -p act.token >> $logfile 2>&1
+programs/cleos/cleos --wallet-url $wdurl --url http://$bioshost:$biosport push action act.token issue '[ "act", "1000000000.0000 act", "memo" ]' -p act >> $logfile 2>&1
 echo ==== End: $step ============== >> $logfile
 step=$(($step + 1))
 
-ecmd set contract actx contracts/actx.system actx.system.wasm actx.system.abi
-programs/cleos/cleos --wallet-url $wdurl --url http://$bioshost:$biosport push action actx init '[0, "4,ACTX"]' -p actx >> $logfile 2>&1
+ecmd set contract act contracts/act.system act.system.wasm act.system.abi
+programs/cleos/cleos --wallet-url $wdurl --url http://$bioshost:$biosport push action act init '[0, "4,act"]' -p act >> $logfile 2>&1
 
 # Manual deployers, add a series of lines below this block that looks like:
 #    cacmd $PRODNAME[0] $OWNERKEY[0] $ACTIVEKEY[0]

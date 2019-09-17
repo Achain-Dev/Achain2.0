@@ -1,4 +1,4 @@
-configure_file("actx.doxygen.in" "${CMAKE_BINARY_DIR}/actx.doxygen")
+configure_file("act.doxygen.in" "${CMAKE_BINARY_DIR}/act.doxygen")
 
 include(FindDoxygen)
 
@@ -20,7 +20,7 @@ else()
     # Doxygen has issues making destination directories more than one level deep, so do it for it.
     add_custom_target(make_doc_dir ALL COMMAND ${CMAKE_COMMAND} -E make_directory "${DOXY_DOC_DEST_DIR}")
     add_custom_target(contract_documentation ALL
-      COMMAND "${DOXYGEN_EXECUTABLE}" "${CMAKE_BINARY_DIR}/actx.doxygen"
+      COMMAND "${DOXYGEN_EXECUTABLE}" "${CMAKE_BINARY_DIR}/act.doxygen"
       DEPENDS make_doc_dir
       WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
       COMMENT "Building doxygen documentation into ${DOXY_DOC_DEST_DIR}..."

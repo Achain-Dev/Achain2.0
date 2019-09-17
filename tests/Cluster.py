@@ -75,7 +75,7 @@ class Cluster(object):
         self.defProducerAccounts={}
         self.defproduceraAccount=self.defProducerAccounts["defproducera"]= Account("defproducera")
         self.defproducerbAccount=self.defProducerAccounts["defproducerb"]= Account("defproducerb")
-        self.eosioAccount=self.defProducerAccounts["actx"]= Account("actx")
+        self.eosioAccount=self.defProducerAccounts["act"]= Account("act")
 
         self.defproduceraAccount.ownerPrivateKey=defproduceraPrvtKey
         self.defproduceraAccount.activePrivateKey=defproduceraPrvtKey
@@ -945,7 +945,7 @@ class Cluster(object):
 
         ignWallet=walletMgr.create("ignition")
 
-        eosioName="actx"
+        eosioName="act"
         eosioKeys=producerKeys[eosioName]
         eosioAccount=Account(eosioName)
         eosioAccount.ownerPrivateKey=eosioKeys["private"]
@@ -957,7 +957,7 @@ class Cluster(object):
             Utils.Print("ERROR: Failed to import %s account keys into ignition wallet." % (eosioName))
             return None
 
-        contract="actx.bios"
+        contract="act.bios"
         contractDir="contracts/%s" % (contract)
         wasmFile="%s.wasm" % (contract)
         abiFile="%s.abi" % (contract)
@@ -1002,8 +1002,8 @@ class Cluster(object):
                     setProdsStr=f.read()
 
                     Utils.Print("Setting producers.")
-                    opts="--permission actx@active"
-                    myTrans=biosNode.pushMessage("actx", "setprods", setProdsStr, opts)
+                    opts="--permission act@active"
+                    myTrans=biosNode.pushMessage("act", "setprods", setProdsStr, opts)
                     if myTrans is None or not myTrans[0]:
                         Utils.Print("ERROR: Failed to set producers.")
                         return None
@@ -1027,9 +1027,9 @@ class Cluster(object):
                 setProdsStr += ' ] }'
                 if Utils.Debug: Utils.Print("setprods: %s" % (setProdsStr))
                 Utils.Print("Setting producers: %s." % (", ".join(prodNames)))
-                opts="--permission actx@active"
+                opts="--permission act@active"
                 # pylint: disable=redefined-variable-type
-                trans=biosNode.pushMessage("actx", "setprods", setProdsStr, opts)
+                trans=biosNode.pushMessage("act", "setprods", setProdsStr, opts)
                 if trans is None or not trans[0]:
                     Utils.Print("ERROR: Failed to set producer %s." % (keys["name"]))
                     return None
@@ -1041,35 +1041,35 @@ class Cluster(object):
                 return None
 
             # wait for block production handover (essentially a block produced by anyone but eosio).
-            lam = lambda: biosNode.getInfo(exitOnError=True)["head_block_producer"] != "actx"
+            lam = lambda: biosNode.getInfo(exitOnError=True)["head_block_producer"] != "act"
             ret=Utils.waitForBool(lam)
             if not ret:
                 Utils.Print("ERROR: Block production handover failed.")
                 return None
 
         eosioTokenAccount=copy.deepcopy(eosioAccount)
-        eosioTokenAccount.name="actx.token"
+        eosioTokenAccount.name="act.token"
         trans=biosNode.createAccount(eosioTokenAccount, eosioAccount, 0)
         if trans is None:
             Utils.Print("ERROR: Failed to create account %s" % (eosioTokenAccount.name))
             return None
 
         eosioRamAccount=copy.deepcopy(eosioAccount)
-        eosioRamAccount.name="actx.ram"
+        eosioRamAccount.name="act.ram"
         trans=biosNode.createAccount(eosioRamAccount, eosioAccount, 0)
         if trans is None:
             Utils.Print("ERROR: Failed to create account %s" % (eosioRamAccount.name))
             return None
 
         eosioRamfeeAccount=copy.deepcopy(eosioAccount)
-        eosioRamfeeAccount.name="actx.ramfee"
+        eosioRamfeeAccount.name="act.ramfee"
         trans=biosNode.createAccount(eosioRamfeeAccount, eosioAccount, 0)
         if trans is None:
             Utils.Print("ERROR: Failed to create account %s" % (eosioRamfeeAccount.name))
             return None
 
         eosioStakeAccount=copy.deepcopy(eosioAccount)
-        eosioStakeAccount.name="actx.stake"
+        eosioStakeAccount.name="act.stake"
         trans=biosNode.createAccount(eosioStakeAccount, eosioAccount, 0)
         if trans is None:
             Utils.Print("ERROR: Failed to create account %s" % (eosioStakeAccount.name))
@@ -1081,7 +1081,7 @@ class Cluster(object):
             Utils.Print("ERROR: Failed to validate transaction %s got rolled into a block on server port %d." % (transId, biosNode.port))
             return None
 
-        contract="actx.token"
+        contract="act.token"
         contractDir="contracts/%s" % (contract)
         wasmFile="%s.wasm" % (contract)
         abiFile="%s.abi" % (contract)
@@ -1136,7 +1136,7 @@ class Cluster(object):
                         (expectedAmount, actualAmount))
             return None
 
-        contract="actx.system"
+        contract="act.system"
         contractDir="contracts/%s" % (contract)
         wasmFile="%s.wasm" % (contract)
         abiFile="%s.abi" % (contract)
