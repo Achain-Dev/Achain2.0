@@ -40,7 +40,7 @@ endif()
 set( CLI_CLIENT_EXECUTABLE_NAME cleos )
 set( NODE_EXECUTABLE_NAME nodeos )
 set( KEY_STORE_EXECUTABLE_NAME keosd )
-set( GUI_CLIENT_EXECUTABLE_NAME actx )
+set( GUI_CLIENT_EXECUTABLE_NAME act )
 set( CUSTOM_URL_SCHEME "gcs" )
 set( INSTALLER_APP_ID "68ad7005-8eee-49c9-95ce-9eed97e5b347" )
 
@@ -222,48 +222,48 @@ add_subdirectory( tests )
 add_subdirectory( tools )
 add_subdirectory( debian )
 
-install_directory_permissions(DIRECTORY ${CMAKE_INSTALL_FULL_SYSCONFDIR}/actx)
+install_directory_permissions(DIRECTORY ${CMAKE_INSTALL_FULL_SYSCONFDIR}/act)
 
-install(FILES testnet.template DESTINATION ${CMAKE_INSTALL_FULL_SYSCONFDIR}/actx/launcher)
-install_directory_permissions(DIRECTORY ${CMAKE_INSTALL_FULL_SYSCONFDIR}/actx)
-install_directory_permissions(DIRECTORY ${CMAKE_INSTALL_FULL_SYSCONFDIR}/actx/launcher)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/testnet.template ${CMAKE_CURRENT_BINARY_DIR}/etc/actx/launcher/testnet.template COPYONLY)
+install(FILES testnet.template DESTINATION ${CMAKE_INSTALL_FULL_SYSCONFDIR}/act/launcher)
+install_directory_permissions(DIRECTORY ${CMAKE_INSTALL_FULL_SYSCONFDIR}/act)
+install_directory_permissions(DIRECTORY ${CMAKE_INSTALL_FULL_SYSCONFDIR}/act/launcher)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/testnet.template ${CMAKE_CURRENT_BINARY_DIR}/etc/act/launcher/testnet.template COPYONLY)
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/actx.version.in ${CMAKE_CURRENT_BINARY_DIR}/actx.version.hpp)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/actx.version.hpp DESTINATION ${CMAKE_INSTALL_FULL_INCLUDEDIR})
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/act.version.in ${CMAKE_CURRENT_BINARY_DIR}/act.version.hpp)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/act.version.hpp DESTINATION ${CMAKE_INSTALL_FULL_INCLUDEDIR})
 
 set(EOS_ROOT_DIR ${CMAKE_BINARY_DIR})
-configure_file(${CMAKE_SOURCE_DIR}/CMakeModules/actx-config.cmake.in ${CMAKE_BINARY_DIR}/lib/cmake/actx/actx-config.cmake @ONLY)
-configure_file(${CMAKE_SOURCE_DIR}/CMakeModules/EosioTesterBuild.cmake.in ${CMAKE_BINARY_DIR}/lib/cmake/actx/EosioTester.cmake @ONLY)
+configure_file(${CMAKE_SOURCE_DIR}/CMakeModules/act-config.cmake.in ${CMAKE_BINARY_DIR}/lib/cmake/act/act-config.cmake @ONLY)
+configure_file(${CMAKE_SOURCE_DIR}/CMakeModules/EosioTesterBuild.cmake.in ${CMAKE_BINARY_DIR}/lib/cmake/act/EosioTester.cmake @ONLY)
 
 set(EOS_ROOT_DIR ${CMAKE_INSTALL_PREFIX})
-configure_file(${CMAKE_SOURCE_DIR}/CMakeModules/actx-config.cmake.in ${CMAKE_BINARY_DIR}/modules/actx-config.cmake @ONLY)
-install(FILES ${CMAKE_BINARY_DIR}/modules/actx-config.cmake DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/cmake/actx)
+configure_file(${CMAKE_SOURCE_DIR}/CMakeModules/act-config.cmake.in ${CMAKE_BINARY_DIR}/modules/act-config.cmake @ONLY)
+install(FILES ${CMAKE_BINARY_DIR}/modules/act-config.cmake DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/cmake/act)
 configure_file(${CMAKE_SOURCE_DIR}/CMakeModules/EosioTester.cmake.in ${CMAKE_BINARY_DIR}/modules/EosioTester.cmake @ONLY)
-install(FILES ${CMAKE_BINARY_DIR}/modules/EosioTester.cmake DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/cmake/actx)
+install(FILES ${CMAKE_BINARY_DIR}/modules/EosioTester.cmake DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/cmake/act)
 
 configure_file(${CMAKE_SOURCE_DIR}/LICENSE 
-               ${CMAKE_BINARY_DIR}/licenses/actx/LICENSE COPYONLY)
+               ${CMAKE_BINARY_DIR}/licenses/act/LICENSE COPYONLY)
 configure_file(${CMAKE_SOURCE_DIR}/libraries/wabt/LICENSE 
-               ${CMAKE_BINARY_DIR}/licenses/actx/LICENSE.wabt COPYONLY)
+               ${CMAKE_BINARY_DIR}/licenses/act/LICENSE.wabt COPYONLY)
 configure_file(${CMAKE_SOURCE_DIR}/libraries/softfloat/COPYING.txt 
-               ${CMAKE_BINARY_DIR}/licenses/actx/LICENSE.softfloat COPYONLY)
+               ${CMAKE_BINARY_DIR}/licenses/act/LICENSE.softfloat COPYONLY)
 configure_file(${CMAKE_SOURCE_DIR}/libraries/wasm-jit/LICENSE 
-               ${CMAKE_BINARY_DIR}/licenses/actx/LICENSE.wavm COPYONLY)
+               ${CMAKE_BINARY_DIR}/licenses/act/LICENSE.wavm COPYONLY)
 configure_file(${CMAKE_SOURCE_DIR}/libraries/fc/secp256k1/upstream/COPYING 
-               ${CMAKE_BINARY_DIR}/licenses/actx/LICENSE.secp256k1 COPYONLY)
+               ${CMAKE_BINARY_DIR}/licenses/act/LICENSE.secp256k1 COPYONLY)
 configure_file(${CMAKE_SOURCE_DIR}/libraries/fc/src/network/LICENSE.go 
-               ${CMAKE_BINARY_DIR}/licenses/actx/LICENSE.go COPYONLY)
+               ${CMAKE_BINARY_DIR}/licenses/act/LICENSE.go COPYONLY)
 configure_file(${CMAKE_SOURCE_DIR}/libraries/yubihsm/LICENSE
-               ${CMAKE_BINARY_DIR}/licenses/actx/LICENSE.yubihsm COPYONLY)
+               ${CMAKE_BINARY_DIR}/licenses/act/LICENSE.yubihsm COPYONLY)
 
-install(FILES LICENSE DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/licenses/actx/)
-install(FILES libraries/wabt/LICENSE DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/licenses/actx/ RENAME LICENSE.wabt)
-install(FILES libraries/softfloat/COPYING.txt DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/licenses/actx/ RENAME LICENSE.softfloat)
-install(FILES libraries/wasm-jit/LICENSE DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/licenses/actx/ RENAME LICENSE.wavm)
-install(FILES libraries/fc/secp256k1/upstream/COPYING DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/licenses/actx/ RENAME LICENSE.secp256k1)
-install(FILES libraries/fc/src/network/LICENSE.go DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/licenses/actx/ COMPONENT base)
-install(FILES libraries/yubihsm/LICENSE DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/licenses/actx/ RENAME LICENSE.yubihsm COMPONENT base)
+install(FILES LICENSE DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/licenses/act/)
+install(FILES libraries/wabt/LICENSE DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/licenses/act/ RENAME LICENSE.wabt)
+install(FILES libraries/softfloat/COPYING.txt DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/licenses/act/ RENAME LICENSE.softfloat)
+install(FILES libraries/wasm-jit/LICENSE DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/licenses/act/ RENAME LICENSE.wavm)
+install(FILES libraries/fc/secp256k1/upstream/COPYING DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/licenses/act/ RENAME LICENSE.secp256k1)
+install(FILES libraries/fc/src/network/LICENSE.go DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/licenses/act/ COMPONENT base)
+install(FILES libraries/yubihsm/LICENSE DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/licenses/act/ RENAME LICENSE.yubihsm COMPONENT base)
 
 add_custom_target(base-install
   COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}"

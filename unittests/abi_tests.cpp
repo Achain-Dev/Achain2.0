@@ -549,8 +549,8 @@ BOOST_AUTO_TEST_CASE(general)
     {
       "publickey"     :  "EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV",
       "publickey_arr" :  ["EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV","EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV","EOS6MRyAjQq8ud7hVNYcfnVPJqcVpscN5So8BhtHuGYqET5GDW5CV"],
-      "asset"         : "100.0000 ACTX",
-      "asset_arr"     : ["100.0000 ACTX","100.0000 ACTX"],
+      "asset"         : "100.0000 ACT",
+      "asset_arr"     : ["100.0000 ACT","100.0000 ACT"],
 
       "string"            : "ola ke ase",
       "string_arr"        : ["ola ke ase","ola ke desi"],
