@@ -2243,16 +2243,19 @@ void get_account( const string& accountName, const string& coresym, bool json_fo
       }
 
       if ( res.voter_info.is_object() ) {
-         auto& obj = res.voter_info.get_object();
-         auto prods = fc::variant(obj["producers"]).as<std::map<name, int64_t>>();
+         auto obj = res.voter_info.get_object();
+         auto prods_info = fc::variant(obj["producers"]);
+         int32_t prods_size = prods_info.size();
+         //auto prods = obj["producers"].as< std::map<name, int64_t> >();
          std::cout << "producers:";
-         if ( !prods.empty() ) {
+         if (prods_size > 0 ) {
             uint32_t i = 0;
-            for ( auto& x : prods ) {
+            while (i < prods_size) {
                if ( i%3 == 0 ) {
                   std::cout << std::endl << indent;
                }
-               std::cout << std::setw(16) << std::left << x.first.to_string();
+               auto prods = prods_info[i].get_object()["key"].as_string();
+               std::cout << std::setw(16) << std::left << prods;
                i++;
             }
             std::cout << std::endl;

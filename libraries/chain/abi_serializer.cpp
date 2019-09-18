@@ -114,7 +114,21 @@ namespace eosio { namespace chain {
       tables.clear();
       error_messages.clear();
       variants.clear();
-      
+#if 0     
+      //add map for achain2.0      
+      add_specialized_unpack_pack( "map",
+                              std::make_pair<abi_serializer::unpack_function, abi_serializer::pack_function>(
+				[]( fc::datastream<const char*>& stream, bool is_map, bool is_optional ) -> fc::variant {
+				   //if (temp.size() == 0) return fc::variant(std::map<name, int64_t>());
+				   std::map<name, int64_t> temp;
+				   fc::raw::unpack( stream, temp );
+				   return fc::variant( temp );
+				},
+				[]( const fc::variant& var, fc::datastream<char*>& ds, bool is_map, bool is_optional ) {
+				   fc::raw::pack( ds, var.as<std::map<name, int64_t>>() );
+				}
+      ) );
+#endif 
       for( const auto& st : abi.structs )
          structs[st.name] = st;
 
@@ -400,7 +414,6 @@ namespace eosio { namespace chain {
    { try {
       auto h = ctx.enter_scope();
       auto rtype = resolve_type(type);
-
       auto v_itr = variants.end();
       auto s_itr = structs.end();
 
@@ -411,10 +424,8 @@ namespace eosio { namespace chain {
          ctx.hint_array_type_if_in_array();
          vector<fc::variant> vars = var.get_array();
          fc::raw::pack(ds, (fc::unsigned_int)vars.size());
-
          auto h1 = ctx.push_to_path( impl::array_index_path_item{} );
          auto h2 = ctx.disallow_extensions_unless(false);
-
          int64_t i = 0;
          for (const auto& var : vars) {
             ctx.set_array_index_of_path_back(i);
@@ -439,7 +450,6 @@ namespace eosio { namespace chain {
       } else if( (s_itr = structs.find(rtype)) != structs.end() ) {
          ctx.hint_struct_type_if_in_array( s_itr );
          const auto& st = s_itr->second;
-
          if( var.is_object() ) {
             const auto& vo = var.get_object();
 
