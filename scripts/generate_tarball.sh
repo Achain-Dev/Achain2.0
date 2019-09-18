@@ -6,17 +6,13 @@ EOS_PREFIX=${PREFIX}/${SUBPREFIX}
 mkdir -p ${PREFIX}/bin/
 #mkdir -p ${PREFIX}/lib/cmake/${PROJECT}
 mkdir -p ${EOS_PREFIX}/bin
-mkdir -p ${EOS_PREFIX}/licenses/eosio
-#mkdir -p ${EOS_PREFIX}/include
-#mkdir -p ${EOS_PREFIX}/lib/cmake/${PROJECT}
-#mkdir -p ${EOS_PREFIX}/cmake
-#mkdir -p ${EOS_PREFIX}/scripts
+mkdir -p ${EOS_PREFIX}/licenses/achain
 
 # install binaries 
 cp -R ${BUILD_DIR}/bin/* ${EOS_PREFIX}/bin  || exit 1
 
 # install licenses
-cp -R ${BUILD_DIR}/licenses/eosio/* ${EOS_PREFIX}/licenses || exit 1
+cp -R ${BUILD_DIR}/licenses/act/* ${EOS_PREFIX}/licenses || exit 1
 
 # install libraries
 #cp -R ${BUILD_DIR}/lib/* ${EOS_PREFIX}/lib
