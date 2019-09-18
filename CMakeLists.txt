@@ -1,6 +1,6 @@
 cmake_minimum_required( VERSION 3.8 )
 
-project( ACTX )
+project( ACHAIN )
 include(CTest) # suppresses DartConfiguration.tcl error
 enable_testing()
 
@@ -27,8 +27,8 @@ set( CMAKE_CXX_EXTENSIONS ON )
 set( CXX_STANDARD_REQUIRED ON)
 
 set(VERSION_MAJOR 1)
-set(VERSION_MINOR 8)
-set(VERSION_PATCH 1)
+set(VERSION_MINOR 1)
+set(VERSION_PATCH  0)
 #set(VERSION_SUFFIX develop)
 
 if(VERSION_SUFFIX)

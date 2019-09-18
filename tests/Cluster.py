@@ -369,7 +369,7 @@ class Cluster(object):
             initAccountKeys(account, producerKeys[name])
             self.defProducerAccounts[name] = account
 
-        self.eosioAccount=self.defProducerAccounts["actx"]
+        self.eosioAccount=self.defProducerAccounts["act"]
         self.defproduceraAccount=self.defProducerAccounts["defproducera"]
         self.defproducerbAccount=self.defProducerAccounts["defproducerb"]
 
@@ -874,7 +874,7 @@ class Cluster(object):
             Utils.Print("ERROR: Failed to create ignition wallet.")
             return None
 
-        eosioName="actx"
+        eosioName="act"
         eosioKeys=producerKeys[eosioName]
         eosioAccount=Account(eosioName)
         eosioAccount.ownerPrivateKey=eosioKeys["private"]
@@ -890,15 +890,15 @@ class Cluster(object):
         initialFunds="1000000.0000 {0}".format(CORE_SYMBOL)
         Utils.Print("Transfer initial fund %s to individual accounts." % (initialFunds))
         trans=None
-        contract="actx.token"
+        contract="act.token"
         action="transfer"
         for name, keys in producerKeys.items():
-            data="{\"from\":\"actx\",\"to\":\"%s\",\"quantity\":\"%s\",\"memo\":\"%s\"}" % (name, initialFunds, "init transfer")
-            opts="--permission actx@active"
-            if name != "actx":
+            data="{\"from\":\"act\",\"to\":\"%s\",\"quantity\":\"%s\",\"memo\":\"%s\"}" % (name, initialFunds, "init transfer")
+            opts="--permission act@active"
+            if name != "act":
                 trans=biosNode.pushMessage(contract, action, data, opts)
                 if trans is None or not trans[0]:
-                    Utils.Print("ERROR: Failed to transfer funds from actx.token to %s." % (name))
+                    Utils.Print("ERROR: Failed to transfer funds from act.token to %s." % (name))
                     return None
 
             Node.validateTransaction(trans[1])

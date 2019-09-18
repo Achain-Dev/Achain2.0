@@ -150,7 +150,7 @@ BOOST_FIXTURE_TEST_CASE( get_table_test, TESTER ) try {
    // create currency
    auto act = mutable_variant_object()
          ("issuer",       "act")
-         ("maximum_supply", eosio::chain::asset::from_string("1000000000.0000 ACTX"));
+         ("maximum_supply", eosio::chain::asset::from_string("1000000000.0000 ACT"));
    push_action(N(act.token), N(create), N(act.token), act );
 
    // issue
@@ -329,7 +329,7 @@ BOOST_FIXTURE_TEST_CASE( get_table_by_seckey_test, TESTER ) try {
    // create currency
    auto act = mutable_variant_object()
          ("issuer",       "act")
-         ("maximum_supply", eosio::chain::asset::from_string("1000000000.0000 ACTX"));
+         ("maximum_supply", eosio::chain::asset::from_string("1000000000.0000 ACT"));
    push_action(N(act.token), N(create), N(act.token), act );
 
    // issue
@@ -355,10 +355,10 @@ BOOST_FIXTURE_TEST_CASE( get_table_by_seckey_test, TESTER ) try {
                           );
    };
 
-   bidname(N(inita), N(com), eosio::chain::asset::from_string("10.0000 ACTX"));
-   bidname(N(initb), N(org), eosio::chain::asset::from_string("11.0000 ACTX"));
-   bidname(N(initc), N(io), eosio::chain::asset::from_string("12.0000 ACTX"));
-   bidname(N(initd), N(html), eosio::chain::asset::from_string("14.0000 ACTX"));
+   bidname(N(inita), N(com), eosio::chain::asset::from_string("10.0000 ACT"));
+   bidname(N(initb), N(org), eosio::chain::asset::from_string("11.0000 ACT"));
+   bidname(N(initc), N(io), eosio::chain::asset::from_string("12.0000 ACT"));
+   bidname(N(initd), N(html), eosio::chain::asset::from_string("14.0000 ACT"));
    produce_blocks(1);
 
    // get table: normal case
