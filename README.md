@@ -15,4 +15,4 @@ sudo -c ./act_install.sh
 
 # Write dapp
 
-recommend [Contract Development Toolkit](https://github.com/Achain-Dev/actx.cdt) **_`Version：1.4.1`_** to build your contract
+recommend [Contract Development Toolkit](https://github.com/Achain-Dev/act.cdt) **_`Version：1.4.1`_** to build your contract
