@@ -311,7 +311,7 @@ void sign_transaction(signed_transaction& trx, fc::variant& required_keys, const
    trx = signed_trx.as<signed_transaction>();
 }
 
-fc::variant push_transaction( signed_transaction& trx, int32_t extra_kcpu = 1000, packed_transaction::compression_type compression = packed_transaction::none ) {
+fc::variant push_transaction( signed_transaction& trx, packed_transaction::compression_type compression = packed_transaction::none ) {
    auto info = get_info();
 
    if (trx.signatures.size() == 0) { // #5445 can't change txn content if already signed
@@ -1315,6 +1315,7 @@ struct get_transaction_id_subcommand {
             fc::variant trx_var = json_from_file_or_string(trx_to_check);
             if( trx_var.is_object() ) {
                fc::variant_object& vo = trx_var.get_object();
+               // if actions.data & actions.hex_data provided, use the hex_data since only currently support unexploded data
                if( vo.contains("actions") ) {
                   if( vo["actions"].is_array() ) {
                      fc::mutable_variant_object mvo = vo;
@@ -2267,6 +2268,7 @@ void get_account( const string& accountName, const string& coresym, bool json_fo
                std::cout << std::setw(16) << std::left << prods;
                i++;
             }
+
             std::cout << std::endl;
          } else {
             std::cout << indent << "<not voted>" << std::endl;
@@ -2292,6 +2294,7 @@ int main( int argc, char** argv ) {
    setlocale(LC_ALL, "");
    bindtextdomain(locale_domain, locale_path);
    textdomain(locale_domain);
+   fc::logger::get(DEFAULT_LOGGER).set_log_level(fc::log_level::debug);
    context = eosio::client::http::create_http_context();
    wallet_url = default_wallet_url;
 
