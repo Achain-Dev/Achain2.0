@@ -1207,15 +1207,24 @@ struct unvote_producer_subcommand {
                return;
             }
             EOS_ASSERT( 1 == res.rows.size(), multiple_voter_info, "More than one voter_info for account" );
-            //auto prod_vars = res.rows[0]["producers"].get_array();
-            std::map<name, int64_t> prod_vars = fc::variant(res.rows[0]["producers"]).as<std::map<name, int64_t>>();
-            auto iter = prod_vars.find(producer_name);
-            if (iter == prod_vars.end())
+            auto prod_vars = fc::variant(res.rows[0]["producers"]);
+            int32_t prods_size = prod_vars.size();
+            int32_t iter_i = 0;
+            int64_t votes = 0;
+            while (iter_i < prods_size)
+            {
+               if (prod_vars[iter_i].get_object()["key"].as_string() == name(producer_name).to_string()){
+                  votes = prod_vars[iter_i].get_object()["value"].as_int64();
+                  break;
+               }
+               iter_i++;
+            }
+            if (iter_i == prods_size)
             {
                std::cerr << "Voter info not found for account " << producer_name.to_string() << std::endl;
                return;
             }
-            asset asset_vote(-(iter->second));
+            asset asset_vote(-votes);
             fc::variant act_payload = fc::mutable_variant_object()
                ("voter", voter)
                ("producer",producer_name )
@@ -2244,16 +2253,22 @@ void get_account( const string& accountName, const string& coresym, bool json_fo
       }
 
       if ( res.voter_info.is_object() ) {
-         auto& obj = res.voter_info.get_object();
-         auto& prods = obj["producers"].get_array();
+         auto obj = res.voter_info.get_object();
+         auto prods_info = fc::variant(obj["producers"]);
+         int32_t prods_size = prods_info.size();
+         //auto prods = obj["producers"].as< std::map<name, int64_t> >();
          std::cout << "producers:";
-         if ( !prods.empty() ) {
-               for ( size_t i = 0; i < prods.size(); ++i ) {
-                  if ( i%3 == 0 ) {
-                     std::cout << std::endl << indent;
-                  }
-                  std::cout << std::setw(16) << std::left << prods[i].as_string();
+         if (prods_size > 0 ) {
+            uint32_t i = 0;
+            while (i < prods_size) {
+               if ( i%3 == 0 ) {
+                  std::cout << std::endl << indent;
                }
+               auto prods = prods_info[i].get_object()["key"].as_string();
+               std::cout << std::setw(16) << std::left << prods;
+               i++;
+            }
+
             std::cout << std::endl;
          } else {
             std::cout << indent << "<not voted>" << std::endl;
@@ -3843,7 +3858,7 @@ int main( int argc, char** argv ) {
    auto voteProducer = system->add_subcommand("voteproducer", localized("Vote for a producer"));
    voteProducer->require_subcommand();
    auto voteproducer = vote_producer_subcommand(voteProducer);
-
+   auto unvoteproducer = unvote_producer_subcommand(voteProducer);
    auto listProducers = list_producers_subcommand(system);
 
    auto delegateBandWidth = delegate_bandwidth_subcommand(system);
