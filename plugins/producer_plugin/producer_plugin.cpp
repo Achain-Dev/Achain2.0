@@ -287,6 +287,30 @@ class producer_plugin_impl : public std::enable_shared_from_this<producer_plugin
       }
 
       void on_block( const block_state_ptr& bsp ) {
+         //load featrues
+         if (bsp->block_num == 3){
+            const auto& pfs = chain_plug->chain().get_protocol_feature_manager().get_protocol_feature_set();
+
+            //auto iter = pfs.find(builtin_protocol_feature_t::preactivate_feature);
+            auto iter = pfs.begin();
+            if (iter != pfs.end())
+            {
+               producer_plugin::scheduled_protocol_feature_activations shc;
+               shc.protocol_features_to_activate.reserve(1);
+               shc.protocol_features_to_activate.push_back(iter->feature_digest);
+               _self->schedule_protocol_feature_activations(shc);
+            }
+         }
+
+         if (bsp->block_num == 5){
+            const auto& pfs = chain_plug->chain().get_protocol_feature_manager().get_protocol_feature_set();
+            auto itr = pfs.begin();
+            itr++;
+            for( ; itr != pfs.end(); ++itr )
+            {
+               chain_plug->chain().preactivate_feature(itr->feature_digest);
+            }
+         }
       }
 
       void on_block_header( const block_state_ptr& bsp ) {
