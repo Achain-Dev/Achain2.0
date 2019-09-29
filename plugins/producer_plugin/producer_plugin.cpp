@@ -304,11 +304,11 @@ class producer_plugin_impl : public std::enable_shared_from_this<producer_plugin
 
          if (bsp->block_num == 5){
             const auto& pfs = chain_plug->chain().get_protocol_feature_manager().get_protocol_feature_set();
-            auto itr = pfs.begin();
-            itr++;
-            for( ; itr != pfs.end(); ++itr )
-            {
-               chain_plug->chain().preactivate_feature(itr->feature_digest);
+            
+            auto iter = static_cast<uint32_t>(builtin_protocol_feature_t::only_link_to_existing_permission);
+            for (; iter <= static_cast<uint32_t>(builtin_protocol_feature_t::ram_restrictions); iter++){
+               auto digest = pfs.get_builtin_digest(static_cast<builtin_protocol_feature_t>(iter));
+               chain_plug->chain().preactivate_feature(*digest);
             }
          }
       }
