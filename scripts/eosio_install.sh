@@ -32,6 +32,19 @@ VERSION=2.1
 # https://github.com/EOSIO/eos/blob/master/LICENSE.txt
 ##########################################################################
 
+create_symlink() {
+      pushd /usr/local/bin &> /dev/null
+      ln -sf ${EOSIO_INSTALL_DIR}/bin/$1 $1
+      popd &> /dev/null
+}
+
+install_symlinks() {
+      printf "\\n\\tInstalling Achainplus Binary Symlinks\\n\\n"
+      create_symlink "cleos"
+      create_symlink "keosd"
+      create_symlink "nodeos"
+}
+
 # Ensure we're in the repo root and not inside of scripts
 cd $( dirname "${BASH_SOURCE[0]}" )/..
 
@@ -52,4 +65,4 @@ printf "${COLOR_GREEN}ACHAIN has been installed into ${CACHED_INSTALL_PATH}/bin$
 printf "\\n${COLOR_YELLOW}Uninstall with: ${SCRIPT_DIR}/eosio_uninstall.sh${COLOR_NC}\\n"
 printf "==============================================================================================\\n\\n"
 resources
-
+install_symlinks
