@@ -5,13 +5,13 @@ the next generation of blockchain  technique Achain
 git clone `https://github.com/Achain-Dev/Achain2.0.git`  --recursive
 
 # Compile Achain2.0
-cd Achain2.0/scripts  
+cd Achain2.0  
 ./act_build.sh
 
 The above process takes about 20-30 minutes, depending on the network
 
 # Install Achain2.0
-sudo -c ./act_install.sh
+sudo ./act_install.sh
 
 # Write dapp
 
