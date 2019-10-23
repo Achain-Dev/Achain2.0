@@ -301,6 +301,8 @@ def stepStartBoot():
 def stepInstallSystemContracts():
     run(args.cleos + 'set contract act.token ' + args.contracts_dir + 'act.token/')
     run(args.cleos + 'set contract act.msig ' + args.contracts_dir + 'act.msig/')
+    sleep(1.5)
+    run('curl -X POST http://' + HOST_IP + ':%d' % args.http_port + '/v1/producer/schedule_protocol_feature_activations -d ' +'\'{"protocol_features_to_activate": ["0ec7e080177b2c02b278d5088611686b49d739925a92d9bfcacd7fc6b74053bd"]}\'  | jq ')
 def stepCreateTokens():
     run(args.cleos + 'push action act.token create \'["act", "10000000000.0000 %s"]\' -p act.token' % (args.symbol))
     totalAllocation = allocateFunds(0, len(accounts))
