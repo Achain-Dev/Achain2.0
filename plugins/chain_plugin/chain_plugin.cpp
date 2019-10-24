@@ -1914,6 +1914,8 @@ void read_write::push_block(read_write::push_block_params&& params, next_functio
       next(read_write::push_block_results{});
    } catch ( boost::interprocess::bad_alloc& ) {
       chain_plugin::handle_db_exhaustion();
+   } catch ( const std::bad_alloc& ) {
+      chain_plugin::handle_bad_alloc();
    } CATCH_AND_CALL(next);
 }
 
@@ -1997,6 +1999,8 @@ void read_write::push_transaction(const read_write::push_transaction_params& par
 
    } catch ( boost::interprocess::bad_alloc& ) {
       chain_plugin::handle_db_exhaustion();
+   } catch ( const std::bad_alloc& ) {
+      chain_plugin::handle_bad_alloc();
    } CATCH_AND_CALL(next);
 }
 
@@ -2031,6 +2035,8 @@ void read_write::push_transactions(const read_write::push_transactions_params& p
       push_recurse(this, 0, params_copy, result, next);
    } catch ( boost::interprocess::bad_alloc& ) {
       chain_plugin::handle_db_exhaustion();
+   } catch ( const std::bad_alloc& ) {
+      chain_plugin::handle_bad_alloc();
    } CATCH_AND_CALL(next);
 }
 
@@ -2066,6 +2072,8 @@ void read_write::send_transaction(const read_write::send_transaction_params& par
       });
    } catch ( boost::interprocess::bad_alloc& ) {
       chain_plugin::handle_db_exhaustion();
+   } catch ( const std::bad_alloc& ) {
+      chain_plugin::handle_bad_alloc();
    } CATCH_AND_CALL(next);
 }
 
@@ -2169,9 +2177,9 @@ read_only::get_account_results read_only::get_account( const get_account_params&
    result.last_code_update = accnt_metadata_obj.last_code_update;
    result.created          = accnt_obj.creation_date;
 
-   bool grelisted = db.is_resource_greylisted(result.account_name);
-   result.net_limit = rm.get_account_net_limit_ex( result.account_name, !grelisted);
-   result.cpu_limit = rm.get_account_cpu_limit_ex( result.account_name, !grelisted);
+   uint32_t greylist_limit = db.is_resource_greylisted(result.account_name) ? 1 : config::maximum_elastic_resource_multiplier;
+   result.net_limit = rm.get_account_net_limit_ex( result.account_name, greylist_limit).first;
+   result.cpu_limit = rm.get_account_cpu_limit_ex( result.account_name, greylist_limit).first;
    result.ram_usage = rm.get_account_ram_usage( result.account_name );
 
    const auto& permissions = d.get_index<permission_index,by_owner>();
