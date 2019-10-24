@@ -12,7 +12,7 @@ args = None
 logFile = None
 
 #############################################################################################################
-## this shell is loading features for Achian 
+## this shell is loading features for Private chain, if you build a private chain, you can run this shell
 ## cmd: ./load-features.py -l --http-server <specify http server url> --contract-dir <specify contracts build dir> --wallet-url <specify wallet url>
 ##
 ## precondition: 
