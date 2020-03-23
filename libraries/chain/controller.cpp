@@ -712,7 +712,7 @@ struct controller_impl {
       //set no_bid
       cfg.cfg_name = setconf::func_type::no_bid;
       cfg.value = 0;
-      cfg.valid_block = 10000000;  //till 10000000
+      cfg.valid_block = 200000000;  //till 200000000
       cfg.key = setconf::default_value::default_config_key;
       cfg.desc = "account can new other account without bid";
       set_config( db, cfg );
