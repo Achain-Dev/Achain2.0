@@ -132,7 +132,8 @@ namespace eosio { namespace chain {
                  ("version", my->version)("min", block_log::min_supported_version)("max", block_log::max_supported_version) );
 
 
-         my->genesis_written_to_block_log = true; // Assume it was constructed properly.
+         my->genesis_written_to_block_log = true; 
+         // Assume it was constructed properly.
          if (my->version > 1){
             my->first_block_num = 0;
             my->block_stream.read( (char*)&my->first_block_num, sizeof(my->first_block_num) );
@@ -219,7 +220,8 @@ namespace eosio { namespace chain {
       my->reopen();
 
       auto data = fc::raw::pack(gs);
-      my->version = 0; // version of 0 is invalid; it indicates that the genesis was not properly written to the block log
+      my->version = 0; 
+      // version of 0 is invalid; it indicates that the genesis was not properly written to the block log
       my->first_block_num = first_block_num;
       my->block_stream.seekp(0, std::ios::end);
       my->block_stream.write((char*)&my->version, sizeof(my->version));
@@ -331,9 +333,11 @@ namespace eosio { namespace chain {
 
       uint64_t pos = 0;
       if (my->version == 1) {
-         pos = 4; // Skip version which should have already been checked.
+         pos = 4; 
+         // Skip version which should have already been checked.
       } else {
-         pos = 8; // Skip version and first block offset which should have already been checked
+         pos = 8; 
+         // Skip version and first block offset which should have already been checked
       }
       my->block_stream.seekg(pos);
 
