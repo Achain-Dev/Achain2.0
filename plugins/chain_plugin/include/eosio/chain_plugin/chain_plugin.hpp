@@ -93,6 +93,8 @@ public:
       uint32_t                head_block_num = 0;
       uint32_t                last_irreversible_block_num = 0;
       chain::block_id_type    last_irreversible_block_id;
+      //add last_irreversible_block_timestamp
+      chain::block_timestamp_type          last_irreversible_block_timestamp;
       chain::block_id_type    head_block_id;
       fc::time_point          head_block_time;
       account_name            head_block_producer;
@@ -745,7 +747,7 @@ private:
 FC_REFLECT( eosio::chain_apis::permission, (perm_name)(parent)(required_auth) )
 FC_REFLECT(eosio::chain_apis::empty, )
 FC_REFLECT(eosio::chain_apis::read_only::get_info_results,
-(server_version)(chain_id)(head_block_num)(last_irreversible_block_num)(last_irreversible_block_id)(head_block_id)(head_block_time)(head_block_producer)(virtual_block_cpu_limit)(virtual_block_net_limit)(block_cpu_limit)(block_net_limit)(server_version_string)(fork_db_head_block_num)(fork_db_head_block_id) )
+(server_version)(chain_id)(head_block_num)(last_irreversible_block_num)(last_irreversible_block_id)(last_irreversible_block_timestamp)(head_block_id)(head_block_time)(head_block_producer)(virtual_block_cpu_limit)(virtual_block_net_limit)(block_cpu_limit)(block_net_limit)(server_version_string)(fork_db_head_block_num)(fork_db_head_block_id) )
 FC_REFLECT(eosio::chain_apis::read_only::get_activated_protocol_features_params, (lower_bound)(upper_bound)(limit)(search_by_block_num)(reverse) )
 FC_REFLECT(eosio::chain_apis::read_only::get_activated_protocol_features_results, (activated_protocol_features)(more) )
 FC_REFLECT(eosio::chain_apis::read_only::get_block_params, (block_num_or_id))
