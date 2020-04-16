@@ -2673,7 +2673,7 @@ block_id_type controller::last_irreversible_block_id() const {
 }
 
 //add last_irreversible_block_timestamp
-block_timestamp_type controller::last_irreversible_block_timestamp() const {
+time_point controller::last_irreversible_block_timestamp() const {
    return my->fork_db.root()->header.timestamp;
 }
 

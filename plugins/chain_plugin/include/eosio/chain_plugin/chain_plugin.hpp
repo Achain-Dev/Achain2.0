@@ -94,7 +94,7 @@ public:
       uint32_t                last_irreversible_block_num = 0;
       chain::block_id_type    last_irreversible_block_id;
       //add last_irreversible_block_timestamp
-      chain::block_timestamp_type          last_irreversible_block_timestamp;
+      fc::time_point          last_irreversible_block_timestamp;
       chain::block_id_type    head_block_id;
       fc::time_point          head_block_time;
       account_name            head_block_producer;
