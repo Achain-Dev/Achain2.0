@@ -379,6 +379,8 @@ namespace impl {
       template<typename Resolver>
       static void add( mutable_variant_object &out, const char* name, const action& act, Resolver resolver, abi_traverse_context& ctx )
       {
+         //action has 4 fileds in FC_REFLECT
+         static_assert(fc::reflector<action>::total_member_count == 4);
          auto h = ctx.enter_scope();
          mutable_variant_object mvo;
          mvo("account", act.account);
@@ -421,6 +423,8 @@ namespace impl {
       template<typename Resolver>
       static void add( mutable_variant_object &out, const char* name, const packed_transaction& ptrx, Resolver resolver, abi_traverse_context& ctx )
       {
+         //packed_transaction has 4 fileds in FC_REFLECT
+         static_assert(fc::reflector<action>::total_member_count == 4);
          auto h = ctx.enter_scope();
          mutable_variant_object mvo;
          auto trx = ptrx.get_transaction();
@@ -434,7 +438,10 @@ namespace impl {
 
          out(name, std::move(mvo));
       }
+      
    };
+
+   
 
    /**
     * Reflection visitor that uses a resolver to resolve ABIs for nested types
