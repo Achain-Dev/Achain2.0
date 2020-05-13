@@ -1771,7 +1771,7 @@ namespace eosio {
                   c->add_peer_block({blkid, block_header::num_from_id(blkid)});
                }
             } catch (const assert_exception &ex) {
-               fc_ilog( logger, "caught assert on fetch_block_by_id, ${ex}",("ex",ex.what()) );
+               fc_dlog( logger, "caught assert on fetch_block_by_id, ${ex}",("ex",ex.what()) );
                // keep going, client can ask another peer
             } catch (...) {
                fc_elog( logger, "failed to retrieve block for id");
