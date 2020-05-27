@@ -1362,18 +1362,25 @@ namespace eosio {
          set_state(in_sync); // probably not, but we can't do anything else
          return;
       }
-
+      //add flag to record if send handshake
+      bool request_sent = false;
       if( sync_last_requested_num != sync_known_lib_num ) {
          uint32_t start = sync_next_expected_num;
          uint32_t end = start + sync_req_span - 1;
          if( end > sync_known_lib_num )
             end = sync_known_lib_num;
          if( end > 0 && end >= start ) {
+            request_sent = true;
             fc_ilog(logger, "requesting range ${s} to ${e}, from ${n}",
                     ("n",source->peer_name())("s",start)("e",end));
             source->request_sync_blocks(start, end);
             sync_last_requested_num = end;
          }
+      }
+      
+      //send handshake
+      if( !request_sent ) {
+         source->send_handshake();
       }
    }
 
