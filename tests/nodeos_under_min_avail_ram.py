@@ -111,12 +111,12 @@ try:
     nodes.append(cluster.getNode(1))
     nodes.append(cluster.getNode(2))
     nodes.append(cluster.getNode(3))
-
+    numNodes=len(nodes)
 
     for account in accounts:
         walletMgr.importKey(account, testWallet)
 
-    # create accounts via eosio as otherwise a bid is needed
+    # create accounts via act as otherwise a bid is needed
     for account in accounts:
         Print("Create new account %s via %s" % (account.name, cluster.eosioAccount.name))
         trans=nodes[0].createInitializeAccount(account, cluster.eosioAccount, stakedDeposit=500000, waitForTransBlock=False, stakeNet=50000, stakeCPU=50000, buyRAM=50000, exitOnError=True)
@@ -163,14 +163,14 @@ try:
             data="{\"from\":\"%s\",\"to\":\"%s\",\"num\":%d}" % (fromAccount.name, toAccount.name, numAmount)
             opts="--permission %s@active --permission %s@active --expiration 90" % (contract, fromAccount.name)
             try:
-                trans=nodes[0].pushMessage(contract, action, data, opts)
+                trans=nodes[count % numNodes].pushMessage(contract, action, data, opts)
                 if trans is None or not trans[0]:
                     timeOutCount+=1
                     if timeOutCount>=3:
-                       Print("Failed to push create action to eosio contract for %d consecutive times, looks like nodeos already exited." % (timeOutCount))
+                       Print("Failed to push create action to act contract for %d consecutive times, looks like nodeos already exited." % (timeOutCount))
                        keepProcessing=False
                        break
-                    Print("Failed to push create action to eosio contract. sleep for 60 seconds")
+                    Print("Failed to push create action to act contract. sleep for 60 seconds")
                     time.sleep(60)
                 else:
                     timeOutCount=0
@@ -203,7 +203,6 @@ try:
 
     Print("relaunch nodes with new capacity")
     addOrSwapFlags={}
-    numNodes=len(nodes)
     maxRAMValue+=2
     currentMinimumMaxRAM=maxRAMValue
     enabledStaleProduction=False
@@ -248,9 +247,9 @@ try:
             data="{\"from\":\"%s\",\"to\":\"%s\",\"num\":%d}" % (fromAccount.name, toAccount.name, numAmount)
             opts="--permission %s@active --permission %s@active --expiration 90" % (contract, fromAccount.name)
             try:
-                trans=nodes[0].pushMessage(contract, action, data, opts)
+                trans=nodes[count % numNodes].pushMessage(contract, action, data, opts)
                 if trans is None or not trans[0]:
-                    Print("Failed to push create action to eosio contract. sleep for 60 seconds")
+                    Print("Failed to push create action to act contract. sleep for 60 seconds")
                     time.sleep(60)
                 time.sleep(1)
             except TypeError as ex:
@@ -308,9 +307,9 @@ try:
         data="{\"from\":\"%s\",\"to\":\"%s\",\"num\":%d}" % (fromAccount.name, toAccount.name, numAmount)
         opts="--permission %s@active --permission %s@active --expiration 90" % (contract, fromAccount.name)
         try:
-            trans=nodes[0].pushMessage(contract, action, data, opts)
+            trans=nodes.pushMessage(contract, action, data, opts)
             if trans is None or not trans[0]:
-                Print("Failed to push create action to eosio contract. sleep for 60 seconds")
+                Print("Failed to push create action to act contract. sleep for 60 seconds")
                 time.sleep(60)
                 continue
             time.sleep(1)
