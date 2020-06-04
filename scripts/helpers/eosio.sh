@@ -273,14 +273,14 @@ function ensure-llvm() {
     echo "${COLOR_CYAN}[Ensuring LLVM 4 support]${COLOR_NC}"
     if [[ ! -d $LLVM_ROOT ]]; then
         if [[ $ARCH == "Darwin" ]]; then # Handle brew installed llvm@4
-	        execute ln -s /usr/local/opt/llvm@4 $LLVM_ROOT
+	        execute ln -snf /usr/local/opt/llvm@4 $LLVM_ROOT
 	        echo " - LLVM successfully linked from /usr/local/opt/llvm@4 to ${LLVM_ROOT}"
         else
             if $PIN_COMPILER || $BUILD_CLANG; then
                 CMAKE_FLAGS="-DCMAKE_INSTALL_PREFIX='${LLVM_ROOT}' -DLLVM_TARGETS_TO_BUILD=host -DLLVM_BUILD_TOOLS=false -DLLVM_ENABLE_RTTI=1 -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE='${BUILD_DIR}/pinned_toolchain.cmake' .."
             else
                 if [[ $NAME == "Ubuntu" ]]; then
-                    execute ln -s /usr/lib/llvm-4.0 $LLVM_ROOT
+                    execute ln -snf /usr/lib/llvm-4.0 $LLVM_ROOT
                     echo " - LLVM successfully linked from /usr/lib/llvm-4.0 to ${LLVM_ROOT}"
                     return 0
                 fi
