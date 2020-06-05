@@ -196,7 +196,6 @@ struct pending_state {
          // In fact for now it isn't even implemented.
          EOS_THROW( misc_exception,
                     "checking if protocol feature is activated in the assembled_block stage is not yet supported" );
-         // TODO: implement this
       }
 
       const auto& activated_features = _block_stage.get<completed_block>()._block_state->activated_protocol_features->protocol_features;
