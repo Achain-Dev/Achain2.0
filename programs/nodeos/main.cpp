@@ -91,7 +91,7 @@ int main(int argc, char** argv)
       if(!app().initialize<chain_plugin, net_plugin, producer_plugin>(argc, argv))
       {
          const auto& opts = app().get_options();
-         if( opts.count("help") || opts.count("version") || opts.count("print-default-config") ) {
+         if( opts.count("help") || opts.count("version") || opts.count("print-default-config") || opts.count("full-version") ) {
             return SUCCESS;
          }
          return INITIALIZE_FAIL;
