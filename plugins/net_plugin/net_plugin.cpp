@@ -1293,6 +1293,8 @@ namespace eosio {
 
    void sync_manager::request_next_chunk( const connection_ptr& conn ) {
       uint32_t head_block = chain_plug->chain().fork_db_pending_head_block_num();
+      fc_dlog( logger, "sync_last_requested_num: ${r}, sync_next_expected_num: ${e}, sync_known_lib_num: ${k}, sync_req_span: ${s}",
+             ("r", sync_last_requested_num)("e", sync_next_expected_num)("k", sync_known_lib_num)("s", sync_req_span) );
 
       if (head_block < sync_last_requested_num && source && source->current()) {
          fc_ilog(logger, "ignoring request, head is ${h} last req = ${r} source is ${p}",
