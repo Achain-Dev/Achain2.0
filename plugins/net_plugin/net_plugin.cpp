@@ -1785,7 +1785,7 @@ namespace eosio {
                fc_dlog( logger, "caught assert on fetch_block_by_id, ${ex}",("ex",ex.what()) );
                // keep going, client can ask another peer
             } catch (...) {
-               fc_elog( logger, "failed to retrieve block for id");
+               fc_elog( logger, "failed to retrieve block for id ${id}", ("id", blkid));
             }
             if (!b) {
                send_req = true;
