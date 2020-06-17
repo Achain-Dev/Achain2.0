@@ -2572,7 +2572,7 @@ namespace eosio {
          chain_plug->accept_block(msg); //, sync_master->is_active(c));
          reason = no_reason;
       } catch( const unlinkable_block_exception &ex) {
-         peer_elog(c, "bad signed_block : ${m}", ("m",ex.what()));
+         peer_elog(c, "bad signed_block ${n} : ${m}", ("n", blk_num)("m",ex.what()));
          reason = unlinkable;
       } catch( const block_validate_exception &ex) {
          peer_elog(c, "bad signed_block : ${m}", ("m",ex.what()));
