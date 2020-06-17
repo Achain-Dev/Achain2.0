@@ -674,6 +674,8 @@ namespace eosio {
    public:
       explicit sync_manager(uint32_t span);
       void set_state(stages s);
+      //add flag check func
+      bool syncing_with_peer() const { return state == lib_catchup; }
       bool sync_required();
       void send_handshakes();
       bool is_active(const connection_ptr& conn);
@@ -2154,7 +2156,11 @@ namespace eosio {
             block_id_type blk_id = bh.id();
             uint32_t blk_num = bh.block_num();
             if( cc.fetch_block_by_id( blk_id ) ) {
-               sync_master->recv_block( conn, blk_id, blk_num );
+               if( sync_master->syncing_with_peer() ) {
+                  sync_master->recv_block( conn, blk_id, blk_num );
+               }else{
+                  conn->cancel_wait();
+               }
                conn->pending_message_buffer.advance_read_ptr( message_length );
                return true;
             }
