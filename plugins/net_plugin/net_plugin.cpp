@@ -386,7 +386,7 @@ namespace eosio {
    };
 
    struct handshake_initializer {
-      static void populate(handshake_message &hello);
+      static bool populate(handshake_message &hello);
    };
 
    class queued_buffer : boost::noncopyable {
@@ -915,13 +915,14 @@ namespace eosio {
    }
 
    void connection::send_handshake() {
-      handshake_initializer::populate(last_handshake_sent);
-      static_assert( std::is_same_v<decltype(sent_handshake_count), int16_t>, "INT16_MAX based on int16_t" );
-      if( sent_handshake_count == INT16_MAX ) sent_handshake_count = 1; // do not wrap
-      last_handshake_sent.generation = ++sent_handshake_count;
-      fc_dlog(logger, "Sending handshake generation ${g} to ${ep}",
-              ("g",last_handshake_sent.generation)("ep", peer_name()));
-      enqueue(last_handshake_sent);
+      if (handshake_initializer::populate(last_handshake_sent)){
+         static_assert( std::is_same_v<decltype(sent_handshake_count), int16_t>, "INT16_MAX based on int16_t" );
+         if( sent_handshake_count == INT16_MAX ) sent_handshake_count = 1; // do not wrap
+         last_handshake_sent.generation = ++sent_handshake_count;
+         fc_dlog(logger, "Sending handshake generation ${g} to ${ep}",
+                 ("g",last_handshake_sent.generation)("ep", peer_name()));
+         enqueue(last_handshake_sent);
+      }
    }
 
    void connection::send_time() {
@@ -2832,7 +2833,7 @@ namespace eosio {
       return chain::signature_type();
    }
 
-   void
+   bool
    handshake_initializer::populate( handshake_message &hello) {
       namespace sc = std::chrono;
       hello.network_version = net_version_base + net_version;
@@ -2857,6 +2858,9 @@ namespace eosio {
 #endif
       hello.agent = my_impl->user_agent_name;
 
+      bool send = true;      
+      auto prev_head_id = hello.head_id;
+      auto prev_lib_id = hello.last_irreversible_block_id;
 
       controller& cc = my_impl->chain_plug->chain();
       hello.head_id = fc::sha256();
@@ -2870,6 +2874,7 @@ namespace eosio {
          catch( const unknown_block_exception &ex) {
             fc_wlog( logger, "caught unkown_block" );
             hello.last_irreversible_block_num = 0;
+            send = false;
          }
       }
       if( hello.head_num ) {
@@ -2878,8 +2883,13 @@ namespace eosio {
          }
          catch( const unknown_block_exception &ex) {
            hello.head_num = 0;
+           send = false;
          }
       }
+
+      if( send && hello.last_irreversible_block_id == prev_lib_id && hello.head_id == prev_head_id ) send = false;
+
+      return send;
    }
 
    net_plugin::net_plugin()
