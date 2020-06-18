@@ -18,26 +18,26 @@ const static auto default_reversible_cache_size = 340*1024*1024ll;/// 1MB * 340 
 const static auto default_reversible_guard_size = 2*1024*1024ll;/// 1MB * 340 blocks based on 21 producer BFT delay
 
 const static auto default_state_dir_name     = "state";
-const static auto forkdb_filename            = "forkdb.dat";
+const static auto forkdb_filename            = "fork_db.dat";
 const static auto default_state_size            = 1*1024*1024*1024ll;
 const static auto default_state_guard_size      =    128*1024*1024ll;
 
 
-const static uint64_t system_account_name    = N(actx);
-const static uint64_t null_account_name      = N(actx.null);
-const static uint64_t producers_account_name = N(actx.prods);
+const static uint64_t system_account_name    = N(act);
+const static uint64_t null_account_name      = N(act.null);
+const static uint64_t producers_account_name = N(act.prods);
 
 // Active permission of producers account requires greater than 2/3 of the producers to authorize
 const static uint64_t majority_producers_permission_name = N(prod.major); // greater than 1/2 of producers needed to authorize
 const static uint64_t minority_producers_permission_name = N(prod.minor); // greater than 1/3 of producers needed to authorize0
 
-const static uint64_t eosio_auth_scope       = N(actx.auth);
-const static uint64_t eosio_all_scope        = N(actx.all);
+const static uint64_t eosio_auth_scope       = N(act.auth);
+const static uint64_t eosio_all_scope        = N(act.all);
 
 const static uint64_t active_name = N(active);
 const static uint64_t owner_name  = N(owner);
-const static uint64_t eosio_any_name = N(actx.any);
-const static uint64_t eosio_code_name = N(actx.code);
+const static uint64_t eosio_any_name = N(act.any);
+const static uint64_t eosio_code_name = N(act.code);
 
 const static int      block_interval_ms = 3000;
 const static int      block_interval_us = block_interval_ms*1000;
@@ -51,6 +51,7 @@ static const uint32_t account_cpu_usage_average_window_ms  = 24*60*60*1000l;
 static const uint32_t account_net_usage_average_window_ms  = 24*60*60*1000l;
 static const uint32_t block_cpu_usage_average_window_ms    = 60*1000l;
 static const uint32_t block_size_average_window_ms         = 60*1000l;
+static const uint32_t maximum_elastic_resource_multiplier  = 1000;
 
 //const static uint64_t   default_max_storage_size       = 10 * 1024;
 //const static uint32_t   default_max_trx_runtime        = 10*1000;
@@ -72,6 +73,7 @@ const static uint32_t   default_max_block_cpu_usage                 = 200'000; /
 const static uint32_t   default_target_block_cpu_usage_pct          = 10 * percent_1;
 const static uint32_t   default_max_transaction_cpu_usage           = 3*default_max_block_cpu_usage/4; /// max trx cpu usage in microseconds
 const static uint32_t   default_min_transaction_cpu_usage           = 100; /// min trx cpu usage in microseconds (10000 TPS equiv)
+const static uint32_t   default_subjective_cpu_leeway_us            = 31000; /// default subjective cpu leeway in microseconds
 
 const static uint32_t   default_max_trx_lifetime               = 60*60; // 1 hour
 const static uint32_t   default_deferred_trx_expiration_window = 10*60; // 10 minutes
@@ -79,6 +81,7 @@ const static uint32_t   default_max_trx_delay                  = 45*24*3600; // 
 const static uint32_t   default_max_inline_action_size         = 4 * 1024;   // 4 KB
 const static uint16_t   default_max_inline_action_depth        = 4;
 const static uint16_t   default_max_auth_depth                 = 6;
+const static uint32_t   default_sig_cpu_bill_pct               = 50 * percent_1; // billable percentage of signature recovery
 const static uint16_t   default_controller_thread_pool_size    = 2;
 
 const static uint32_t   min_net_usage_delta_between_base_and_max_for_trx  = 10*1024;
@@ -118,7 +121,7 @@ const static int irreversible_threshold_percent= 70 * percent_1;
 const static uint64_t billable_alignment = 16;
 //the initail schedule proposed producer is 17
 //add for achainplus
-const static uint32_t initial_schedule_size = 11;
+const static uint32_t initial_schedule_size = 5;
 
 template<typename T>
 struct billable_size;

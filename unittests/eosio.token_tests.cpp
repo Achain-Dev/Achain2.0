@@ -1,14 +1,17 @@
-#include <boost/test/unit_test.hpp>
-#include <eosio/testing/tester.hpp>
+/**
+ *  @file
+ *  @copyright defined in eos/LICENSE.txt
+ */
 #include <eosio/chain/abi_serializer.hpp>
 
-#include <actx.token/actx.token.wast.hpp>
-#include <actx.token/actx.token.abi.hpp>
+#include <eosio/testing/tester.hpp>
 
 #include <Runtime/Runtime.h>
 
 #include <fc/variant_object.hpp>
 
+#include <boost/test/unit_test.hpp>
+#include <contracts.hpp>
 using namespace eosio::testing;
 using namespace eosio;
 using namespace eosio::chain;
@@ -24,15 +27,15 @@ public:
    eosio_token_tester() {
       produce_blocks( 2 );
 
-      create_accounts( { N(alice), N(bob), N(carol), N(actx.token) } );
+      create_accounts( { N(alice), N(bob), N(carol), N(act.token) } );
       produce_blocks( 2 );
 
-      set_code( N(actx.token), actx_token_wast );
-      set_abi( N(actx.token), actx_token_abi );
+      set_code( N(act.token), contracts::act_token_wasm() );
+      set_abi( N(act.token), contracts::act_token_abi().data() );
 
       produce_blocks();
 
-      const auto& accnt = control->db().get<account_object,by_name>( N(actx.token) );
+      const auto& accnt = control->db().get<account_object,by_name>( N(act.token) );
       abi_def abi;
       BOOST_REQUIRE_EQUAL(abi_serializer::to_abi(accnt.abi, abi), true);
       abi_ser.set_abi(abi, abi_serializer_max_time);
@@ -42,7 +45,7 @@ public:
       string action_type_name = abi_ser.get_action_type(name);
 
       action act;
-      act.account = N(actx.token);
+      act.account = N(act.token);
       act.name    = name;
       act.data    = abi_ser.variant_to_binary( action_type_name, data, abi_serializer_max_time );
 
@@ -53,7 +56,7 @@ public:
    {
       auto symb = eosio::chain::symbol::from_string(symbolname);
       auto symbol_code = symb.to_symbol_code().value;
-      vector<char> data = get_row_by_account( N(actx.token), symbol_code, N(stat), symbol_code );
+      vector<char> data = get_row_by_account( N(act.token), symbol_code, N(stat), symbol_code );
       return data.empty() ? fc::variant() : abi_ser.binary_to_variant( "currency_stats", data, abi_serializer_max_time );
    }
 
@@ -61,14 +64,14 @@ public:
    {
       auto symb = eosio::chain::symbol::from_string(symbolname);
       auto symbol_code = symb.to_symbol_code().value;
-      vector<char> data = get_row_by_account( N(actx.token), acc, N(accounts), symbol_code );
+      vector<char> data = get_row_by_account( N(act.token), acc, N(accounts), symbol_code );
       return data.empty() ? fc::variant() : abi_ser.binary_to_variant( "account", data, abi_serializer_max_time );
    }
 
    action_result create( account_name issuer,
                 asset        maximum_supply ) {
 
-      return push_action( N(actx.token), N(create), mvo()
+      return push_action( N(act.token), N(create), mvo()
            ( "issuer", issuer)
            ( "maximum_supply", maximum_supply)
       );

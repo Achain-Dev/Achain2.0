@@ -50,7 +50,7 @@ class StressNetwork:
         print("transaction id %s" % (trid))
 
         print("issue currency0000 into %s" % (acc1.name))
-        contract="actx"
+        contract="act"
         action="issue"
         data="{\"to\":\"" + acc1.name + "\",\"quantity\":\"1000000.0000 "+CORE_SYMBOL+"\"}"
         opts="--permission eosio@active"

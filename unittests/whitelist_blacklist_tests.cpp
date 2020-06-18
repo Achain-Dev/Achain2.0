@@ -1,16 +1,18 @@
-#include <boost/test/unit_test.hpp>
+/**
+ *  @file
+ *  @copyright defined in eos/LICENSE.txt
+ */
+#include <eosio/chain/generated_transaction_object.hpp>
+#include <eosio/chain/resource_limits.hpp>
 #include <eosio/testing/tester.hpp>
 #include <eosio/testing/tester_network.hpp>
 
-#include <eosio/chain/generated_transaction_object.hpp>
 
 #include <fc/variant_object.hpp>
 
-#include <actx.token/actx.token.wast.hpp>
-#include <actx.token/actx.token.abi.hpp>
+#include <boost/test/unit_test.hpp>
 
-#include <deferred_test/deferred_test.wast.hpp>
-#include <deferred_test/deferred_test.abi.hpp>
+#include <contracts.hpp>
 
 #ifdef NON_VALIDATING_TEST
 #define TESTER tester
@@ -69,15 +71,15 @@ class whitelist_blacklist_tester {
 
          if( !bootstrap ) return;
 
-         chain->create_accounts({N(actx.token), N(alice), N(bob), N(charlie)});
-         chain->set_code(N(actx.token), actx_token_wast);
-         chain->set_abi(N(actx.token), actx_token_abi);
-         chain->push_action( N(actx.token), N(create), N(actx.token), mvo()
-              ( "issuer", "actx.token" )
+         chain->create_accounts({N(act.token), N(alice), N(bob), N(charlie)});
+         chain->set_code(N(act.token), contracts::act_token_wasm() );
+         chain->set_abi(N(act.token), contracts::act_token_abi().data() );
+         chain->push_action( N(act.token), N(create), N(act.token), mvo()
+              ( "issuer", "act.token" )
               ( "maximum_supply", "1000000.00 TOK" )
          );
-         chain->push_action( N(actx.token), N(issue), N(actx.token), mvo()
-              ( "to", "actx.token" )
+         chain->push_action( N(act.token), N(issue), N(act.token), mvo()
+              ( "to", "act.token" )
               ( "quantity", "1000000.00 TOK" )
               ( "memo", "issue" )
          );
@@ -92,7 +94,7 @@ class whitelist_blacklist_tester {
       }
 
       transaction_trace_ptr transfer( account_name from, account_name to, string quantity = "1.00 TOK" ) {
-         return chain->push_action( N(actx.token), N(transfer), from, mvo()
+         return chain->push_action( N(act.token), N(transfer), from, mvo()
             ( "from", from )
             ( "to", to )
             ( "quantity", quantity )
@@ -125,10 +127,10 @@ BOOST_AUTO_TEST_SUITE(whitelist_blacklist_tests)
 
 BOOST_AUTO_TEST_CASE( actor_whitelist ) { try {
    whitelist_blacklist_tester<> test;
-   test.actor_whitelist = {config::system_account_name, N(actx.token), N(alice)};
+   test.actor_whitelist = {config::system_account_name, N(act.token), N(alice)};
    test.init();
 
-   test.transfer( N(actx.token), N(alice), "1000.00 TOK" );
+   test.transfer( N(act.token), N(alice), "1000.00 TOK" );
 
    test.transfer( N(alice), N(bob),  "100.00 TOK" );
 
@@ -138,7 +140,7 @@ BOOST_AUTO_TEST_CASE( actor_whitelist ) { try {
                        );
    signed_transaction trx;
    trx.actions.emplace_back( vector<permission_level>{{N(alice),config::active_name}, {N(bob),config::active_name}},
-                             N(actx.token), N(transfer),
+                             N(act.token), N(transfer),
                              fc::raw::pack(transfer_args{
                                .from  = N(alice),
                                .to    = N(bob),
@@ -161,7 +163,7 @@ BOOST_AUTO_TEST_CASE( actor_blacklist ) { try {
    test.actor_blacklist = {N(bob)};
    test.init();
 
-   test.transfer( N(actx.token), N(alice), "1000.00 TOK" );
+   test.transfer( N(act.token), N(alice), "1000.00 TOK" );
 
    test.transfer( N(alice), N(bob),  "100.00 TOK" );
 
@@ -172,7 +174,7 @@ BOOST_AUTO_TEST_CASE( actor_blacklist ) { try {
 
    signed_transaction trx;
    trx.actions.emplace_back( vector<permission_level>{{N(alice),config::active_name}, {N(bob),config::active_name}},
-                             N(actx.token), N(transfer),
+                             N(act.token), N(transfer),
                              fc::raw::pack(transfer_args{
                                 .from  = N(alice),
                                 .to    = N(bob),
@@ -192,12 +194,12 @@ BOOST_AUTO_TEST_CASE( actor_blacklist ) { try {
 
 BOOST_AUTO_TEST_CASE( contract_whitelist ) { try {
    whitelist_blacklist_tester<> test;
-   test.contract_whitelist = {config::system_account_name, N(actx.token), N(bob)};
+   test.contract_whitelist = {config::system_account_name, N(act.token), N(bob)};
    test.init();
 
-   test.transfer( N(actx.token), N(alice), "1000.00 TOK" );
+   test.transfer( N(act.token), N(alice), "1000.00 TOK" );
 
-   test.transfer( N(alice), N(actx.token) );
+   test.transfer( N(alice), N(act.token) );
 
    test.transfer( N(alice), N(bob) );
    test.transfer( N(alice), N(charlie), "100.00 TOK" );
@@ -206,13 +208,13 @@ BOOST_AUTO_TEST_CASE( contract_whitelist ) { try {
 
    test.chain->produce_blocks();
 
-   test.chain->set_code(N(bob), actx_token_wast);
-   test.chain->set_abi(N(bob), actx_token_abi);
+   test.chain->set_code(N(bob), contracts::act_token_wasm() );
+   test.chain->set_abi(N(bob), contracts::act_token_abi().data() );
 
    test.chain->produce_blocks();
 
-   test.chain->set_code(N(charlie), actx_token_wast);
-   test.chain->set_abi(N(charlie), actx_token_abi);
+   test.chain->set_code(N(charlie), contracts::act_token_wasm() );
+   test.chain->set_abi(N(charlie), contracts::act_token_abi().data() );
 
    test.chain->produce_blocks();
 
@@ -244,9 +246,9 @@ BOOST_AUTO_TEST_CASE( contract_blacklist ) { try {
    test.contract_blacklist = {N(charlie)};
    test.init();
 
-   test.transfer( N(actx.token), N(alice), "1000.00 TOK" );
+   test.transfer( N(act.token), N(alice), "1000.00 TOK" );
 
-   test.transfer( N(alice), N(actx.token) );
+   test.transfer( N(alice), N(act.token) );
 
    test.transfer( N(alice), N(bob) );
    test.transfer( N(alice), N(charlie), "100.00 TOK" );
@@ -255,13 +257,13 @@ BOOST_AUTO_TEST_CASE( contract_blacklist ) { try {
 
    test.chain->produce_blocks();
 
-   test.chain->set_code(N(bob), actx_token_wast);
-   test.chain->set_abi(N(bob), actx_token_abi);
+   test.chain->set_code(N(bob), contracts::act_token_wasm() );
+   test.chain->set_abi(N(bob), contracts::act_token_abi().data() );
 
    test.chain->produce_blocks();
 
-   test.chain->set_code(N(charlie), actx_token_wast);
-   test.chain->set_abi(N(charlie), actx_token_abi);
+   test.chain->set_code(N(charlie), contracts::act_token_wasm() );
+   test.chain->set_abi(N(charlie), contracts::act_token_abi().data() );
 
    test.chain->produce_blocks();
 
@@ -290,21 +292,21 @@ BOOST_AUTO_TEST_CASE( contract_blacklist ) { try {
 
 BOOST_AUTO_TEST_CASE( action_blacklist ) { try {
    whitelist_blacklist_tester<> test;
-   test.contract_whitelist = {config::system_account_name, N(actx.token), N(bob), N(charlie)};
+   test.contract_whitelist = {config::system_account_name, N(act.token), N(bob), N(charlie)};
    test.action_blacklist = {{N(charlie), N(create)}};
    test.init();
 
-   test.transfer( N(actx.token), N(alice), "1000.00 TOK" );
+   test.transfer( N(act.token), N(alice), "1000.00 TOK" );
 
    test.chain->produce_blocks();
 
-   test.chain->set_code(N(bob), actx_token_wast);
-   test.chain->set_abi(N(bob), actx_token_abi);
+   test.chain->set_code(N(bob), contracts::act_token_wasm() );
+   test.chain->set_abi(N(bob), contracts::act_token_abi().data() );
 
    test.chain->produce_blocks();
 
-   test.chain->set_code(N(charlie), actx_token_wast);
-   test.chain->set_abi(N(charlie), actx_token_abi);
+   test.chain->set_code(N(charlie), contracts::act_token_wasm() );
+   test.chain->set_abi(N(charlie), contracts::act_token_abi().data() );
 
    test.chain->produce_blocks();
 
@@ -331,7 +333,7 @@ BOOST_AUTO_TEST_CASE( blacklist_eosio ) { try {
    whitelist_blacklist_tester<tester> tester1;
    tester1.init();
    tester1.chain->produce_blocks();
-   tester1.chain->set_code(config::system_account_name, actx_token_wast);
+   tester1.chain->set_code(config::system_account_name, contracts::act_token_wasm() );
    tester1.chain->produce_blocks();
    tester1.shutdown();
    tester1.contract_blacklist = {config::system_account_name};
@@ -357,10 +359,10 @@ BOOST_AUTO_TEST_CASE( deferred_blacklist_failure ) { try {
    whitelist_blacklist_tester<tester> tester1;
    tester1.init();
    tester1.chain->produce_blocks();
-   tester1.chain->set_code( N(bob), deferred_test_wast );
-   tester1.chain->set_abi( N(bob),  deferred_test_abi );
-   tester1.chain->set_code( N(charlie), deferred_test_wast );
-   tester1.chain->set_abi( N(charlie),  deferred_test_abi );
+   tester1.chain->set_code( N(bob), contracts::deferred_test_wasm() );
+   tester1.chain->set_abi( N(bob),  contracts::deferred_test_abi().data() );
+   tester1.chain->set_code( N(charlie), contracts::deferred_test_wasm() );
+   tester1.chain->set_abi( N(charlie),  contracts::deferred_test_abi().data() );
    tester1.chain->produce_blocks();
 
    tester1.chain->push_action( N(bob), N(defercall), N(alice), mvo()
@@ -408,10 +410,10 @@ BOOST_AUTO_TEST_CASE( blacklist_onerror ) { try {
    whitelist_blacklist_tester<TESTER> tester1;
    tester1.init();
    tester1.chain->produce_blocks();
-   tester1.chain->set_code( N(bob), deferred_test_wast );
-   tester1.chain->set_abi( N(bob),  deferred_test_abi );
-   tester1.chain->set_code( N(charlie), deferred_test_wast );
-   tester1.chain->set_abi( N(charlie),  deferred_test_abi );
+   tester1.chain->set_code( N(bob), contracts::deferred_test_wasm() );
+   tester1.chain->set_abi( N(bob),  contracts::deferred_test_abi().data() );
+   tester1.chain->set_code( N(charlie), contracts::deferred_test_wasm() );
+   tester1.chain->set_abi( N(charlie),  contracts::deferred_test_abi().data() );
    tester1.chain->produce_blocks();
 
    tester1.chain->push_action( N(bob), N(defercall), N(alice), mvo()
@@ -444,12 +446,12 @@ BOOST_AUTO_TEST_CASE( actor_blacklist_inline_deferred ) { try {
    whitelist_blacklist_tester<tester> tester1;
    tester1.init();
    tester1.chain->produce_blocks();
-   tester1.chain->set_code( N(alice), deferred_test_wast );
-   tester1.chain->set_abi( N(alice),  deferred_test_abi );
-   tester1.chain->set_code( N(bob), deferred_test_wast );
-   tester1.chain->set_abi( N(bob),  deferred_test_abi );
-   tester1.chain->set_code( N(charlie), deferred_test_wast );
-   tester1.chain->set_abi( N(charlie),  deferred_test_abi );
+   tester1.chain->set_code( N(alice), contracts::deferred_test_wasm() );
+   tester1.chain->set_abi( N(alice),  contracts::deferred_test_abi().data() );
+   tester1.chain->set_code( N(bob), contracts::deferred_test_wasm() );
+   tester1.chain->set_abi( N(bob),  contracts::deferred_test_abi().data() );
+   tester1.chain->set_code( N(charlie), contracts::deferred_test_wasm() );
+   tester1.chain->set_abi( N(charlie),  contracts::deferred_test_abi().data() );
    tester1.chain->produce_blocks();
 
    auto auth = authority(eosio::testing::base_tester::get_public_key("alice", "active"));
@@ -498,7 +500,8 @@ BOOST_AUTO_TEST_CASE( actor_blacklist_inline_deferred ) { try {
       tester2.chain->push_block( b );
    }
 
-   auto log_trxs = [&]( const transaction_trace_ptr& t) {
+   auto log_trxs = [&](std::tuple<const transaction_trace_ptr&, const signed_transaction&> x) {
+      auto& t = std::get<0>(x);
       if( !t || t->action_traces.size() == 0 ) return;
 
       const auto& act = t->action_traces[0].act;
@@ -526,7 +529,7 @@ BOOST_AUTO_TEST_CASE( actor_blacklist_inline_deferred ) { try {
 
 
    auto num_deferred = tester1.chain->control->db().get_index<generated_transaction_multi_index,by_trx_id>().size();
-   BOOST_REQUIRE_EQUAL(0, num_deferred);
+   BOOST_REQUIRE_EQUAL(0u, num_deferred);
 
    // Schedule a deferred transaction authorized by charlie@active
    tester1.chain->push_action( N(charlie), N(defercall), N(alice), mvo()
@@ -537,14 +540,14 @@ BOOST_AUTO_TEST_CASE( actor_blacklist_inline_deferred ) { try {
    );
 
    num_deferred = tester1.chain->control->db().get_index<generated_transaction_multi_index,by_trx_id>().size();
-   BOOST_REQUIRE_EQUAL(1, num_deferred);
+   BOOST_REQUIRE_EQUAL(1u, num_deferred);
 
    // Do not allow that deferred transaction to retire yet
    tester1.chain->finish_block();
    tester1.chain->produce_blocks(2, true); // Produce 2 empty blocks (other than onblock of course).
 
    num_deferred = tester1.chain->control->db().get_index<generated_transaction_multi_index,by_trx_id>().size();
-   BOOST_REQUIRE_EQUAL(1, num_deferred);
+   BOOST_REQUIRE_EQUAL(1u, num_deferred);
 
    c1.disconnect();
 
@@ -587,18 +590,18 @@ BOOST_AUTO_TEST_CASE( blacklist_sender_bypass ) { try {
    whitelist_blacklist_tester<tester> tester1;
    tester1.init();
    tester1.chain->produce_blocks();
-   tester1.chain->set_code( N(alice), deferred_test_wast );
-   tester1.chain->set_abi( N(alice),  deferred_test_abi );
-   tester1.chain->set_code( N(bob), deferred_test_wast );
-   tester1.chain->set_abi( N(bob),  deferred_test_abi );
-   tester1.chain->set_code( N(charlie), deferred_test_wast );
-   tester1.chain->set_abi( N(charlie),  deferred_test_abi );
+   tester1.chain->set_code( N(alice), contracts::deferred_test_wasm() );
+   tester1.chain->set_abi( N(alice),  contracts::deferred_test_abi().data() );
+   tester1.chain->set_code( N(bob), contracts::deferred_test_wasm() );
+   tester1.chain->set_abi( N(bob),  contracts::deferred_test_abi().data() );
+   tester1.chain->set_code( N(charlie), contracts::deferred_test_wasm() );
+   tester1.chain->set_abi( N(charlie),  contracts::deferred_test_abi().data() );
    tester1.chain->produce_blocks();
 
    auto auth = authority(eosio::testing::base_tester::get_public_key("alice", "active"));
    auth.accounts.push_back( permission_level_weight{{N(alice), config::eosio_code_name}, 1} );
 
-   tester1.chain->push_action( N(eosio), N(updateauth), N(alice), mvo()
+   tester1.chain->push_action( N(act), N(updateauth), N(alice), mvo()
       ( "account", "alice" )
       ( "permission", "active" )
       ( "parent", "owner" )
@@ -608,7 +611,7 @@ BOOST_AUTO_TEST_CASE( blacklist_sender_bypass ) { try {
    auth = authority(eosio::testing::base_tester::get_public_key("bob", "active"));
    auth.accounts.push_back( permission_level_weight{{N(bob), config::eosio_code_name}, 1} );
 
-   tester1.chain->push_action( N(eosio), N(updateauth), N(bob), mvo()
+   tester1.chain->push_action( N(act), N(updateauth), N(bob), mvo()
       ( "account", "bob" )
       ( "permission", "active" )
       ( "parent", "owner" )
@@ -618,7 +621,7 @@ BOOST_AUTO_TEST_CASE( blacklist_sender_bypass ) { try {
    auth = authority(eosio::testing::base_tester::get_public_key("charlie", "active"));
    auth.accounts.push_back( permission_level_weight{{N(charlie), config::eosio_code_name}, 1} );
 
-   tester1.chain->push_action( N(eosio), N(updateauth), N(charlie), mvo()
+   tester1.chain->push_action( N(act), N(updateauth), N(charlie), mvo()
       ( "account", "charlie" )
       ( "permission", "active" )
       ( "parent", "owner" )
@@ -735,4 +738,190 @@ BOOST_AUTO_TEST_CASE( blacklist_sender_bypass ) { try {
 
 } FC_LOG_AND_RETHROW() }
 
+BOOST_AUTO_TEST_CASE( greylist_limit_tests ) { try {
+   controller::config contrl_config;
+   {
+      // Hack to get the default controller config used in tester (since v1.8.x does not have the base_tester::default_config helper function).
+      tester temp( setup_policy::none );
+      contrl_config = temp.get_config();
+   }
+   fc::temp_directory tempdir;
+   contrl_config.blocks_dir = tempdir.path() / config::default_blocks_dir_name;
+   contrl_config.state_dir  = tempdir.path() / config::default_state_dir_name;
+   auto& cfg = contrl_config.genesis.initial_configuration;
+   cfg.max_block_net_usage        = 128 * 1024; // 64 KiB max block size
+   cfg.target_block_net_usage_pct = config::percent_1/10;
+   // A total net usage of more than 131 bytes will keep the block above the target.
+   cfg.max_transaction_net_usage  = 64 * 1024;
+   cfg.max_block_cpu_usage        = 150'000; // maximum of 150 ms of CPU per block
+   cfg.target_block_cpu_usage_pct = config::percent_1/10; // More than 150 us of CPU to keep the block above the target.
+   cfg.max_transaction_cpu_usage  = 50'000;
+   cfg.min_transaction_cpu_usage  = 100; // Empty blocks (consisting of only onblock) would be below the target.
+   // But all it takes is one transaction in the block to be above the target.
+   tester c( contrl_config );
+   c.execute_setup_policy( setup_policy::full );
+
+   const resource_limits_manager& rm = c.control->get_resource_limits_manager();
+
+   const auto& user_account  = name(N(user));
+   const auto& other_account = name(N(other));
+
+   c.create_accounts( {user_account, other_account} );
+
+   c.push_action( config::system_account_name, N(setalimits), config::system_account_name, fc::mutable_variant_object()
+      ("account", user_account)
+      ("ram_bytes", -1)
+      ("net_weight", 1)
+      ("cpu_weight", 1)
+   );
+
+   c.push_action( config::system_account_name, N(setalimits), config::system_account_name, fc::mutable_variant_object()
+      ("account", other_account)
+      ("ram_bytes", -1)
+      ("net_weight", 249'999'999)
+      ("cpu_weight", 249'999'999)
+   );
+
+   const uint64_t reqauth_net_charge = 104;
+   auto push_reqauth = [&]( name acnt, name perm, uint32_t billed_cpu_time_us ) {
+      signed_transaction trx;
+      trx.actions.emplace_back( c.get_action( config::system_account_name, N(reqauth),
+                                              std::vector<permission_level>{{acnt, perm}},
+                                              fc::mutable_variant_object()("from", acnt) ) );
+      c.set_transaction_headers( trx, 6, 0 );
+      trx.sign( c.get_private_key( acnt, perm.to_string() ), c.control->get_chain_id() );
+      // This transaction is charged 104 bytes of NET.
+
+      return c.push_transaction( trx, fc::time_point::maximum(), billed_cpu_time_us );
+   };
+
+   // Force contraction of elastic resources until fully congested.
+   c.produce_block();
+   for( size_t i = 0; i < 300; ++i ) {
+      push_reqauth( other_account, config::active_name, cfg.min_transaction_cpu_usage );
+      push_reqauth( other_account, config::owner_name, cfg.min_transaction_cpu_usage );
+      c.produce_block();
+   }
+
+   BOOST_REQUIRE_EQUAL( rm.get_virtual_block_cpu_limit(), cfg.max_block_cpu_usage );
+   BOOST_REQUIRE_EQUAL( rm.get_virtual_block_net_limit(), cfg.max_block_net_usage );
+
+   uint64_t blocks_per_day = 2*60*60*24;
+
+   uint64_t user_cpu_per_day = (cfg.max_block_cpu_usage * blocks_per_day / 250'000'000); // 103 us
+   uint64_t user_net_per_day = (cfg.max_block_net_usage * blocks_per_day / 250'000'000); // 90 bytes
+   wdump((user_cpu_per_day)(user_net_per_day));
+
+   BOOST_REQUIRE_EQUAL( rm.get_account_cpu_limit_ex(user_account).first.max, user_cpu_per_day );
+   BOOST_REQUIRE_EQUAL( rm.get_account_net_limit_ex(user_account).first.max, user_net_per_day );
+   BOOST_REQUIRE_EQUAL( rm.get_account_cpu_limit_ex(user_account, 1).first.max, user_cpu_per_day );
+   BOOST_REQUIRE_EQUAL( rm.get_account_net_limit_ex(user_account, 1).first.max, user_net_per_day );
+
+   // The reqauth transaction will use more NET than the user can currently support under full congestion.
+   BOOST_REQUIRE_EXCEPTION(
+      push_reqauth( user_account, config::active_name, cfg.min_transaction_cpu_usage ),
+      tx_net_usage_exceeded,
+      fc_exception_message_starts_with("transaction net usage is too high")
+   );
+
+   wdump((rm.get_account_net_limit(user_account).first));
+
+   // Allow congestion to reduce a little bit.
+   c.produce_blocks(1400);
+
+   BOOST_REQUIRE( rm.get_virtual_block_net_limit() > (3*cfg.max_block_net_usage) );
+   BOOST_REQUIRE( rm.get_virtual_block_net_limit() < (4*cfg.max_block_net_usage) );
+   wdump((rm.get_account_net_limit_ex(user_account)));
+   BOOST_REQUIRE( rm.get_account_net_limit_ex(user_account).first.max > 3*reqauth_net_charge );
+   BOOST_REQUIRE( rm.get_account_net_limit_ex(user_account).first.max < 4*reqauth_net_charge );
+
+
+   // User can only push three reqauths per day even at this relaxed congestion level.
+   push_reqauth( user_account, config::active_name, cfg.min_transaction_cpu_usage );
+   c.produce_block();
+   push_reqauth( user_account, config::active_name, cfg.min_transaction_cpu_usage );
+   c.produce_block();
+   push_reqauth( user_account, config::active_name, cfg.min_transaction_cpu_usage );
+   c.produce_block();
+   BOOST_REQUIRE_EXCEPTION(
+      push_reqauth( user_account, config::active_name, cfg.min_transaction_cpu_usage ),
+      tx_net_usage_exceeded,
+      fc_exception_message_starts_with("transaction net usage is too high")
+   );
+   c.produce_block( fc::days(1) );
+   push_reqauth( user_account, config::active_name, cfg.min_transaction_cpu_usage );
+   c.produce_block();
+   push_reqauth( user_account, config::active_name, cfg.min_transaction_cpu_usage );
+   c.produce_block();
+   push_reqauth( user_account, config::active_name, cfg.min_transaction_cpu_usage );
+   c.produce_block();
+   c.produce_block( fc::days(1) );
+
+   // Reducing the greylist limit from 1000 to 4 should not make a difference since it would not be the
+   // bottleneck at this level of congestion. But dropping it to 3 would make a difference.
+   {
+      auto user_elastic_cpu_limit = rm.get_account_cpu_limit_ex(user_account).first.max;
+      auto user_elastic_net_limit = rm.get_account_net_limit_ex(user_account).first.max;
+
+      auto user_cpu_res1 = rm.get_account_cpu_limit_ex(user_account, 4);
+      BOOST_REQUIRE_EQUAL( user_cpu_res1.first.max, user_elastic_cpu_limit );
+      BOOST_REQUIRE_EQUAL( user_cpu_res1.second, false );
+      auto user_net_res1 = rm.get_account_net_limit_ex(user_account, 4);
+      BOOST_REQUIRE_EQUAL( user_net_res1.first.max, user_elastic_net_limit );
+      BOOST_REQUIRE_EQUAL( user_net_res1.second, false );
+
+      auto user_cpu_res2 = rm.get_account_cpu_limit_ex(user_account, 3);
+      BOOST_REQUIRE( user_cpu_res2.first.max < user_elastic_cpu_limit );
+      BOOST_REQUIRE_EQUAL( user_cpu_res2.second, true );
+      auto user_net_res2 = rm.get_account_net_limit_ex(user_account, 3);
+      BOOST_REQUIRE( user_net_res2.first.max < user_elastic_net_limit );
+      BOOST_REQUIRE_EQUAL( user_net_res2.second, true );
+      BOOST_REQUIRE( 2*reqauth_net_charge < user_net_res2.first.max );
+      BOOST_REQUIRE( user_net_res2.first.max < 3*reqauth_net_charge );
+   }
+
+   ilog("setting greylist limit to 4");
+   c.control->set_greylist_limit( 4 );
+   c.produce_block();
+
+   push_reqauth( user_account, config::active_name, cfg.min_transaction_cpu_usage );
+   c.produce_block();
+   push_reqauth( user_account, config::active_name, cfg.min_transaction_cpu_usage );
+   c.produce_block();
+   push_reqauth( user_account, config::active_name, cfg.min_transaction_cpu_usage );
+   c.produce_block();
+
+   ilog("setting greylist limit to 3");
+   c.control->set_greylist_limit( 3 );
+   c.produce_block( fc::days(1) );
+
+   push_reqauth( user_account, config::active_name, cfg.min_transaction_cpu_usage );
+   c.produce_block();
+   push_reqauth( user_account, config::active_name, cfg.min_transaction_cpu_usage );
+   c.produce_block();
+   BOOST_REQUIRE_EXCEPTION(
+      push_reqauth( user_account, config::active_name, cfg.min_transaction_cpu_usage ),
+      greylist_net_usage_exceeded,
+      fc_exception_message_starts_with("greylisted transaction net usage is too high")
+   );
+   c.produce_block( fc::days(1) );
+   push_reqauth( user_account, config::active_name, cfg.min_transaction_cpu_usage );
+   c.produce_block();
+   push_reqauth( user_account, config::active_name, cfg.min_transaction_cpu_usage );
+   c.produce_block();
+
+   // Finally, dropping the greylist limit to 1 will restrict the user's NET bandwidth so much that this user
+   // cannot push even a single reqauth just like when they were under full congestion.
+   // However, this time the exception will be due to greylist_net_usage_exceeded rather than tx_net_usage_exceeded.
+   ilog("setting greylist limit to 1");
+   c.control->set_greylist_limit( 1 );
+   c.produce_block( fc::days(1) );
+   BOOST_REQUIRE_EQUAL( rm.get_account_cpu_limit_ex(user_account, 1).first.max, user_cpu_per_day  );
+   BOOST_REQUIRE_EQUAL( rm.get_account_net_limit_ex(user_account, 1).first.max, user_net_per_day  );
+   BOOST_REQUIRE_EXCEPTION(
+      push_reqauth( user_account, config::active_name, cfg.min_transaction_cpu_usage ),
+      greylist_net_usage_exceeded,
+      fc_exception_message_starts_with("greylisted transaction net usage is too high")
+   );
+} FC_LOG_AND_RETHROW() }
 BOOST_AUTO_TEST_SUITE_END()

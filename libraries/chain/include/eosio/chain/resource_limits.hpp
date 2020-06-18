@@ -1,6 +1,7 @@
 #pragma once
 #include <eosio/chain/exceptions.hpp>
 #include <eosio/chain/types.hpp>
+#include <eosio/chain/config.hpp>
 #include <eosio/chain/snapshot.hpp>
 #include <chainbase/chainbase.hpp>
 #include <set>
@@ -12,6 +13,12 @@ namespace eosio { namespace chain { namespace resource_limits {
          static_assert(std::is_integral<T>::value, "ratios must have integral types");
          T numerator;
          T denominator;
+         friend inline bool operator ==( const ratio& lhs, const ratio& rhs ) {
+            return std::tie(lhs.numerator, lhs.denominator) == std::tie(rhs.numerator, rhs.denominator);
+         }
+         friend inline bool operator !=( const ratio& lhs, const ratio& rhs ) {
+            return !(lhs == rhs);
+         }
       };
    }
 
@@ -27,6 +34,13 @@ namespace eosio { namespace chain { namespace resource_limits {
       ratio    expand_rate;       // the rate at which an uncongested resource expands its limits
 
       void validate()const; // throws if the parameters do not satisfy basic sanity checks
+      friend inline bool operator ==( const elastic_limit_parameters& lhs, const elastic_limit_parameters& rhs ) {
+         return std::tie(lhs.target, lhs.max, lhs.periods, lhs.max_multiplier, lhs.contract_rate, lhs.expand_rate)
+                  == std::tie(rhs.target, rhs.max, rhs.periods, rhs.max_multiplier, rhs.contract_rate, rhs.expand_rate);
+      }
+      friend inline bool operator !=( const elastic_limit_parameters& lhs, const elastic_limit_parameters& rhs ) {
+         return !(lhs == rhs);
+      }
    };
 
    struct account_resource_limit {
@@ -70,11 +84,11 @@ namespace eosio { namespace chain { namespace resource_limits {
          uint64_t get_block_cpu_limit() const;
          uint64_t get_block_net_limit() const;
 
-         int64_t get_account_cpu_limit( const account_name& name, bool elastic = true) const;
-         int64_t get_account_net_limit( const account_name& name, bool elastic = true) const;
+         std::pair<int64_t, bool> get_account_cpu_limit( const account_name& name, uint32_t greylist_limit = config::maximum_elastic_resource_multiplier ) const;
+         std::pair<int64_t, bool> get_account_net_limit( const account_name& name, uint32_t greylist_limit = config::maximum_elastic_resource_multiplier ) const;
 
-         account_resource_limit get_account_cpu_limit_ex( const account_name& name, bool elastic = true) const;
-         account_resource_limit get_account_net_limit_ex( const account_name& name, bool elastic = true) const;
+         std::pair<account_resource_limit, bool> get_account_cpu_limit_ex( const account_name& name, uint32_t greylist_limit = config::maximum_elastic_resource_multiplier ) const;
+         std::pair<account_resource_limit, bool> get_account_net_limit_ex( const account_name& name, uint32_t greylist_limit = config::maximum_elastic_resource_multiplier ) const;
 
          int64_t get_account_ram_usage( const account_name& name ) const;
 

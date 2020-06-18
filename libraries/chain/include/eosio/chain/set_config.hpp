@@ -43,7 +43,7 @@ namespace setconf{
 class config_data_object : public chainbase::object<config_data_object_type, config_data_object> {
    OBJECT_CTOR(config_data_object);
    id_type id;
-   account_name name;
+   account_name cfg_name;
    int64_t value = setconf::default_value::default_config_value;
    int64_t valid_block = 1;
    account_name key = setconf::default_value::default_config_key;
@@ -57,7 +57,7 @@ using config_data_object_index = chainbase::shared_multi_index_container<
       config_data_object,
       indexed_by<
             ordered_unique< tag<by_id>,member<config_data_object, config_data_object::id_type, &config_data_object::id>>,
-            ordered_unique< tag<by_name>,member<config_data_object, account_name, &config_data_object::name>>
+            ordered_unique< tag<by_name>,member<config_data_object, account_name, &config_data_object::cfg_name>>
       >
 >;
 
@@ -78,7 +78,7 @@ bool is_func_open( const controller& ctl, const name &func_typ);
 
 } } /// namespace eosio::chain
 
-FC_REFLECT(eosio::chain::config_data_object, (name)(value)(valid_block)(key)(asset_info)(desc))
+FC_REFLECT(eosio::chain::config_data_object, (cfg_name)(value)(valid_block)(key)(asset_info)(desc))
 CHAINBASE_SET_INDEX_TYPE(eosio::chain::config_data_object, eosio::chain::config_data_object_index)
 
 

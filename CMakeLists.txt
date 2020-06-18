@@ -1,25 +1,18 @@
-cmake_minimum_required( VERSION 3.5 )
+cmake_minimum_required( VERSION 3.8 )
 
-project( ACTX )
-
+project( ACHAIN )
+include(CTest) # suppresses DartConfiguration.tcl error
 enable_testing()
 
-if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    message(WARNING "CMAKE_INSTALL_PREFIX is set to default path of ${CMAKE_INSTALL_PREFIX}, resetting to ${CMAKE_INSTALL_PREFIX}/actx")
-   set(CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/actx")
-elseif ("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local")
-   message(WARNING "CMAKE_INSTALL_PREFIX is explicitly set to /usr/local. This is not recommended.")
+if ("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr/local")
+   message(WARNING "CMAKE_INSTALL_PREFIX is set to /usr/local. This is not recommended.")
 endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/libraries/fc/CMakeModules")
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules")
 
-if (UNIX)
-   if (APPLE)
-      if (LLVM_DIR STREQUAL "" OR NOT LLVM_DIR)
-         set(LLVM_DIR "/usr/local/Cellar/llvm@4/4.0.1/lib/cmake/llvm")
-      endif()
-   endif()
+if (UNIX AND APPLE)
+   list(APPEND CMAKE_PREFIX_PATH "/usr/local/opt/llvm@4" "/usr/local/opt/gettext")
 endif()
 
 include( GNUInstallDirs )
@@ -29,47 +22,48 @@ include( InstallDirectoryPermissions )
 include( MASSigning )
 
 set( BLOCKCHAIN_NAME "ACHAINPLUS" )
-set( CMAKE_CXX_STANDARD 14 )
+set( CMAKE_CXX_STANDARD 17 )
 set( CMAKE_CXX_EXTENSIONS ON )
 set( CXX_STANDARD_REQUIRED ON)
 
 set(VERSION_MAJOR 1)
-set(VERSION_MINOR 0)
-set(VERSION_PATCH 3)
+set(VERSION_MINOR 1)
+set(VERSION_PATCH  0)
+#set(VERSION_SUFFIX develop)
+
+if(VERSION_SUFFIX)
+    set(VERSION_FULL "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}-${VERSION_SUFFIX}")
+else()
+    set(VERSION_FULL "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
+endif()
 
 set( CLI_CLIENT_EXECUTABLE_NAME cleos )
 set( NODE_EXECUTABLE_NAME nodeos )
 set( KEY_STORE_EXECUTABLE_NAME keosd )
-set( GUI_CLIENT_EXECUTABLE_NAME actx )
+set( GUI_CLIENT_EXECUTABLE_NAME act )
 set( CUSTOM_URL_SCHEME "gcs" )
 set( INSTALLER_APP_ID "68ad7005-8eee-49c9-95ce-9eed97e5b347" )
 
 # http://stackoverflow.com/a/18369825
 if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 6.0)
-        message(FATAL_ERROR "GCC version must be at least 6.0!")
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 7.0)
+        message(FATAL_ERROR "GCC version must be at least 7.0!")
     endif()
     if ("${CMAKE_GENERATOR}" STREQUAL "Ninja")
        add_compile_options(-fdiagnostics-color=always)
     endif()
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" OR "${CMAKE_CXX_COMPILER_ID}" STREQUAL "AppleClang")
-    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 4.0)
-        message(FATAL_ERROR "Clang version must be at least 4.0!")
+    if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.0)
+        message(FATAL_ERROR "Clang version must be at least 5.0!")
     endif()
     if ("${CMAKE_GENERATOR}" STREQUAL "Ninja")
        add_compile_options(-fcolor-diagnostics)
-endif()
+    endif()
 endif()
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS "ON")
 set(BUILD_DOXYGEN FALSE CACHE BOOL "Build doxygen documentation on every make")
 set(BUILD_MONGO_DB_PLUGIN FALSE CACHE BOOL "Build mongo database plugin")
-
-#set (USE_PCH 1)
-
-if (USE_PCH)
-  include (cotire)
-endif(USE_PCH)
 
 # add defaults for openssl
 if ("${OPENSSL_ROOT_DIR}" STREQUAL "")
@@ -106,23 +100,23 @@ IF( WIN32 )
   set(Boost_USE_MULTITHREADED ON)
   set(BOOST_ALL_DYN_LINK OFF) # force dynamic linking for all libraries
 ENDIF(WIN32)
-FIND_PACKAGE(Boost 1.67 REQUIRED COMPONENTS
-    thread
+### Remove after Boost 1.70 CMake fixes are in place
+set( Boost_NO_BOOST_CMAKE ON CACHE STRING "ON or OFF" )
+find_package(Boost 1.67 REQUIRED COMPONENTS
     date_time
     filesystem
     system
     program_options
-    signals
-    serialization
     chrono
     unit_test_framework
-    context
-    locale
     iostreams)
-# Some new stdlibc++s will #error on <experimental/string_view>; a problem for boost pre-1.69
-if( APPLE AND UNIX )
-   add_definitions(-DBOOST_ASIO_DISABLE_STD_EXPERIMENTAL_STRING_VIEW)
-endif()
+
+add_definitions(-DBOOST_ASIO_DISABLE_STD_EXPERIMENTAL_STRING_VIEW)
+
+set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
+set(THREADS_PREFER_PTHREAD_FLAG TRUE)
+find_package(Threads)
+link_libraries(Threads::Threads)
 
 if( WIN32 )
 
@@ -162,11 +156,11 @@ else( WIN32 ) # Apple AND Linux
     if( APPLE )
         # Apple Specific Options Here
         message( STATUS "Configuring EOSIO on OS X" )
-        set( CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Wall -Wno-deprecated-declarations" )
+        set( CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_CXX_FLAGS} -Wall -Wno-deprecated-declarations" )
     else( APPLE )
         # Linux Specific Options Here
         message( STATUS "Configuring EOSIO on Linux" )
-        set( CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Wall" )
+        set( CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_CXX_FLAGS} -Wall" )
         if ( FULL_STATIC_BUILD )
           set( CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -static-libstdc++ -static-libgcc")
         endif ( FULL_STATIC_BUILD )
@@ -177,10 +171,6 @@ else( WIN32 ) # Apple AND Linux
             endif()
         endif()
     endif( APPLE )
-
-    if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" )
-        set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-builtin-memcmp" )
-    endif()
 
     if( "${CMAKE_GENERATOR}" STREQUAL "Ninja" )
         if( "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang" )
@@ -198,16 +188,15 @@ set(ENABLE_COVERAGE_TESTING FALSE CACHE BOOL "Build EOSIO for code coverage anal
 
 if(ENABLE_COVERAGE_TESTING)
   SET(CMAKE_CXX_FLAGS "--coverage ${CMAKE_CXX_FLAGS}")
-  find_program( LCOV_PATH  lcov )
+  find_program( LCOV_PATH lcov )
   find_program( LLVMCOV_PATH  llvm-cov )
   find_program( GENHTML_PATH NAMES genhtml)
 endif()
 
 include(utils)
-add_subdirectory( externals )
 
 if ("${CORE_SYMBOL_NAME}" STREQUAL "")
-  set( CORE_SYMBOL_NAME "ACTX" )
+  set( CORE_SYMBOL_NAME "ACT" )
 endif()
 string(TOUPPER ${CORE_SYMBOL_NAME} CORE_SYMBOL_NAME)
 
@@ -222,11 +211,9 @@ if ("${EOSIO_ROOT_KEY}" STREQUAL "")
    set(EOSIO_ROOT_KEY "ACTX7cvL5oqAPJRe6vGz73sthbdnKHryf1RbmaYCax1E3k2KDh7bem")
 endif()
 
-message( STATUS "Using '${EOSIO_ROOT_KEY}' as public key for 'actx' account" )
+message( STATUS "Using '${EOSIO_ROOT_KEY}' as public key for 'act' account" )
 
-include(wasm)
 add_subdirectory( libraries )
-add_subdirectory( contracts )
 add_subdirectory( plugins )
 add_subdirectory( programs )
 add_subdirectory( scripts )
@@ -235,48 +222,57 @@ add_subdirectory( tests )
 add_subdirectory( tools )
 add_subdirectory( debian )
 
-install_directory_permissions(DIRECTORY ${CMAKE_INSTALL_FULL_SYSCONFDIR}/actx)
+install_directory_permissions(DIRECTORY ${CMAKE_INSTALL_FULL_SYSCONFDIR}/act)
 
-install(FILES testnet.template DESTINATION ${CMAKE_INSTALL_FULL_SYSCONFDIR}/actx/launcher)
-install_directory_permissions(DIRECTORY ${CMAKE_INSTALL_FULL_SYSCONFDIR}/actx)
-install_directory_permissions(DIRECTORY ${CMAKE_INSTALL_FULL_SYSCONFDIR}/actx/launcher)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/testnet.template ${CMAKE_CURRENT_BINARY_DIR}/etc/actx/launcher/testnet.template COPYONLY)
+install(FILES testnet.template DESTINATION ${CMAKE_INSTALL_FULL_SYSCONFDIR}/act/launcher)
+install_directory_permissions(DIRECTORY ${CMAKE_INSTALL_FULL_SYSCONFDIR}/act)
+install_directory_permissions(DIRECTORY ${CMAKE_INSTALL_FULL_SYSCONFDIR}/act/launcher)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/testnet.template ${CMAKE_CURRENT_BINARY_DIR}/etc/act/launcher/testnet.template COPYONLY)
 
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/actx.version.in ${CMAKE_CURRENT_BINARY_DIR}/actx.version.hpp)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/actx.version.hpp DESTINATION ${CMAKE_INSTALL_FULL_INCLUDEDIR})
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/act.version.in ${CMAKE_CURRENT_BINARY_DIR}/act.version.hpp)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/act.version.hpp DESTINATION ${CMAKE_INSTALL_FULL_INCLUDEDIR})
 
 set(EOS_ROOT_DIR ${CMAKE_BINARY_DIR})
-configure_file(${CMAKE_SOURCE_DIR}/CMakeModules/actx-config.cmake.in ${CMAKE_BINARY_DIR}/lib/cmake/actx/actx-config.cmake @ONLY)
-configure_file(${CMAKE_SOURCE_DIR}/CMakeModules/EosioTesterBuild.cmake.in ${CMAKE_BINARY_DIR}/lib/cmake/actx/EosioTester.cmake @ONLY)
+configure_file(${CMAKE_SOURCE_DIR}/CMakeModules/act-config.cmake.in ${CMAKE_BINARY_DIR}/lib/cmake/act/act-config.cmake @ONLY)
+configure_file(${CMAKE_SOURCE_DIR}/CMakeModules/EosioTesterBuild.cmake.in ${CMAKE_BINARY_DIR}/lib/cmake/act/EosioTester.cmake @ONLY)
 
 set(EOS_ROOT_DIR ${CMAKE_INSTALL_PREFIX})
-configure_file(${CMAKE_SOURCE_DIR}/CMakeModules/actx-config.cmake.in ${CMAKE_BINARY_DIR}/modules/actx-config.cmake @ONLY)
-install(FILES ${CMAKE_BINARY_DIR}/modules/actx-config.cmake DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/cmake/actx)
+configure_file(${CMAKE_SOURCE_DIR}/CMakeModules/act-config.cmake.in ${CMAKE_BINARY_DIR}/modules/act-config.cmake @ONLY)
+install(FILES ${CMAKE_BINARY_DIR}/modules/act-config.cmake DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/cmake/act)
 configure_file(${CMAKE_SOURCE_DIR}/CMakeModules/EosioTester.cmake.in ${CMAKE_BINARY_DIR}/modules/EosioTester.cmake @ONLY)
-install(FILES ${CMAKE_BINARY_DIR}/modules/EosioTester.cmake DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/cmake/actx)
+install(FILES ${CMAKE_BINARY_DIR}/modules/EosioTester.cmake DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/cmake/act)
 
 configure_file(${CMAKE_SOURCE_DIR}/LICENSE 
-               ${CMAKE_BINARY_DIR}/licenses/actx/LICENSE COPYONLY)
+               ${CMAKE_BINARY_DIR}/licenses/act/LICENSE COPYONLY)
 configure_file(${CMAKE_SOURCE_DIR}/libraries/wabt/LICENSE 
-               ${CMAKE_BINARY_DIR}/licenses/actx/LICENSE.wabt COPYONLY)
+               ${CMAKE_BINARY_DIR}/licenses/act/LICENSE.wabt COPYONLY)
 configure_file(${CMAKE_SOURCE_DIR}/libraries/softfloat/COPYING.txt 
-               ${CMAKE_BINARY_DIR}/licenses/actx/LICENSE.softfloat COPYONLY)
+               ${CMAKE_BINARY_DIR}/licenses/act/LICENSE.softfloat COPYONLY)
 configure_file(${CMAKE_SOURCE_DIR}/libraries/wasm-jit/LICENSE 
-               ${CMAKE_BINARY_DIR}/licenses/actx/LICENSE.wavm COPYONLY)
+               ${CMAKE_BINARY_DIR}/licenses/act/LICENSE.wavm COPYONLY)
 configure_file(${CMAKE_SOURCE_DIR}/libraries/fc/secp256k1/upstream/COPYING 
-               ${CMAKE_BINARY_DIR}/licenses/actx/LICENSE.secp256k1 COPYONLY)
+               ${CMAKE_BINARY_DIR}/licenses/act/LICENSE.secp256k1 COPYONLY)
 configure_file(${CMAKE_SOURCE_DIR}/libraries/fc/src/network/LICENSE.go 
-               ${CMAKE_BINARY_DIR}/licenses/actx/LICENSE.go COPYONLY)
-configure_file(${CMAKE_SOURCE_DIR}/externals/binaryen/LICENSE 
-               ${CMAKE_BINARY_DIR}/licenses/actx/LICENSE.binaryen COPYONLY)
+               ${CMAKE_BINARY_DIR}/licenses/act/LICENSE.go COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/libraries/yubihsm/LICENSE
+               ${CMAKE_BINARY_DIR}/licenses/act/LICENSE.yubihsm COPYONLY)
 
-install(FILES LICENSE DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/licenses/actx/)
-install(FILES libraries/wabt/LICENSE DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/licenses/actx/ RENAME LICENSE.wabt)
-install(FILES libraries/softfloat/COPYING.txt DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/licenses/actx/ RENAME LICENSE.softfloat)
-install(FILES libraries/wasm-jit/LICENSE DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/licenses/actx/ RENAME LICENSE.wavm)
-install(FILES libraries/fc/secp256k1/upstream/COPYING DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/licenses/actx/ RENAME LICENSE.secp256k1)
-install(FILES externals/binaryen/LICENSE DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/licenses/actx/ RENAME LICENSE.binaryen)
-install(FILES libraries/fc/src/network/LICENSE.go DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/licenses/actx/ )
+install(FILES LICENSE DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/licenses/act/)
+install(FILES libraries/wabt/LICENSE DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/licenses/act/ RENAME LICENSE.wabt)
+install(FILES libraries/softfloat/COPYING.txt DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/licenses/act/ RENAME LICENSE.softfloat)
+install(FILES libraries/wasm-jit/LICENSE DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/licenses/act/ RENAME LICENSE.wavm)
+install(FILES libraries/fc/secp256k1/upstream/COPYING DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/licenses/act/ RENAME LICENSE.secp256k1)
+install(FILES libraries/fc/src/network/LICENSE.go DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/licenses/act/ COMPONENT base)
+install(FILES libraries/yubihsm/LICENSE DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/licenses/act/ RENAME LICENSE.yubihsm COMPONENT base)
+
+add_custom_target(base-install
+  COMMAND "${CMAKE_COMMAND}" --build "${CMAKE_BINARY_DIR}"
+  COMMAND "${CMAKE_COMMAND}" -DCMAKE_INSTALL_COMPONENT=base -P "${CMAKE_BINARY_DIR}/cmake_install.cmake"
+  USES_TERMINAL
+)
+
+get_property(_CTEST_CUSTOM_TESTS_IGNORE GLOBAL PROPERTY CTEST_CUSTOM_TESTS_IGNORE)
+file(WRITE "${CMAKE_BINARY_DIR}/CTestCustom.cmake" "SET(CTEST_CUSTOM_TESTS_IGNORE ${_CTEST_CUSTOM_TESTS_IGNORE})")
 
 include(package)
 include(doxygen)

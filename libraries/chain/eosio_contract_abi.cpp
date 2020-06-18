@@ -134,7 +134,6 @@ abi_def eosio_contract_abi(const abi_def& eosio_system_abi)
    // TODO add any ricardian_clauses
    //
    // ACTION PAYLOADS
-
    eos_abi.structs.emplace_back( struct_def {
       "newaccount", "", {
          {"creator", "account_name"},
@@ -202,7 +201,7 @@ abi_def eosio_contract_abi(const abi_def& eosio_system_abi)
    //add for achainplus
    eos_abi.structs.emplace_back( struct_def {
       "setconfig", "", {
-         {"name", "account_name"},
+         {"cfg_name", "account_name"},
          {"value", "int64"},
          {"valid_block", "int64"},
          {"key", "account_name"},

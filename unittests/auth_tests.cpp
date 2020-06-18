@@ -8,7 +8,6 @@
 #include <eosio/chain/resource_limits_private.hpp>
 
 #include <eosio/testing/tester_network.hpp>
-#include <eosio/chain/producer_object.hpp>
 
 #ifdef NON_VALIDATING_TEST
 #define TESTER tester
@@ -119,9 +118,9 @@ try {
       BOOST_TEST(obj->parent == 0);
       owner_id = obj->id;
       auto auth = obj->auth.to_authority();
-      BOOST_TEST(auth.threshold == 1);
-      BOOST_TEST(auth.keys.size() == 1);
-      BOOST_TEST(auth.accounts.size() == 0);
+      BOOST_TEST(auth.threshold == 1u);
+      BOOST_TEST(auth.keys.size() == 1u);
+      BOOST_TEST(auth.accounts.size() == 0u);
       BOOST_TEST(auth.keys[0].key == new_owner_pub_key);
       BOOST_TEST(auth.keys[0].weight == 1);
    }
@@ -140,11 +139,11 @@ try {
       BOOST_TEST(obj->name == "active");
       BOOST_TEST(obj->parent == owner_id);
       auto auth = obj->auth.to_authority();
-      BOOST_TEST(auth.threshold == 1);
-      BOOST_TEST(auth.keys.size() == 1);
-      BOOST_TEST(auth.accounts.size() == 0);
+      BOOST_TEST(auth.threshold == 1u);
+      BOOST_TEST(auth.keys.size() == 1u);
+      BOOST_TEST(auth.accounts.size() == 0u);
       BOOST_TEST(auth.keys[0].key == new_active_pub_key);
-      BOOST_TEST(auth.keys[0].weight == 1);
+      BOOST_TEST(auth.keys[0].weight == 1u);
    }
 
    auto spending_priv_key = chain.get_private_key("alice", "spending");
@@ -241,17 +240,17 @@ BOOST_AUTO_TEST_CASE(link_auths) { try {
    // Send req auth action with alice's spending key, it should fail
    BOOST_CHECK_THROW(chain.push_reqauth("alice", { permission_level{N(alice), "spending"} }, { spending_priv_key }), irrelevant_auth_exception);
    // Link authority for eosio reqauth action with alice's spending key
-   chain.link_authority("alice", "actx", "spending",  "reqauth");
+   chain.link_authority("alice", "act", "spending",  "reqauth");
    // Now, req auth action with alice's spending key should succeed
    chain.push_reqauth("alice", { permission_level{N(alice), "spending"} }, { spending_priv_key });
 
    chain.produce_block();
 
    // Relink the same auth should fail
-   BOOST_CHECK_THROW( chain.link_authority("alice", "actx", "spending",  "reqauth"), action_validate_exception);
+   BOOST_CHECK_THROW( chain.link_authority("alice", "act", "spending",  "reqauth"), action_validate_exception);
 
    // Unlink alice with eosio reqauth
-   chain.unlink_authority("alice", "actx", "reqauth");
+   chain.unlink_authority("alice", "act", "reqauth");
    // Now, req auth action with alice's spending key should fail
    BOOST_CHECK_THROW(chain.push_reqauth("alice", { permission_level{N(alice), "spending"} }, { spending_priv_key }), irrelevant_auth_exception);
 
@@ -260,7 +259,7 @@ BOOST_AUTO_TEST_CASE(link_auths) { try {
    // Send req auth action with scud key, it should fail
    BOOST_CHECK_THROW(chain.push_reqauth("alice", { permission_level{N(alice), "scud"} }, { scud_priv_key }), irrelevant_auth_exception);
    // Link authority for any eosio action with alice's scud key
-   chain.link_authority("alice", "actx", "scud");
+   chain.link_authority("alice", "act", "scud");
    // Now, req auth action with alice's scud key should succeed
    chain.push_reqauth("alice", { permission_level{N(alice), "scud"} }, { scud_priv_key });
    // req auth action with alice's spending key should also be fine, since it is the parent of alice's scud key
@@ -280,7 +279,7 @@ BOOST_AUTO_TEST_CASE(link_then_update_auth) { try {
 
    chain.set_authority("alice", "first", first_pub_key, "active");
 
-   chain.link_authority("alice", "actx", "first",  "reqauth");
+   chain.link_authority("alice", "act", "first",  "reqauth");
    chain.push_reqauth("alice", { permission_level{N(alice), "first"} }, { first_priv_key });
 
    chain.produce_blocks(13); // Wait at least 6 seconds for first push_reqauth transaction to expire.
@@ -302,18 +301,18 @@ try {
 
    // Verify account created properly
    const auto& joe_owner_authority = chain.get<permission_object, by_owner>(boost::make_tuple("joe", "owner"));
-   BOOST_TEST(joe_owner_authority.auth.threshold == 1);
-   BOOST_TEST(joe_owner_authority.auth.accounts.size() == 1);
-   BOOST_TEST(joe_owner_authority.auth.keys.size() == 1);
+   BOOST_TEST(joe_owner_authority.auth.threshold == 1u);
+   BOOST_TEST(joe_owner_authority.auth.accounts.size() == 1u);
+   BOOST_TEST(joe_owner_authority.auth.keys.size() == 1u);
    BOOST_TEST(string(joe_owner_authority.auth.keys[0].key) == string(chain.get_public_key("joe", "owner")));
-   BOOST_TEST(joe_owner_authority.auth.keys[0].weight == 1);
+   BOOST_TEST(joe_owner_authority.auth.keys[0].weight == 1u);
 
    const auto& joe_active_authority = chain.get<permission_object, by_owner>(boost::make_tuple("joe", "active"));
-   BOOST_TEST(joe_active_authority.auth.threshold == 1);
-   BOOST_TEST(joe_active_authority.auth.accounts.size() == 1);
-   BOOST_TEST(joe_active_authority.auth.keys.size() == 1);
+   BOOST_TEST(joe_active_authority.auth.threshold == 1u);
+   BOOST_TEST(joe_active_authority.auth.accounts.size() == 1u);
+   BOOST_TEST(joe_active_authority.auth.keys.size() == 1u);
    BOOST_TEST(string(joe_active_authority.auth.keys[0].key) == string(chain.get_public_key("joe", "active")));
-   BOOST_TEST(joe_active_authority.auth.keys[0].weight == 1);
+   BOOST_TEST(joe_active_authority.auth.keys[0].weight == 1u);
 
    // Create duplicate name
    BOOST_CHECK_EXCEPTION(chain.create_account("joe"), action_validate_exception,
@@ -354,8 +353,8 @@ BOOST_AUTO_TEST_CASE( any_auth ) { try {
 
    //test.push_reqauth( N(alice), { permission_level{N(alice),"spending"} }, { spending_priv_key });
 
-   chain.link_authority( "alice", "actx", "actx.any", "reqauth" );
-   chain.link_authority( "bob", "actx", "actx.any", "reqauth" );
+   chain.link_authority( "alice", "act", "act.any", "reqauth" );
+   chain.link_authority( "bob", "act", "act.any", "reqauth" );
 
    /// this should succeed because eosio::reqauth is linked to any permission
    chain.push_reqauth("alice", { permission_level{N(alice), "spending"} }, { spending_priv_key });
@@ -371,7 +370,8 @@ BOOST_AUTO_TEST_CASE( any_auth ) { try {
 
 BOOST_AUTO_TEST_CASE(no_double_billing) {
 try {
-   TESTER chain;
+   validating_tester chain( validating_tester::default_config() );
+   chain.execute_setup_policy( setup_policy::preactivate_feature_and_new_bios );
 
    chain.produce_block();
 
@@ -419,8 +419,8 @@ try {
 
    const auto &usage2 = db.get<resource_usage_object,by_owner>(acc1a);
 
-   BOOST_TEST(usage.cpu_usage.average() > 0);
-   BOOST_TEST(usage.net_usage.average() > 0);
+   BOOST_TEST(usage.cpu_usage.average() > 0U);
+   BOOST_TEST(usage.net_usage.average() > 0U);
    BOOST_REQUIRE_EQUAL(usage.cpu_usage.average(), usage2.cpu_usage.average());
    BOOST_REQUIRE_EQUAL(usage.net_usage.average(), usage2.net_usage.average());
    chain.produce_block();
@@ -490,7 +490,7 @@ BOOST_AUTO_TEST_CASE( linkauth_special ) { try {
    chain.create_account(N(tester));
    chain.create_account(N(tester2));
    chain.produce_blocks();
-
+   
    chain.push_action(config::system_account_name, updateauth::get_name(), tester_account, fc::mutable_variant_object()
            ("account", "tester")
            ("permission", "first")
@@ -502,7 +502,7 @@ BOOST_AUTO_TEST_CASE( linkauth_special ) { try {
       BOOST_REQUIRE_EXCEPTION(
          chain.push_action(config::system_account_name, linkauth::get_name(), tester_account, fc::mutable_variant_object()
                ("account", "tester")
-               ("code", "actx")
+               ("code", "act")
                ("type", type)
                ("requirement", "first")),
          action_validate_exception,

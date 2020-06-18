@@ -15,18 +15,18 @@ namespace eosio { namespace chain {
     * @defgroup native_action_handlers Native Action Handlers
     */
    ///@{
-   void apply_actx_newaccount(apply_context&);
-   void apply_actx_updateauth(apply_context&);
-   void apply_actx_deleteauth(apply_context&);
-   void apply_actx_linkauth(apply_context&);
-   void apply_actx_unlinkauth(apply_context&);
+   void apply_act_newaccount(apply_context&);
+   void apply_act_updateauth(apply_context&);
+   void apply_act_deleteauth(apply_context&);
+   void apply_act_linkauth(apply_context&);
+   void apply_act_unlinkauth(apply_context&);
 
-   void apply_actx_setcode(apply_context&);
-   void apply_actx_setabi(apply_context&);
+   void apply_act_setcode(apply_context&);
+   void apply_act_setabi(apply_context&);
 
-   void apply_actx_canceldelay(apply_context&);
+   void apply_act_canceldelay(apply_context&);
    //add for achainplus
-   void apply_actx_setconfig(apply_context&);
+   void apply_act_setconfig(apply_context&);
    ///@}  end action handlers
 
 } } /// namespace eosio::chain

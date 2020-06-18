@@ -2,27 +2,18 @@
 	path = libraries/chainbase
 	url = https://github.com/eosio/chainbase
         ignore = dirty
-[submodule "libraries/appbase"]
-	path = libraries/appbase
-	url = https://github.com/eosio/appbase
-        ignore = dirty
-[submodule "externals/binaryen"]
-	path = externals/binaryen
-	url = https://github.com/EOSIO/binaryen
-
 [submodule "libraries/softfloat"]
 	path = libraries/softfloat
 	url = https://github.com/eosio/berkeley-softfloat-3
-[submodule "externals/magic_get"]
-	path = externals/magic_get
-	url = https://github.com/EOSIO/magic_get
 [submodule "libraries/wabt"]
 	path = libraries/wabt
 	url = http://github.com/EOSIO/wabt
-[submodule "contracts/musl/upstream"]
-	branch = eosio
-	path = contracts/musl/upstream
-	url = https://github.com/EOSIO/musl.git
 [submodule "libraries/fc"]
 	path = libraries/fc
 	url = https://github.com/Achain-Dev/fc
+[submodule "libraries/yubihsm"]
+	path = libraries/yubihsm
+	url = https://github.com/Yubico/yubihsm-shell
+[submodule "libraries/appbase"]
+	path = libraries/appbase
+	url = https://github.com/Achain-Dev/appbase.git
