@@ -449,7 +449,7 @@ namespace eosio {
    };
 
    struct handshake_initializer {
-      static void populate(handshake_message &hello);
+      static bool populate(handshake_message &hello);
    };
 
    class connection : public std::enable_shared_from_this<connection> {
@@ -939,11 +939,12 @@ namespace eosio {
    }
 
    void connection::send_handshake( ) {
-      handshake_initializer::populate(last_handshake_sent);
-      last_handshake_sent.generation = ++sent_handshake_count;
-      fc_dlog(logger, "Sending handshake generation ${g} to ${ep}",
-              ("g",last_handshake_sent.generation)("ep", peer_name()));
-      enqueue(last_handshake_sent);
+      if (handshake_initializer::populate(last_handshake_sent)){
+         last_handshake_sent.generation = ++sent_handshake_count;
+         fc_dlog(logger, "Sending handshake generation ${g} to ${ep}",
+                 ("g",last_handshake_sent.generation)("ep", peer_name()));
+         enqueue(last_handshake_sent);
+      }
    }
 
    char* connection::convert_tstamp(const tstamp& t)
@@ -2787,7 +2788,7 @@ namespace eosio {
       return chain::signature_type();
    }
 
-   void
+   bool
    handshake_initializer::populate( handshake_message &hello) {
       hello.network_version = net_version_base + net_version;
       hello.chain_id = my_impl->chain_id;
@@ -2811,6 +2812,9 @@ namespace eosio {
 #endif
       hello.agent = my_impl->user_agent_name;
 
+      bool send = true;      
+      auto prev_head_id = hello.head_id;
+      auto prev_lib_id = hello.last_irreversible_block_id;
 
       controller& cc = my_impl->chain_plug->chain();
       hello.head_id = fc::sha256();
@@ -2824,6 +2828,7 @@ namespace eosio {
          catch( const unknown_block_exception &ex) {
             fc_wlog( logger, "caught unkown_block" );
             hello.last_irreversible_block_num = 0;
+            send = false;
          }
       }
       if( hello.head_num ) {
@@ -2832,8 +2837,13 @@ namespace eosio {
          }
          catch( const unknown_block_exception &ex) {
            hello.head_num = 0;
+           send = false;
          }
       }
+
+      if( send && hello.last_irreversible_block_id == prev_lib_id && hello.head_id == prev_head_id ) send = false;
+
+      return send;
    }
 
    net_plugin::net_plugin()
