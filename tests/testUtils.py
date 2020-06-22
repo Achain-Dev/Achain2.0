@@ -6,6 +6,7 @@ import platform
 from collections import deque
 from collections import namedtuple
 import inspect
+from datetime import datetime
 import json
 import shlex
 import socket
@@ -38,6 +39,7 @@ class Utils:
     def Print(*args, **kwargs):
         stackDepth=len(inspect.stack())-2
         s=' '*stackDepth
+        stdout.write(datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%S.%f "))
         stdout.write(s)
         print(*args, **kwargs)
 
