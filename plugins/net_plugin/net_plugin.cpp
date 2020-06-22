@@ -962,9 +962,13 @@ namespace eosio {
       if( !buffer_queue.ready_to_send() )
          return;
       connection_wptr c(shared_from_this());
-      if(!socket->is_open()) {
+      // add another solution
+      auto tmpconn = c.lock();
+      if(!socket->is_open() || socket != tmpconn->socket) {
          fc_elog(logger,"socket not open to ${p}",("p",peer_name()));
-         my_impl->close(c.lock());
+         fc_wlog( logger, "async write socket ${r} before callback: ${p}",
+                           ("r", tmpconn->socket->is_open() ? "changed" : "closed")("p", tmpconn->peer_name()) );
+         my_impl->close(tmpconn);
          return;
       }
       std::vector<boost::asio::const_buffer> bufs;
