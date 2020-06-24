@@ -2405,7 +2405,7 @@ namespace eosio {
       case none:
          break;
       case last_irr_catch_up: {
-         c->last_handshake_recv.head_num = msg.known_trx.pending;
+         c->last_handshake_recv.head_num = msg.known_blocks.pending;
          req.req_trx.mode = none;
          break;
       }
