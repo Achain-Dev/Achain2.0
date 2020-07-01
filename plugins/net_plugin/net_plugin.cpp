@@ -788,7 +788,8 @@ namespace eosio {
 
    void connection::close() {
       if(socket) {
-         socket->close();
+         boost::system::error_code ec;
+         socket->close(ec);
          socket.reset( new tcp::socket( my_impl->thread_pool->get_executor() ) );
       }
       else {
@@ -2000,7 +2001,8 @@ namespace eosio {
                         fc_elog(logger, "Error max_client_count ${m} exceeded",
                                 ( "m", max_client_count) );
                      }
-                     socket->close();
+                     boost::system::error_code ec;
+                     socket->close(ec);
                   }
                }
             } else {
