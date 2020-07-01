@@ -1142,7 +1142,9 @@ class Node(object):
         return True
 
     def verifyAlive(self, silent=False):
-        if not silent and Utils.Debug: Utils.Print("Checking if node(pid=%s) is alive(killed=%s): %s" % (self.pid, self.killed, self.cmd))
+        logStatus=not silent and Utils.Debug
+        pid=self.pid
+        if logStatus: Utils.Print("Checking if node(pid=%s) is alive(killed=%s): %s" % (self.pid, self.killed, self.cmd))
         if self.killed or self.pid is None:
             return False
 
@@ -1152,8 +1154,10 @@ class Node(object):
             # mark node as killed
             self.pid=None
             self.killed=True
+            if logStatus: Utils.Print("Determined node(formerly pid=%s) is killed" % (pid))
             return False
         except PermissionError as ex:
+            if logStatus: Utils.Print("Determined node(formerly pid=%s) is killed" % (pid))
             return True
         else:
             return True
