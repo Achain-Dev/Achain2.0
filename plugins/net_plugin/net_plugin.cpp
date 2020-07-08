@@ -2167,8 +2167,9 @@ namespace eosio {
                   sync_master->recv_block( conn, blk_id, blk_num );
                }else{
                   conn->cancel_wait();
+                  fc_dlog( logger, "canceling wait on ${p}, already received block ${num}, id ${id}...",
+                        ("p", conn->peer_name())("num", blk_num)("id", blk_id.str().substr(8,16)) );
                }
-               conn->pending_message_buffer.advance_read_ptr( message_length );
                return true;
             }
          }
