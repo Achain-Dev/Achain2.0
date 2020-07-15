@@ -843,29 +843,13 @@ namespace eosio {
          enqueue(note);
          return;
       }
-      block_id_type head_id;
-      block_id_type lib_id;
-      block_id_type remote_head_id;
-      uint32_t remote_head_num = 0;
-      try {
-         if (last_handshake_recv.generation >= 1) {
-            remote_head_id = last_handshake_recv.head_id;
-            remote_head_num = block_header::num_from_id(remote_head_id);
-            fc_dlog(logger, "maybe truncating branch at  = ${h}:${id}",("h",remote_head_num)("id",remote_head_id));
-         }
 
-         lib_id = last_handshake_recv.last_irreversible_block_id;
-         head_id = cc.fork_db_pending_head_block_id();
+      if (last_handshake_recv.generation >= 1) {
+         fc_dlog(logger, "maybe truncating branch at  = ${h}:${id}",
+             ("h", block_header::num_from_id(last_handshake_recv.head_id))("id", last_handshake_recv.head_id) );
       }
-      catch (const assert_exception& ex) {
-         fc_elog( logger, "unable to retrieve block info: ${n} for ${p}",("n",ex.to_string())("p",peer_name()) );
-         enqueue(note);
-         return;
-      }
-      catch (const fc::exception& ex) {
-      }
-      catch (...) {
-      }
+
+      const auto lib_id = last_handshake_recv.last_irreversible_block_id;
 
       auto msg_head_num = block_header::num_from_id(msg_head_id);
       bool on_fork = msg_head_num == 0;
@@ -873,7 +857,7 @@ namespace eosio {
          on_fork = on_fork || cc.get_block_id_for_num( msg_head_num ) != msg_head_id;
       } catch( ... ) {}
       if( on_fork ) msg_head_num = 0;
-      auto lib_num = block_header::num_from_id(lib_id);
+      const auto lib_num = block_header::num_from_id(lib_id);
 
       if( !peer_requested ) {
          auto last = msg_head_num != 0 ? msg_head_num : lib_num;
