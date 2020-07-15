@@ -1543,15 +1543,17 @@ namespace eosio {
          }
       }
       if( req.req_blocks.mode == catch_up ) {
+         controller& cc = chain_plug->chain();
+         const auto lib = cc.last_irreversible_block_num();
+
          fc_ilog( logger, "got a catch_up notice while in ${s}, fork head num = ${fhn} target LIB = ${lib} next_expected = ${ne}",
                   ("s",stage_str(state))("fhn",num)("lib",sync_known_lib_num)("ne", sync_next_expected_num) );
-         if (state == lib_catchup)
+         if (state == lib_catchup || num < lib)
             return false;
          set_state(head_catchup);
          c->fork_head = id;
          c->fork_head_num = num;
          
-         controller& cc = chain_plug->chain();
          block_id_type head_id = cc.fork_db_pending_head_block_id();
          req.req_blocks.ids.emplace_back( head_id );
       }
