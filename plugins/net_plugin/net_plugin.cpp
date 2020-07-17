@@ -1529,7 +1529,7 @@ namespace eosio {
          }
       }
       if( req.req_blocks.mode == catch_up ) {
-         controller& cc = chain_plug->chain();
+         const controller& cc = chain_plug->chain();
          const auto lib = cc.last_irreversible_block_num();
 
          fc_ilog( logger, "got a catch_up notice while in ${s}, fork head num = ${fhn} target LIB = ${lib} next_expected = ${ne}",
@@ -2161,7 +2161,7 @@ namespace eosio {
             block_header bh;
             fc::raw::unpack( peek_ds, bh );
 
-            controller& cc = chain_plug->chain();
+            const controller& cc = chain_plug->chain();
             block_id_type blk_id = bh.id();
             uint32_t blk_num = bh.block_num();
             if( cc.fetch_block_by_id( blk_id ) ) {
