@@ -1069,8 +1069,14 @@ namespace eosio {
       fc::datastream<char*> ds( send_buffer->data(), buffer_size);
       ds.write( header, header_size );
       fc::raw::pack( ds, m );
+      static int current = 0;
+      int priority = (m.which() * 10000) + (++current);
+      if (m.contains<handshake_message>()) {
+         priority = 500 + current;
+      }
 
-      enqueue_buffer( send_buffer, trigger_send, priority::low, close_after_send );
+      fc_dlog( logger, "${peer} enqueue priority ${p}", ("peer", peer_name())("p", priority) );
+      enqueue_buffer( send_buffer, trigger_send, priority, close_after_send );
    }
 
    template< typename T>
