@@ -1160,6 +1160,7 @@ class Node(object):
             if logStatus: Utils.Print("Determined node(formerly pid=%s) is alive" % (pid))
             return True
         else:
+            if logStatus: Utils.Print("Determined node(pid=%s) is alive (kill command executed)" % (self.pid))
             return True
 
     def getBlockProducerByNum(self, blockNum, timeout=None, waitForBlock=True, exitOnError=True):
