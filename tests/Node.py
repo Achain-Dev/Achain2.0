@@ -31,7 +31,7 @@ class Node(object):
 
     # pylint: disable=too-many-instance-attributes
     # pylint: disable=too-many-arguments
-    def __init__(self, host, port, pid=None, cmd=None, walletMgr=None, enableMongo=False, mongoHost="localhost", mongoPort=27017, mongoDb="EOStest"):
+    def __init__(self, host, port, pid=None, cmd=None, walletMgr=None, enableMongo=False, mongoHost="localhost", mongoPort=27017, mongoDb="Achaintest"):
         self.host=host
         self.port=port
         self.pid=pid
@@ -1160,7 +1160,7 @@ class Node(object):
             if logStatus: Utils.Print("Determined node(formerly pid=%s) is alive" % (pid))
             return True
         else:
-            if logStatus: Utils.Print("Determined node(pid=%s) is alive (kill command executed)" % (self.pid))
+            if logStatus: Utils.Print("Determined node(pid=%s) is alive " % (self.pid))
             return True
 
     def getBlockProducerByNum(self, blockNum, timeout=None, waitForBlock=True, exitOnError=True):
