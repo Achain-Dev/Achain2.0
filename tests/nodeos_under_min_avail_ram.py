@@ -198,7 +198,7 @@ try:
         if not allDone:
             time.sleep(5)
         count+=1
-        if count>5
+        if count>12
 :
             Utils.cmdError("All Nodes should have died")
             errorExit("Failure - All Nodes should have died")
