@@ -2326,6 +2326,7 @@ namespace eosio {
          }
 
          bool on_fork = false;
+         bool unknown_block = false;
          fc_dlog(logger, "lib_num = ${ln} peer_lib = ${pl}",("ln",lib_num)("pl",peer_lib));
 
          if( peer_lib <= lib_num && peer_lib > 0) {
@@ -2335,7 +2336,7 @@ namespace eosio {
             }
             catch( const unknown_block_exception &ex) {
                fc_wlog( logger, "peer last irreversible block ${pl} is unknown", ("pl", peer_lib) );
-               on_fork = true;
+               unknown_block = true;
             }
             catch( ...) {
                fc_wlog( logger, "caught an exception getting block id for ${pl}",("pl",peer_lib) );
@@ -2345,6 +2346,11 @@ namespace eosio {
                fc_elog( logger, "Peer chain is forked" );
                c->enqueue( go_away_message( forked ));
                return;
+            }
+            if (unknown_block){
+               peer_ilog( c, "Peer asked for unknown block, sending: benign_other go away" );
+               c->no_retry = benign_other;
+               c->enqueue( go_away_message( benign_other ) );
             }
          }
 
