@@ -1314,7 +1314,7 @@ producer_plugin_impl::start_block_result producer_plugin_impl::start_block() {
    // If we would wait less than 50ms (1/10 of block_interval), wait for the whole block interval.
    const fc::time_point now = fc::time_point::now();
    const fc::time_point block_time = calculate_pending_block_time();
-
+   const pending_block_mode previous_pending_mode = _pending_block_mode;
    _pending_block_mode = pending_block_mode::producing;
 
    // Not our turn
@@ -1348,6 +1348,10 @@ producer_plugin_impl::start_block_result producer_plugin_impl::start_block() {
              ("head_block_num", hbs->block_num));
          _pending_block_mode = pending_block_mode::speculating;
       }
+   }else if (previous_pending_mode == pending_block_mode::producing) {
+      // just produced our last block of our round
+      const auto start_block_time = block_time - fc::microseconds( config::block_interval_us );
+      schedule_delayed_production_loop( weak_from_this(), start_block_time);
    }
 
    if (_pending_block_mode == pending_block_mode::speculating) {
