@@ -1351,6 +1351,7 @@ producer_plugin_impl::start_block_result producer_plugin_impl::start_block() {
    }else if (previous_pending_mode == pending_block_mode::producing) {
       // just produced our last block of our round
       const auto start_block_time = block_time - fc::microseconds( config::block_interval_us );
+      fc_dlog(_log, "Not starting speculative block until ${bt}", ("bt", start_block_time) );
       schedule_delayed_production_loop( weak_from_this(), start_block_time);
    }
 

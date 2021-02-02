@@ -124,6 +124,7 @@ macro(add_eosio_test_executable test_name)
        ${Boost_SYSTEM_LIBRARY}
        ${Boost_CHRONO_LIBRARY}
        ${Boost_IOSTREAMS_LIBRARY}
+       "-lz"
        ${Boost_DATE_TIME_LIBRARY}
        ${PLATFORM_SPECIFIC_LIBS}
       )
