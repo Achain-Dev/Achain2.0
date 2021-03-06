@@ -1,5 +1,5 @@
 # Achain2.0
-the next generation of blockchain  technique Achain 
+the next generation of blockchain technique Achain 
 
 
 ### Binary Releases[Recommended]
