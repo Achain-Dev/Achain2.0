@@ -38,7 +38,7 @@ git checkout actx1.1
 The above process takes about 20-30 minutes, depending on the network
 
 # Install Achain2.0
-sudo ./act_install.sh
+[sudo] ./act_install.sh
 ```
 
 # Write dapp
