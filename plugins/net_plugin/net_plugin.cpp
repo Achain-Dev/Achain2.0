@@ -1651,6 +1651,7 @@ namespace eosio {
    //------------------------------------------------------------------------
 
    void dispatch_manager::bcast_block(const block_state_ptr& bs) {
+      if( my_impl->sync_master->syncing_with_peer() ) return;
       std::set<connection_ptr> skips;
       auto range = received_blocks.equal_range(bs->id);
       for (auto org = range.first; org != range.second; ++org) {
