@@ -1418,8 +1418,9 @@ namespace eosio {
 
       if (state == in_sync) {
          set_state(lib_catchup);
-         sync_next_expected_num = chain_plug->chain().last_irreversible_block_num() + 1;
       }
+
+      sync_next_expected_num = chain_plug->chain().last_irreversible_block_num() + 1;
 
       fc_ilog(logger, "Catching up with chain, our last req is ${cc}, theirs is ${t} peer ${p}",
               ( "cc",sync_last_requested_num)("t",target)("p",c->peer_name()));
