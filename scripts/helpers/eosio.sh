@@ -13,9 +13,9 @@ fi
 
 # Setup yum and apt variables
 if [[ $NAME =~ "Amazon Linux" ]] || [[ $NAME == "CentOS Linux" ]]; then
-    if ! YUM=$( command -v yum 2>/dev/null ); then echo "${COLOR_RED}YUM must be installed to compile EOSIO${COLOR_NC}" && exit 1; fi
+    if ! YUM=$( command -v yum 2>/dev/null ); then echo "${COLOR_RED}YUM must be installed to compile Achain${COLOR_NC}" && exit 1; fi
 elif [[ $NAME == "Ubuntu" ]]; then
-    if ! APTGET=$( command -v apt-get 2>/dev/null ); then echo "${COLOR_RED}APT-GET must be installed to compile EOSIO${COLOR_NC}" && exit 1; fi
+    if ! APTGET=$( command -v apt-get 2>/dev/null ); then echo "${COLOR_RED}APT-GET must be installed to compile Achain${COLOR_NC}" && exit 1; fi
 fi
 
 # Obtain dependency versions; Must come first in the script
@@ -99,12 +99,12 @@ function install-directory-prompt() {
         export EOSIO_INSTALL_DIR="$INSTALL_LOCATION"
     fi
     . ./scripts/.build_vars
-    echo "EOSIO will be installed to: ${EOSIO_INSTALL_DIR}"
+    echo "Achain will be installed to: ${EOSIO_INSTALL_DIR}"
 }
 
 function previous-install-prompt() {
   if [[ -d $EOSIO_INSTALL_DIR ]]; then
-    echo "EOSIO has already been installed into ${EOSIO_INSTALL_DIR}... It's suggested that you eosio_uninstall.sh before re-running this script."
+    echo "Achain has already been installed into ${EOSIO_INSTALL_DIR}... It's suggested that you act_uninstall.sh before re-running this script."
     while true; do
       [[ $NONINTERACTIVE == false ]] && printf "${COLOR_YELLOW}Do you wish to proceed anyway? (y/n)${COLOR_NC}" && read -p " " PROCEED
       echo ""
@@ -118,15 +118,8 @@ function previous-install-prompt() {
   fi
 }
 
-function resources() {
-    echo "${COLOR_CYAN}EOSIO website:${COLOR_NC} https://eos.io"
-    echo "${COLOR_CYAN}EOSIO Telegram channel:${COLOR_NC} https://t.me/EOSProject"
-    echo "${COLOR_CYAN}EOSIO resources:${COLOR_NC} https://eos.io/resources/"
-    echo "${COLOR_CYAN}EOSIO Stack Exchange:${COLOR_NC} https://eosio.stackexchange.com"
-}
-
 function print_supported_linux_distros_and_exit() {
-   echo "On Linux the EOSIO build script only supports Amazon, Centos, and Ubuntu."
+   echo "On Linux the Achain build script only supports Amazon, Centos, and Ubuntu."
    echo "Please install on a supported version of one of these Linux distributions."
    echo "https://aws.amazon.com/amazon-linux-ami/"
    echo "https://www.centos.org/"
@@ -185,7 +178,7 @@ function ensure-compiler() {
             [[ $( $(which $CXX) -dumpversion | cut -d '.' -f 1 ) -lt 7 ]] && export NO_CPP17=true
             if [[ $NO_CPP17 == false ]]; then # https://github.com/EOSIO/eos/issues/7402
                 while true; do
-                    echo "${COLOR_YELLOW}WARNING: Your GCC compiler ($CXX) is less performant than clang (https://github.com/EOSIO/eos/issues/7402). We suggest running the build script with -P or install your own clang and try again.${COLOR_NC}"
+                    echo "${COLOR_YELLOW}WARNING: Your GCC compiler ($CXX) is less performant than clang. We suggest running the build script with -P or install your own clang and try again.${COLOR_NC}"
                     [[ $NONINTERACTIVE == false ]] && printf "${COLOR_YELLOW}Do you wish to proceed anyway? (y/n)?${COLOR_NC}" && read -p " " PROCEED
                     case $PROCEED in
                         "" ) echo "What would you like to do?";;
