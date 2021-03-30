@@ -64,5 +64,4 @@ printf "========================================================================
 printf "${COLOR_GREEN}ACHAIN has been installed into ${CACHED_INSTALL_PATH}/bin${COLOR_NC}"
 printf "\\n${COLOR_YELLOW}Uninstall with: ${SCRIPT_DIR}/eosio_uninstall.sh${COLOR_NC}\\n"
 printf "==============================================================================================\\n\\n"
-resources
 install_symlinks

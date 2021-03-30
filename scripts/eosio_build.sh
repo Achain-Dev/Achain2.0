@@ -251,4 +251,3 @@ fi
 echo "cd ${BUILD_DIR} && ${PATH_TO_USE} make test" # PATH is set as currently 'mongo' binary is required for the mongodb test
 
 echo ""
-resources
