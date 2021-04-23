@@ -2004,11 +2004,11 @@ namespace eosio {
                   }
                   else {
                      if (from_addr >= max_nodes_per_host) {
-                        fc_elog(logger, "Number of connections (${n}) from ${ra} exceeds limit",
+                        fc_dlog(logger, "Number of connections (${n}) from ${ra} exceeds limit",
                                 ("n", from_addr+1)("ra",paddr.to_string()));
                      }
                      else {
-                        fc_elog(logger, "Error max_client_count ${m} exceeded",
+                        fc_dlog(logger, "Error max_client_count ${m} exceeded",
                                 ( "m", max_client_count) );
                      }
                      boost::system::error_code ec;
