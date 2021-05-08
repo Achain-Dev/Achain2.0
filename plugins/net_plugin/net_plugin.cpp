@@ -2238,6 +2238,11 @@ namespace eosio {
          fc_wlog( logger, "Handshake message validation: p2p_address is null string" );
          valid = false;
       }
+      else if( msg.p2p_address.length() > max_handshake_str_length ) {
+         // see max_handshake_str_length comment in protocol.hpp
+         fc_wlog( logger, "Handshake message validation: p2p_address to large: ${p}", ("p", msg.p2p_address.substr(0, max_handshake_str_length) + "...") );
+         valid = false;
+      }
       if (msg.os.empty()) {
          fc_wlog( logger, "Handshake message validation: os field is null string" );
          valid = false;
@@ -2246,6 +2251,7 @@ namespace eosio {
          fc_wlog( logger, "Handshake message validation: token field invalid" );
          valid = false;
       }
+      
       return valid;
    }
 
