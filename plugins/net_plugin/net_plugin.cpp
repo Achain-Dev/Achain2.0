@@ -2247,6 +2247,10 @@ namespace eosio {
          fc_wlog( logger, "Handshake message validation: os field is null string" );
          valid = false;
       }
+      else if( msg.os.length() > max_handshake_str_length ) {
+         fc_wlog( logger, "Handshake message validation: os field to large: ${p}", ("p", msg.os.substr(0, max_handshake_str_length) + "...") );
+         valid = false;
+      }
       if ((msg.sig != chain::signature_type() || msg.token != sha256()) && (msg.token != fc::sha256::hash(msg.time))) {
          fc_wlog( logger, "Handshake message validation: token field invalid" );
          valid = false;
