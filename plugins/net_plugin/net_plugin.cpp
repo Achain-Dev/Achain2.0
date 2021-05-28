@@ -208,7 +208,7 @@ namespace eosio {
 
       void expire_txns();
       void expire_local_txns();
-      void connection_monitor(std::weak_ptr<connection> from_connection);
+      void connection_monitor(std::weak_ptr<connection> from_connection, bool reschedule = true);
       /** \name Peer Timestamps
        *  Time message handling
        *  @{
@@ -2744,7 +2744,7 @@ namespace eosio {
       stale.erase( stale.lower_bound(1), stale.upper_bound(lib) );
    }
 
-   void net_plugin_impl::connection_monitor(std::weak_ptr<connection> from_connection) {
+   void net_plugin_impl::connection_monitor(std::weak_ptr<connection> from_connection, bool reschedule) {
       auto max_time = fc::time_point::now();
       max_time += fc::milliseconds(max_cleanup_time_ms);
       auto from = from_connection.lock();
@@ -2766,7 +2766,9 @@ namespace eosio {
          }
          ++it;
       }
-      start_conn_timer(connector_period, std::weak_ptr<connection>());
+      if (reschedule) {
+         start_conn_timer(connector_period, std::weak_ptr<connection>());
+      }
    }
 
    void net_plugin_impl::close(const connection_ptr& c) {
