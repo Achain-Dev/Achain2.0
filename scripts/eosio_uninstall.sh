@@ -55,7 +55,6 @@ cd $( dirname "${BASH_SOURCE[0]}" )/..
 # Load bash script helper functions
 . ./scripts/helpers/eosio.sh
 
-# Support relative paths : https://github.com/EOSIO/eos/issues/7560
 ( [[ ! -z $INSTALL_LOCATION ]] && [[ ! $INSTALL_LOCATION =~ ^\/ ]] ) && export INSTALL_LOCATION="${CURRENT_WORKING_DIR}/$INSTALL_LOCATION"
 
 INSTALL_PATHS=()
@@ -78,9 +77,9 @@ fi
 export EOSIO_INSTALL_DIR=${INSTALL_LOCATION:-$EOSIO_INSTALL_DIR}
 
 if [[ ! -d "${EOSIO_INSTALL_DIR}" ]]; then
-   echo "[EOSIO installation ${COLOR_YELLOW}NOT${COLOR_NC} found in ${EOSIO_INSTALL_DIR}]"
+   echo "[Achain installation ${COLOR_YELLOW}NOT${COLOR_NC} found in ${EOSIO_INSTALL_DIR}]"
 else
-   echo "[ACHAIN installation found: ${EOSIO_INSTALL_DIR}]" && INSTALL_PATHS+=("${EOSIO_INSTALL_DIR}") # EOSIO_INSTALL_DIR set in .environment
+   echo "[ACHAIN installation found: ${EOSIO_INSTALL_DIR}]" && INSTALL_PATHS+=("${EOSIO_INSTALL_DIR}")
    while true; do
       [[ $NONINTERACTIVE == false ]] && read -p "Do you wish to remove the installation in ${EOSIO_INSTALL_DIR}? (y/n) " PROCEED
       case $PROCEED in
@@ -92,7 +91,7 @@ else
                [[ $ARCH == "Darwin" ]] && INSTALL_PATHS+=("${HOME}/Library/Application\ Support/eosio")
                [[ $ARCH != "Darwin" ]] && INSTALL_PATHS+=("${HOME}/.local/share/eosio")
             fi
-            # Version < 1.8.0; Before we started using ~/eosio/1.8.x
+            # Version < 1.8.0; Before we started using ~/achain/1.8.x
             # Arrays should return with newlines (IFS=\n;helpers.sh) as Application\ Support will split into two
             for INSTALL_PATH in ${INSTALL_PATHS[@]}; do
                execute rm -rf $INSTALL_PATH
