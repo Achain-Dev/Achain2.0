@@ -12,14 +12,10 @@ import re
 
 def nodeos_help_test():
     help_text = subprocess.check_output(["./programs/nodeos/nodeos", "--help"])
-
-    if not re.search(b'Application.*Options', help_text):
-        raise Exception('No application options found '
-                        'in the output of "nodeos --help"')
-
-    if not re.search(b'Options for .*_plugin', help_text):
-        raise Exception('No plugin options found '
-                        'in the output of "nodeos --help"')
+    //use assert
+    help_text = subprocess.check_output(["./programs/nodeos/nodeos", "--help"])
+    assert(re.search(b'Application.*Options', help_text))
+    assert(re.search(b'Options for .*_plugin', help_text))
 
 
 def cleos_help_test(args):
