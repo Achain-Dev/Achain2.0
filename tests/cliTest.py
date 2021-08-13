@@ -20,14 +20,8 @@ def nodeos_help_test():
 
 def cleos_help_test(args):
     help_text = subprocess.check_output(["./programs/cleos/cleos"] + args)
-
-    if b'Options:' not in help_text:
-        raise Exception('No options found in the '
-                        'output of "cleos ' + ' '.join(args))
-
-    if b'Subcommands:' not in help_text:
-        raise Exception('No subcommands found in the '
-                        'output of cleos ' + ' '.join(args))
+    assert(b'Options:' in help_text)
+    assert(b'Subcommands:' in help_text)
 
 
 def cli11_bugfix_test():
