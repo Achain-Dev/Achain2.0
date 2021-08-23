@@ -31,12 +31,13 @@ def cli11_bugfix_test():
         check=False,
         stderr=subprocess.PIPE)
 
-    if not completed_process.returncode:
-        raise Exception('Test command unexpectedly succeeded')
+    # The above command must fail because there is no server running
+    # on localhost:0
+    assert(completed_process.returncode != 0)
 
-    if b'Failed to connect to nodeos' not in completed_process.stderr:
-        raise Exception('Regression failure: cleos '
-                        'failed to parse command line')
+    # Make sure that the command failed because of the connection error,
+    # not the command line parsing error.
+    assert(b'Failed to connect to nodeos' in completed_process.stderr)
 
 
 try:
