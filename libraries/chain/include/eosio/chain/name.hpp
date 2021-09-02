@@ -36,6 +36,33 @@ namespace eosio { namespace chain {
           name |= char_to_symbol(str[12]) & 0x0F;
       return name;
    }
+   
+   // true if std::string can be converted to name
+   static bool is_string_valid_name(std::string_view str)
+   {
+      size_t slen = str.size();
+      if( slen > 13)
+         return false;
+
+      size_t len = (slen <= 12) ? slen : 12;
+      for( size_t i = 0; i < len; ++i ) {
+         char c = str[i];
+         if ((c >= 'a' && c <= 'z') || (c >= '1' && c <= '5') || (c == '.'))
+            continue;
+         else
+            return false;
+      }
+
+      if( slen == 13) {
+         char c = str[12];
+         if ((c >= 'a' && c <= 'j') || (c >= '1' && c <= '5') || (c == '.'))
+            return true;
+         else
+            return false;
+      }
+
+      return true;
+   }
 
 #define N(X) eosio::chain::string_to_name(#X)
 
