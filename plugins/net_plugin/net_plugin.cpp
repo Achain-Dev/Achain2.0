@@ -320,6 +320,7 @@ namespace eosio {
     */
    constexpr uint16_t proto_base = 0;
    constexpr uint16_t proto_explicit_sync = 1;
+   constexpr uint16_t proto_block_id_notify = 2;     // reserved. feature was removed. next net_version should be 3
 
    constexpr uint16_t net_version = proto_explicit_sync;
 
